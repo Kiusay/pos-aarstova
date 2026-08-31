@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import type { Pedido, DetallePedido, EstadoPago, Cliente } from '@/lib/types';
+import { ClienteSearchPicker } from '@/components/ui/ClienteSearchPicker';
 
 type PedidoMesero = Pedido & {
   detalle: DetallePedido[];
@@ -610,26 +611,16 @@ export default function MeseroPage() {
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">🔍 Buscar / Cargar de Clientes Registrados</label>
-                <select
-                  className="form-select"
-                  onChange={(e) => {
-                    const id = e.target.value;
-                    const found = listaClientes.find((c) => c.id === id);
-                    if (found) {
-                      setClienteNombre(found.nombre || '');
-                      setClienteTelefono(found.telefono || '');
-                      setClienteDireccion(found.direccion || '');
+                <ClienteSearchPicker
+                  clientes={listaClientes}
+                  onSelectCliente={(c) => {
+                    if (c) {
+                      setClienteNombre(c.nombre || '');
+                      setClienteTelefono(c.telefono || '');
+                      setClienteDireccion(c.direccion || '');
                     }
                   }}
-                >
-                  <option value="">-- Cargar cliente registrado existente --</option>
-                  {listaClientes.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nombre} ({c.telefono || 'Sin tel'}) {c.barrio ? `- Barrio ${c.barrio}` : ''}
-                    </option>
-                  ))}
-                </select>
+                />
               </div>
 
               <div className="form-group">

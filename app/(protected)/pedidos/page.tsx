@@ -13,6 +13,7 @@ import {
   EstadoPedido,
   EstadoPago
 } from '@/lib/types';
+import { ClienteSearchPicker } from '@/components/ui/ClienteSearchPicker';
 import jsPDF from 'jspdf';
 
 interface CartItem {
@@ -722,21 +723,19 @@ export default function PedidosPage() {
               {/* Datos del cliente (Aplica para Mesa y Domicilio) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
                 <div className="form-group">
-                  <label className="form-label">🔍 Buscar / Seleccionar Cliente Registrado (Opcional)</label>
-                  <select
-                    className="form-select"
-                    value={clienteId}
-                    onChange={(e) => {
-                      const id = e.target.value;
-                      setClienteId(id);
-                      const selected = clientes.find((c) => c.id === id);
-                      if (selected) {
-                        setClienteNombreRapido(selected.nombre || '');
-                        setClienteTelefonoRapido(selected.telefono || '');
-                        setDireccionEntrega(selected.direccion || '');
-                        setBarrioEntrega(selected.barrio || '');
-                        setNotasEntrega(selected.notas_entrega || '');
+                  <ClienteSearchPicker
+                    clientes={clientes}
+                    selectedClienteId={clienteId}
+                    onSelectCliente={(c) => {
+                      if (c) {
+                        setClienteId(c.id);
+                        setClienteNombreRapido(c.nombre || '');
+                        setClienteTelefonoRapido(c.telefono || '');
+                        setDireccionEntrega(c.direccion || '');
+                        setBarrioEntrega(c.barrio || '');
+                        setNotasEntrega(c.notas_entrega || '');
                       } else {
+                        setClienteId('');
                         setClienteNombreRapido('');
                         setClienteTelefonoRapido('');
                         setDireccionEntrega('');
@@ -744,14 +743,15 @@ export default function PedidosPage() {
                         setNotasEntrega('');
                       }
                     }}
-                  >
-                    <option value="">-- Buscar por nombre, teléfono o barrio --</option>
-                    {clientes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre} ({c.telefono || 'Sin tel'}) {c.barrio ? `- Barrio ${c.barrio}` : ''}
-                      </option>
-                    ))}
-                  </select>
+                    onClear={() => {
+                      setClienteId('');
+                      setClienteNombreRapido('');
+                      setClienteTelefonoRapido('');
+                      setDireccionEntrega('');
+                      setBarrioEntrega('');
+                      setNotasEntrega('');
+                    }}
+                  />
                 </div>
 
                 {!clienteId && (
