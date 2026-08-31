@@ -210,7 +210,7 @@ function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: Ord
       ? `Mesa ${pedido.mesa?.numero ?? pedido.mesa_id?.slice(0, 4)}`
       : pedido.cliente?.nombre ?? pedido.cliente_nombre_rapido ?? 'Cliente';
 
-  const rondas = pedido.detalle.reduce<Record<number, DetallePedido[]>>((acc, item) => {
+  const rondas = (pedido.detalle || []).reduce<Record<number, DetallePedido[]>>((acc, item) => {
     (acc[item.ronda] = acc[item.ronda] ?? []).push(item);
     return acc;
   }, {});
@@ -310,7 +310,7 @@ function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: Ord
             </ul>
           </div>
         ))}
-        {pedido.detalle.length === 0 && (
+        {(pedido.detalle || []).length === 0 && (
           <p className="text-muted" style={{ textAlign: 'center', padding: '8px 0' }}>
             Sin ítems
           </p>

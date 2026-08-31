@@ -300,8 +300,7 @@ export default function PedidosPage() {
             estado_item: 'enviado_cocina',
             cantidad: item.cantidad,
             modificaciones: item.modificaciones || null,
-            precio_unitario: item.precio_unitario,
-            subtotal: item.precio_unitario * item.cantidad
+            precio_unitario: item.precio_unitario
           });
 
         if (errDet) {
