@@ -145,6 +145,9 @@ export async function POST(request: Request) {
     }
 
     if (dbErr) {
+      if (dbErr.message.includes('usuarios_rol_check')) {
+        return NextResponse.json({ error: 'Falta actualizar la restricción de roles en Supabase SQL Editor. Ejecuta: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_rol_check; ALTER TABLE usuarios ADD CONSTRAINT usuarios_rol_check CHECK (rol IN (\'admin\', \'staff\', \'chef\', \'mesero\', \'domiciliario\'));' }, { status: 400 });
+      }
       return NextResponse.json({ error: `Error al actualizar usuario: ${dbErr.message}` }, { status: 400 });
     }
 
