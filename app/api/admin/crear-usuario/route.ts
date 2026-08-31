@@ -48,7 +48,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Si no hay serviceRoleKey, intentar signUp normal
+    // 2. Si no hay serviceRoleKey o falló admin, intentar signUp normal
     if (!newUserId) {
       const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({
         email: finalEmail,
@@ -104,7 +104,7 @@ export async function POST(request: Request) {
     };
 
     // 4. Insertar/Upsert en public.usuarios
-    const payload: any = {
+    const corePayload: any = {
       id: newUserId,
       nombre: cleanUsername,
       correo: finalEmail,
@@ -114,16 +114,24 @@ export async function POST(request: Request) {
       permisos: permisosMap[rol] || permisosMap.mesero
     };
 
-    if (nombreCompleto) payload.nombre_completo = nombreCompleto.trim();
-    if (telefono) payload.telefono = telefono.trim();
-    if (cedula) payload.cedula = cedula.trim();
-    if (direccion) payload.direccion = direccion.trim();
+    const fullPayload: any = { ...corePayload };
+    if (nombreCompleto?.trim()) fullPayload.nombre_completo = nombreCompleto.trim();
+    if (telefono?.trim()) fullPayload.telefono = telefono.trim();
+    if (cedula?.trim()) fullPayload.cedula = cedula.trim();
+    if (direccion?.trim()) fullPayload.direccion = direccion.trim();
 
-    const { error: dbErr } = await supabaseClient.from('usuarios').upsert(payload);
+    // Intentar con campos opcionales si existen
+    let { error: dbErr } = await supabaseClient.from('usuarios').upsert(fullPayload);
+
+    // Si falla porque alguna columna opcional no existe en el esquema de la BD, reintentar con campos base
+    if (dbErr && (dbErr.message.includes('column') || dbErr.message.includes('schema cache'))) {
+      const retry = await supabaseClient.from('usuarios').upsert(corePayload);
+      dbErr = retry.error;
+    }
 
     if (dbErr) {
       return NextResponse.json({
-        error: `Error en BD (${dbErr.message}). Si falta ejecutar el SQL en Supabase, ejecuta: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
+        error: `Error en BD (${dbErr.message}). Si falta ejecutar el SQL en Supabase, ejecuta en SQL Editor: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
       }, { status: 400 });
     }
 
