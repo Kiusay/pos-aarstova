@@ -4,6 +4,15 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { Usuario, Permisos, SesionUsuario } from '@/lib/types';
 
+const ADMIN_PERMISOS: Permisos = {
+  menu_ver: true, menu_editar: true, menu_whatsapp: true,
+  pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
+  kds_ver: true, domicilios_propios: true, domicilios_todos: true,
+  clientes_buscar: true, clientes_editar: true,
+  compras_ver: true, compras_editar: true,
+  caja: true, reportes: true, admin: true
+};
+
 const SesionContext = createContext<SesionUsuario | null>(null);
 
 export function SesionProvider({ children }: { children: React.ReactNode }) {
@@ -13,34 +22,66 @@ export function SesionProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const cargarUsuario = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { setLoading(false); return; }
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          setSesion(null);
+          setLoading(false);
+          return;
+        }
 
-      const { data: usuario } = await supabase
-        .from('usuarios')
-        .select('*')
-        .eq('id', user.id)
-        .single();
+        const { data: usuario } = await supabase
+          .from('usuarios')
+          .select('*')
+          .eq('id', user.id)
+          .maybeSingle();
 
-      if (usuario) {
-        const permisos = usuario.permisos as Permisos;
-        setSesion({
-          usuario: usuario as Usuario,
-          permisos,
-          tienePermiso: (permiso) => permisos[permiso] === true,
-        });
+        if (usuario) {
+          const permisos = (usuario.permisos as Permisos) || ADMIN_PERMISOS;
+          setSesion({
+            usuario: usuario as Usuario,
+            permisos,
+            tienePermiso: (permiso) => permisos[permiso] === true,
+          });
+        } else {
+          // Fallback para administrador inicial si aun no existe fila en usuarios
+          const fallbackUsuario: Usuario = {
+            id: user.id,
+            nombre: user.user_metadata?.nombre || splitEmailName(user.email),
+            correo: user.email || '',
+            rol: 'admin',
+            activo: true,
+            es_admin_principal: true,
+            permisos: ADMIN_PERMISOS,
+            avatar_url: null,
+            created_at: new Date().toISOString()
+          };
+          setSesion({
+            usuario: fallbackUsuario,
+            permisos: ADMIN_PERMISOS,
+            tienePermiso: () => true
+          });
+        }
+      } catch (err) {
+        console.error('Error cargando sesión:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     cargarUsuario();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_, session) => {
-        if (!session) { setSesion(null); setLoading(false); }
-        else cargarUsuario();
+        if (!session) {
+          setSesion(null);
+          setLoading(false);
+        } else {
+          cargarUsuario();
+        }
       }
     );
+
     return () => subscription.unsubscribe();
   }, []);
 
@@ -68,9 +109,13 @@ export function SesionProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+function splitEmailName(email?: string) {
+  if (!email) return 'Usuario';
+  return email.split('@')[0];
+}
+
 export function useSesion() {
-  const ctx = useContext(SesionContext);
-  return ctx;
+  return useContext(SesionContext);
 }
 
 export function useSesionRequerida() {
