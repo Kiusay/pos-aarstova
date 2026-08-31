@@ -209,6 +209,7 @@ function TabUsuarios({
   const [filtroActivo, setFiltroActivo] = useState<'todos' | 'activos' | 'inactivos'>('todos');
 
   // Modal states
+  const [modalVer, setModalVer] = useState<Usuario | null>(null);
   const [modalEditar, setModalEditar] = useState<Usuario | null>(null);
   const [modalPermisos, setModalPermisos] = useState<Usuario | null>(null);
   const [modalInvitar, setModalInvitar] = useState(false);
@@ -292,8 +293,8 @@ function TabUsuarios({
             <table className="nm-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Correo</th>
+                  <th>Usuario / Alias</th>
+                  <th>Contacto / Datos</th>
                   <th>Rol</th>
                   <th>Activo</th>
                   <th>Acciones</th>
@@ -317,7 +318,12 @@ function TabUsuarios({
                         </span>
                       </div>
                     </td>
-                    <td style={{ color: 'var(--text-secondary)', fontSize: '0.82rem' }}>{u.correo}</td>
+                    <td style={{ fontSize: '0.82rem' }}>
+                      <div style={{ fontWeight: 500 }}>{u.nombre_completo || u.nombre}</div>
+                      <div style={{ color: 'var(--text-muted)', fontSize: '0.75rem' }}>
+                        {u.telefono ? `📞 ${u.telefono}` : u.correo}
+                      </div>
+                    </td>
                     <td>
                       <span className={`badge ${ROL_BADGE[u.rol]}`}>
                         {ROL_LABELS[u.rol]}
@@ -334,7 +340,14 @@ function TabUsuarios({
                       <div className="flex gap-2">
                         <button
                           className="btn btn-neutral btn-icon btn-sm"
-                          title="Editar usuario"
+                          title="Ver detalle completo"
+                          onClick={() => setModalVer(u)}
+                        >
+                          👁️
+                        </button>
+                        <button
+                          className="btn btn-neutral btn-icon btn-sm"
+                          title="Editar datos y clave"
                           onClick={() => setModalEditar(u)}
                         >
                           ✏️
@@ -372,6 +385,14 @@ function TabUsuarios({
           )}
         </div>
       </div>
+
+      {/* Modal: Ver detalle usuario */}
+      {modalVer && (
+        <ModalVerUsuario
+          usuario={modalVer}
+          onClose={() => setModalVer(null)}
+        />
+      )}
 
       {/* Modal: Editar usuario */}
       {modalEditar && (
@@ -428,6 +449,76 @@ function TabUsuarios({
   );
 }
 
+// ─── Modal: Ver Detalle Completo de Usuario ───────────────────
+function ModalVerUsuario({
+  usuario,
+  onClose,
+}: {
+  usuario: Usuario;
+  onClose: () => void;
+}) {
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 480 }}>
+        <div className="modal__header">
+          <span className="modal__title">👤 Información del Usuario</span>
+          <button className="modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ background: 'var(--bg-elevated)', padding: '12px', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="user-avatar" style={{ width: 48, height: 48, fontSize: '1.2rem' }}>
+              {getInitials(usuario.nombre)}
+            </div>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 600 }}>{usuario.nombre}</h3>
+              {usuario.nombre_completo && (
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {usuario.nombre_completo}
+                </span>
+              )}
+              <div style={{ marginTop: '4px' }}>
+                <span className={`badge ${ROL_BADGE[usuario.rol]}`}>{ROL_LABELS[usuario.rol]}</span>
+                {usuario.activo ? (
+                  <span className="badge badge-green" style={{ marginLeft: 6 }}>Activo</span>
+                ) : (
+                  <span className="badge badge-neutral" style={{ marginLeft: 6 }}>Inactivo</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.88rem' }}>
+            <div className="card" style={{ padding: '10px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>📞 Teléfono / Celular</span>
+              <strong>{usuario.telefono || 'No registrado'}</strong>
+            </div>
+
+            <div className="card" style={{ padding: '10px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>🆔 Cédula / DNI</span>
+              <strong>{usuario.cedula || 'No registrado'}</strong>
+            </div>
+          </div>
+
+          <div className="card" style={{ padding: '10px', fontSize: '0.88rem' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>🏠 Dirección de Residencia</span>
+            <strong>{usuario.direccion || 'No registrada'}</strong>
+          </div>
+
+          <div className="card" style={{ padding: '10px', fontSize: '0.88rem' }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>📧 Correo / Identificador Auth</span>
+            <strong style={{ wordBreak: 'break-all' }}>{usuario.correo}</strong>
+          </div>
+        </div>
+
+        <div className="flex justify-end" style={{ marginTop: '16px' }}>
+          <button className="btn btn-neutral" onClick={onClose}>Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Modal: Editar Usuario ─────────────────────────────────────
 function ModalEditarUsuario({
   usuario,
@@ -443,48 +534,140 @@ function ModalEditarUsuario({
   showToast: (msg: string, type?: ToastType) => void;
 }) {
   const [nombre, setNombre] = useState(usuario.nombre);
+  const [nombreCompleto, setNombreCompleto] = useState(usuario.nombre_completo || '');
+  const [telefono, setTelefono] = useState(usuario.telefono || '');
+  const [cedula, setCedula] = useState(usuario.cedula || '');
+  const [direccion, setDireccion] = useState(usuario.direccion || '');
+  const [password, setPassword] = useState('');
   const [rol, setRol] = useState<Rol>(usuario.rol);
   const [activo, setActivo] = useState(usuario.activo);
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
-    if (!nombre.trim()) { showToast('El nombre es requerido', 'warning'); return; }
+    if (!nombre.trim()) { showToast('El nombre de usuario es requerido', 'warning'); return; }
     setSaving(true);
-    const { error } = await supabase
-      .from('usuarios')
-      .update({ nombre: nombre.trim(), rol, activo })
-      .eq('id', usuario.id);
-    setSaving(false);
-    if (error) showToast('Error: ' + error.message, 'error');
-    else onSaved();
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
+      const res = await fetch('/api/admin/actualizar-usuario', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({
+          userId: usuario.id,
+          nombre: nombre.trim(),
+          nombreCompleto: nombreCompleto.trim(),
+          telefono: telefono.trim(),
+          cedula: cedula.trim(),
+          direccion: direccion.trim(),
+          password: password || undefined,
+          rol,
+          activo
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || data.error) {
+        showToast(data.error || 'Error al actualizar usuario', 'error');
+      } else {
+        showToast('✅ Usuario actualizado correctamente!', 'success');
+        onSaved();
+      }
+    } catch (err: any) {
+      showToast('Error inesperado: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal">
+      <div className="modal" style={{ maxWidth: 480 }}>
         <div className="modal__header">
-          <span className="modal__title">✏️ Editar Usuario</span>
+          <span className="modal__title">✏️ Editar Usuario / Clave</span>
           <button className="modal__close" onClick={onClose}>✕</button>
         </div>
         <div className="flex flex-col gap-4">
           <div className="form-group">
-            <label className="form-label">Nombre completo</label>
+            <label className="form-label">Nombre de Usuario / Alias *</label>
             <input
               className="form-input"
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
-              placeholder="Nombre del usuario"
+              placeholder="Alias (para iniciar sesión)"
             />
           </div>
+
+          <div className="form-group">
+            <label className="form-label">Nombre Completo del Empleado</label>
+            <input
+              className="form-input"
+              value={nombreCompleto}
+              onChange={(e) => setNombreCompleto(e.target.value)}
+              placeholder="Ej: Pedro Antonio Pérez"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="form-group">
+              <label className="form-label">Teléfono / Celular</label>
+              <input
+                className="form-input"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                placeholder="Ej: 300 123 4567"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Cédula / DNI</label>
+              <input
+                className="form-input"
+                value={cedula}
+                onChange={(e) => setCedula(e.target.value)}
+                placeholder="Ej: 1098765432"
+              />
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Dirección de Residencia</label>
+            <input
+              className="form-input"
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
+              placeholder="Dirección del empleado"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">🔒 Reestablecer Contraseña / Clave (Opcional)</label>
+            <input
+              className="form-input"
+              type="text"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Escribe nueva clave solo si deseas cambiarla (Ej: 123456)"
+            />
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '2px', display: 'block' }}>
+              💡 Si el usuario no podía ingresar, escribe aquí su clave para sincronizar su acceso inmediatamente.
+            </span>
+          </div>
+
           <div className="form-group">
             <label className="form-label">Rol</label>
             <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
-              <option value="admin">Admin</option>
-              <option value="chef">Chef</option>
-              <option value="mesero">Mesero</option>
-              <option value="domiciliario">Domiciliario</option>
+              <option value="mesero">🪑 Mesero</option>
+              <option value="chef">👨‍🍳 Chef</option>
+              <option value="domiciliario">🛵 Domiciliario</option>
+              <option value="admin">⚙️ Administrador</option>
             </select>
           </div>
+
           <div className="form-group">
             <label className="form-label">Estado</label>
             <label className="toggle-wrap">
@@ -498,10 +681,11 @@ function ModalEditarUsuario({
               </span>
             </label>
           </div>
+
           <div className="flex gap-3" style={{ marginTop: 'var(--space-2)' }}>
             <button className="btn btn-neutral flex-1" onClick={onClose}>Cancelar</button>
             <button className="btn btn-primary flex-1" onClick={handleSave} disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar'}
+              {saving ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>
         </div>

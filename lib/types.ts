@@ -86,6 +86,7 @@ export interface Usuario {
   es_admin_principal: boolean;
   permisos:           Permisos;
   avatar_url:         string | null;
+  nombre_completo?:   string | null;
   telefono?:          string | null;
   cedula?:            string | null;
   direccion?:         string | null;

@@ -137,11 +137,11 @@ export default function LoginPage() {
           finalEmail = userRow.correo;
         } else {
           const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
-          finalEmail = `${cleanSlug}@aarstova.com`;
+          finalEmail = `${cleanSlug}@aarstova.local`;
         }
       } catch (err) {
         const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
-        finalEmail = `${cleanSlug}@aarstova.com`;
+        finalEmail = `${cleanSlug}@aarstova.local`;
       }
     }
 

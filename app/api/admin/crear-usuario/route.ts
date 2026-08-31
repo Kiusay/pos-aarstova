@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
     const cleanUsername = nombre.trim();
     const cleanSlug = cleanUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const finalEmail = correo?.trim() || `${cleanSlug || 'usuario'}${Math.floor(1000 + Math.random() * 9000)}@aarstova.local`;
+    const finalEmail = correo?.trim() || `${cleanSlug || 'usuario'}@aarstova.local`;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
