@@ -5,6 +5,8 @@ import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import { Pedido, Usuario } from '@/lib/types';
 
+type TipoPagoDomicilio = 'prepagado' | 'efectivo' | 'transferencia' | 'fiado';
+
 export default function DomiciliosPage() {
   const sesion = useSesion();
   const supabase = createClient();
@@ -14,6 +16,12 @@ export default function DomiciliosPage() {
   const [loading, setLoading] = useState(true);
   const [filtroEstado, setFiltroEstado] = useState<string>('activos');
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
+
+  // Modal para confirmar entrega y cobro
+  const [modalEntrega, setModalEntrega] = useState<Pedido | null>(null);
+  const [tipoPago, setTipoPago] = useState<TipoPagoDomicilio>('efectivo');
+  const [notaTransferencia, setNotaTransferencia] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const canSeeAll = sesion?.usuario?.rol === 'admin' || sesion?.tienePermiso('domicilios_todos') || sesion?.tienePermiso('admin');
   const canSeeOwn = sesion?.tienePermiso('domicilios_propios');
@@ -64,17 +72,75 @@ export default function DomiciliosPage() {
     setLoading(false);
   };
 
-  const actualizarEstadoPedido = async (id: string, nuevoEstado: string, nuevoEstadoPago?: string) => {
-    const payload: any = { estado: nuevoEstado };
-    if (nuevoEstado === 'entregado') payload.fecha_entregado = new Date().toISOString();
-    if (nuevoEstadoPago) payload.estado_pago = nuevoEstadoPago;
+  // Iniciar recorrido sólo si está listo en cocina
+  const handleIniciarRecorrido = async (pedido: Pedido) => {
+    if (pedido.estado !== 'listo') {
+      setMensaje({ tipo: 'error', texto: '⚠️ El pedido aún no ha sido marcado como LISTO en cocina.' });
+      return;
+    }
 
-    const { error } = await supabase.from('pedidos').update(payload).eq('id', id);
+    setSaving(true);
+    const { error } = await supabase
+      .from('pedidos')
+      .update({ estado: 'en_camino' })
+      .eq('id', pedido.id);
+
+    setSaving(false);
     if (error) {
-      setMensaje({ tipo: 'error', texto: 'No se pudo actualizar el estado.' });
+      setMensaje({ tipo: 'error', texto: 'Error al iniciar recorrido: ' + error.message });
     } else {
-      setMensaje({ tipo: 'exito', texto: `Pedido actualizado a ${nuevoEstado}.` });
+      setMensaje({ tipo: 'exito', texto: `🛵 Pedido #${pedido.numero_pedido} en camino.` });
       cargarDomicilios();
+    }
+  };
+
+  // Abrir modal para finalizar entrega
+  const handleOpenEntregaModal = (pedido: Pedido) => {
+    setModalEntrega(pedido);
+    if (pedido.estado_pago === 'pagado') {
+      setTipoPago('prepagado');
+    } else {
+      setTipoPago('efectivo');
+    }
+    setNotaTransferencia(pedido.cuenta_destino || '');
+  };
+
+  // Confirmar entrega y cobro
+  const handleConfirmarEntrega = async () => {
+    if (!modalEntrega) return;
+    setSaving(true);
+
+    try {
+      const isPagado = tipoPago !== 'fiado';
+      const payload: Record<string, any> = {
+        estado: 'entregado',
+        fecha_entregado: new Date().toISOString(),
+        estado_pago: isPagado ? 'pagado' : 'fiado',
+        monto_efectivo: isPagado && tipoPago === 'efectivo' ? modalEntrega.total : 0,
+        monto_transferencia: isPagado && (tipoPago === 'transferencia' || tipoPago === 'prepagado') ? modalEntrega.total : 0,
+        cuenta_destino: isPagado && (tipoPago === 'transferencia' || tipoPago === 'prepagado') ? (notaTransferencia.trim() || null) : null,
+      };
+
+      let { error } = await supabase.from('pedidos').update(payload).eq('id', modalEntrega.id);
+
+      // Fallback si la columna cuenta_destino tuviera inconsistencia en schema cache
+      if (error && error.message?.includes('cuenta_destino')) {
+        delete payload.cuenta_destino;
+        const retry = await supabase.from('pedidos').update(payload).eq('id', modalEntrega.id);
+        error = retry.error;
+      }
+
+      if (error) {
+        setMensaje({ tipo: 'error', texto: 'Error al finalizar entrega: ' + error.message });
+      } else {
+        setMensaje({ tipo: 'exito', texto: `✅ Domicilio #${modalEntrega.numero_pedido} marcado como ENTREGADO (${isPagado ? 'PAGADO' : 'FIADO'})` });
+        setModalEntrega(null);
+        cargarDomicilios();
+      }
+    } catch (err: any) {
+      setMensaje({ tipo: 'error', texto: 'Error inesperado: ' + err.message });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -101,7 +167,7 @@ export default function DomiciliosPage() {
     );
   }
 
-  const domiciliosFiltrados = pedidos.filter(p => {
+  const domiciliosFiltrados = pedidos.filter((p) => {
     if (filtroEstado === 'activos') return p.estado !== 'entregado' && p.estado !== 'cancelado';
     if (filtroEstado === 'entregados') return p.estado === 'entregado';
     return true;
@@ -130,19 +196,19 @@ export default function DomiciliosPage() {
           className={`tab-btn ${filtroEstado === 'activos' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('activos')}
         >
-          🛵 Activos / En camino ({pedidos.filter(p => p.estado !== 'entregado' && p.estado !== 'cancelado').length})
+          🛵 Activos / En camino ({pedidos.filter((p) => p.estado !== 'entregado' && p.estado !== 'cancelado').length})
         </button>
         <button
           className={`tab-btn ${filtroEstado === 'entregados' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('entregados')}
         >
-          ✅ Entregados hoy
+          ✅ Entregados hoy ({pedidos.filter((p) => p.estado === 'entregado').length})
         </button>
         <button
           className={`tab-btn ${filtroEstado === 'todos' ? 'active' : ''}`}
           onClick={() => setFiltroEstado('todos')}
         >
-          📁 Todos
+          📁 Todos ({pedidos.length})
         </button>
       </div>
 
@@ -165,20 +231,24 @@ export default function DomiciliosPage() {
             const linkWA = `https://wa.me/57${clienteTel.replace(/\D/g, '')}?text=${encodeURIComponent(textWA)}`;
             const linkMap = `https://maps.google.com/?q=${encodeURIComponent(`${direccion}, ${barrio}`)}`;
 
+            const isListo = p.estado === 'listo';
+            const isEnCamino = p.estado === 'en_camino';
+            const isEntregado = p.estado === 'entregado';
+
             return (
               <div
                 key={p.id}
                 className="nm-card"
                 style={{
                   padding: '1.25rem',
-                  borderLeft: `5px solid var(--status-${p.estado === 'entregado' ? 'done' : p.estado === 'en_camino' ? 'transit' : 'pending'})`
+                  borderLeft: `5px solid var(--status-${isEntregado ? 'done' : isEnCamino ? 'transit' : isListo ? 'ready' : 'pending'})`,
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>#{p.numero_pedido}</span>
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <span className={`badge badge-${p.estado === 'entregado' ? 'done' : p.estado === 'en_camino' ? 'transit' : 'pending'}`}>
-                      {p.estado}
+                    <span className={`badge badge-${isEntregado ? 'done' : isEnCamino ? 'transit' : isListo ? 'ready' : 'prep'}`}>
+                      {isListo ? '✅ LISTO' : isEnCamino ? '🛵 En camino' : isEntregado ? '🏁 Entregado' : '🔥 En Cocina'}
                     </span>
                     <span className={`badge badge-${p.estado_pago === 'pagado' ? 'success' : 'cancel'}`}>
                       {p.estado_pago === 'pagado' ? 'Pagado' : 'Cobrar'}
@@ -242,19 +312,34 @@ export default function DomiciliosPage() {
                     🗺️ Mapa
                   </a>
 
-                  {p.estado === 'pendiente' || p.estado === 'listo' ? (
-                    <button
-                      className="btn btn-sm btn-primary"
-                      onClick={() => actualizarEstadoPedido(p.id, 'en_camino')}
-                    >
-                      🛵 Salir a Domicilio
-                    </button>
-                  ) : null}
+                  {/* 1. Solo permite iniciar recorrido cuando cocina lo marque como LISTO */}
+                  {!isEnCamino && !isEntregado && (
+                    isListo ? (
+                      <button
+                        className="btn btn-sm btn-primary"
+                        onClick={() => handleIniciarRecorrido(p)}
+                        disabled={saving}
+                      >
+                        🛵 Iniciar Recorrido
+                      </button>
+                    ) : (
+                      <button
+                        className="btn btn-sm btn-neutral"
+                        disabled
+                        style={{ opacity: 0.65, cursor: 'not-allowed' }}
+                        title="Esperando que la cocina marque como listo"
+                      >
+                        ⏳ En Cocina (No listo)
+                      </button>
+                    )
+                  )}
 
-                  {p.estado === 'en_camino' && (
+                  {/* 2. Confirmar entrega con Modal de Cobro (Prepagado, Efectivo, Transferencia, Fiado) */}
+                  {(isEnCamino || isListo) && (
                     <button
                       className="btn btn-sm btn-success"
-                      onClick={() => actualizarEstadoPedido(p.id, 'entregado', 'pagado')}
+                      onClick={() => handleOpenEntregaModal(p)}
+                      disabled={saving}
                     >
                       ✅ Marcar Entregado
                     </button>
@@ -263,6 +348,94 @@ export default function DomiciliosPage() {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Modal para Confirmar Entrega y Medio de Pago */}
+      {modalEntrega && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalEntrega(null)}>
+          <div className="modal" style={{ maxWidth: '440px' }}>
+            <div className="modal__header">
+              <h3>🛵 Finalizar Entrega — Pedido #{modalEntrega.numero_pedido}</h3>
+              <button className="btn btn-sm btn-ghost" onClick={() => setModalEntrega(null)}>✕</button>
+            </div>
+            <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <div style={{ textAlign: 'center', background: 'var(--bg-elevated)', padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Monto a Cobrar:</span>
+                <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--orange-dark)' }}>
+                  ${modalEntrega.total.toLocaleString('es-CO')}
+                </div>
+                <div style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginTop: '4px' }}>
+                  👤 {modalEntrega.cliente?.nombre || modalEntrega.cliente_nombre_rapido || 'Cliente Domicilio'}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">¿Cómo se realizó el pago?</label>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input
+                      type="radio"
+                      name="tipoPagoDom"
+                      checked={tipoPago === 'prepagado'}
+                      onChange={() => setTipoPago('prepagado')}
+                    />
+                    <span>✅ Ya estaba pagado previamente (online / Nequi previo)</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input
+                      type="radio"
+                      name="tipoPagoDom"
+                      checked={tipoPago === 'efectivo'}
+                      onChange={() => setTipoPago('efectivo')}
+                    />
+                    <span>💵 Cobrado en efectivo al entregar</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input
+                      type="radio"
+                      name="tipoPagoDom"
+                      checked={tipoPago === 'transferencia'}
+                      onChange={() => setTipoPago('transferencia')}
+                    />
+                    <span>📲 Cobrado por transferencia al entregar</span>
+                  </label>
+
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.9rem' }}>
+                    <input
+                      type="radio"
+                      name="tipoPagoDom"
+                      checked={tipoPago === 'fiado'}
+                      onChange={() => setTipoPago('fiado')}
+                    />
+                    <span>⏳ Quedó debiendo / Fiado</span>
+                  </label>
+                </div>
+              </div>
+
+              {(tipoPago === 'transferencia' || tipoPago === 'prepagado') && (
+                <div className="form-group">
+                  <label className="form-label">Banco / Nota de Transferencia (Opcional)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={notaTransferencia}
+                    onChange={(e) => setNotaTransferencia(e.target.value)}
+                    placeholder="Ej: Nequi, Bancolombia, Daviplata, etc."
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="modal__footer">
+              <button className="btn btn-neutral" onClick={() => setModalEntrega(null)}>Cancelar</button>
+              <button className="btn btn-success" onClick={handleConfirmarEntrega} disabled={saving}>
+                {saving ? 'Guardando…' : '✅ Confirmar Entrega'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
