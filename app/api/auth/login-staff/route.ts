@@ -14,28 +14,46 @@ export async function POST(request: Request) {
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    // Cliente anon para consultar la BD
-    const supabaseAnon = createClient(supabaseUrl, anonKey, {
-      auth: { persistSession: false }
+    // Usar serviceRoleKey si está configurado para ignorar RLS en la búsqueda inicial
+    const keyToUse = serviceRoleKey || anonKey;
+    const supabaseClient = createClient(supabaseUrl, keyToUse, {
+      auth: { persistSession: false, autoRefreshToken: false }
     });
 
-    // 1. Buscar el usuario en public.usuarios por nombre (alias) o por correo
+    // 1. Buscar en public.usuarios (coincidencia por alias, correo o nombre completo)
     let userRow: any = null;
 
     if (cleanInput.includes('@')) {
-      const { data } = await supabaseAnon
+      const { data } = await supabaseClient
         .from('usuarios')
         .select('*')
         .eq('correo', cleanInput)
         .maybeSingle();
       userRow = data;
     } else {
-      const { data } = await supabaseAnon
+      // Coincidencia exacta o parcial ignorando mayúsculas/minúsculas
+      const { data: exact } = await supabaseClient
         .from('usuarios')
         .select('*')
         .ilike('nombre', cleanInput)
         .maybeSingle();
-      userRow = data;
+      userRow = exact;
+
+      if (!userRow) {
+        const { data: fuzzy } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .ilike('nombre', `%${cleanInput}%`);
+        if (fuzzy && fuzzy.length > 0) userRow = fuzzy[0];
+      }
+
+      if (!userRow) {
+        const { data: full } = await supabaseClient
+          .from('usuarios')
+          .select('*')
+          .ilike('nombre_completo', `%${cleanInput}%`);
+        if (full && full.length > 0) userRow = full[0];
+      }
     }
 
     if (!userRow) {
@@ -48,21 +66,15 @@ export async function POST(request: Request) {
 
     const targetEmail = userRow.correo || `${cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')}@aarstova.local`;
 
-    // 2. Si tenemos serviceRoleKey, auto-provisionar / auto-sincronizar el usuario en Auth si no existía
+    // 2. Si tenemos serviceRoleKey, auto-provisionar / auto-sincronizar la clave del usuario en Auth
     if (serviceRoleKey) {
-      const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-        auth: { persistSession: false, autoRefreshToken: false }
-      });
-
-      // Verificar / actualizar en Auth
-      const { error: updateErr } = await supabaseAdmin.auth.admin.updateUserById(userRow.id, {
+      const { error: updateErr } = await supabaseClient.auth.admin.updateUserById(userRow.id, {
         password: password,
         email_confirm: true
       });
 
-      // Si no existe en Auth (creado durante el límite de correos previo), crearlo ahora en Auth
-      if (updateErr && (updateErr.message.includes('User not found') || updateErr.message.includes('not found'))) {
-        await supabaseAdmin.auth.admin.createUser({
+      if (updateErr) {
+        await supabaseClient.auth.admin.createUser({
           id: userRow.id,
           email: targetEmail,
           password: password,
