@@ -691,17 +691,19 @@ export default function PedidosPage() {
 
               {/* Datos del cliente (Aplica para Mesa y Domicilio) */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Cliente Registrado (Opcional)</label>
-                  <select className="form-select" value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
-                    <option value="">-- Buscar / Seleccionar de la lista --</option>
-                    {clientes.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nombre} ({c.telefono}) - {c.barrio || 'Sin barrio'}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {sesion?.usuario?.rol !== 'mesero' && (
+                  <div className="form-group">
+                    <label className="form-label">Cliente Registrado (Opcional)</label>
+                    <select className="form-select" value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
+                      <option value="">-- Buscar / Seleccionar de la lista --</option>
+                      {clientes.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nombre} ({c.telefono}) - {c.barrio || 'Sin barrio'}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 {!clienteId && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>

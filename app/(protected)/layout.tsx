@@ -52,6 +52,7 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const tieneAcceso = (item: NavItem) => {
     if (item.alwaysShow) return true;
     if (!sesion || !item.permiso) return false;
+    if (sesion.usuario?.rol === 'mesero' && item.href === '/clientes') return false;
     return sesion.permisos[item.permiso as keyof typeof sesion.permisos] === true;
   };
 

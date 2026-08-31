@@ -1245,8 +1245,9 @@ export default function MenuPage() {
   const [config, setConfig] = useState<RestauranteConfig | null>(null);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const canEdit = sesion?.permisos.menu_editar === true;
-  const canWhatsApp = sesion?.permisos.menu_whatsapp === true;
+  const isMesero = sesion?.usuario?.rol === 'mesero';
+  const canEdit = !isMesero && sesion?.permisos.menu_editar === true;
+  const canWhatsApp = !isMesero && sesion?.permisos.menu_whatsapp === true;
 
   const fetchAll = useCallback(async () => {
     const [catRes, platosRes, pizarraRes, configRes] = await Promise.all([
@@ -1296,8 +1297,8 @@ export default function MenuPage() {
   }
 
   const tabs: { id: Tab; label: string; icon: string; visible: boolean }[] = [
-    { id: 'pizarra', label: 'Pizarra del Día', icon: '📋', visible: true },
-    { id: 'banco', label: 'Banco de Platos', icon: '🍽️', visible: true },
+    { id: 'pizarra', label: 'Pizarra del Día (Consulta)', icon: '📋', visible: true },
+    { id: 'banco', label: 'Banco de Platos', icon: '🍽️', visible: !isMesero },
     { id: 'whatsapp', label: 'Generador WhatsApp', icon: '💬', visible: canWhatsApp },
   ];
 

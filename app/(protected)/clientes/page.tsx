@@ -26,14 +26,27 @@ export default function ClientesPage() {
   const [saving, setSaving] = useState(false);
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
 
-  const canSearch = sesion?.tienePermiso('clientes_buscar');
-  const canEdit = sesion?.tienePermiso('clientes_editar');
+  const isMesero = sesion?.usuario?.rol === 'mesero';
+  const canSearch = !isMesero && sesion?.tienePermiso('clientes_buscar');
+  const canEdit = !isMesero && sesion?.tienePermiso('clientes_editar');
 
   useEffect(() => {
     if (canSearch) {
       cargarClientes();
     }
-  }, [sesion]);
+  }, [canSearch]);
+
+  if (isMesero || !canSearch) {
+    return (
+      <main className="main-content">
+        <div className="empty-state">
+          <span className="empty-state__icon">🔒</span>
+          <p className="empty-state__title">Acceso Denegado</p>
+          <p className="empty-state__desc">El directorio completo de clientes está protegido y reservado a Administración y Caja.</p>
+        </div>
+      </main>
+    );
+  }
 
   const cargarClientes = async () => {
     setLoading(true);
