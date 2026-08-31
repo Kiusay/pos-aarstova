@@ -116,53 +116,49 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
 
     const supabase = createClient();
-    let finalEmail = email.trim();
+    const cleanInput = email.trim();
 
-    // Si el usuario ingresó solo su nombre o alias sin '@', buscar su correo correspondiente
-    if (!finalEmail.includes('@')) {
-      try {
-        const { data: userRow } = await supabase
-          .from('usuarios')
-          .select('correo')
-          .ilike('nombre', finalEmail)
-          .maybeSingle();
+    try {
+      // 1. Auto-sincronizar el usuario en el servidor si fue creado sin Auth previamente
+      const syncRes = await fetch('/api/auth/login-staff', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuarioInput: cleanInput, password })
+      });
 
-        if (userRow?.correo) {
-          finalEmail = userRow.correo;
-        } else {
-          const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
-          finalEmail = `${cleanSlug}@aarstova.local`;
-        }
-      } catch (err) {
-        const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
-        finalEmail = `${cleanSlug}@aarstova.local`;
+      const syncData = await syncRes.json();
+
+      if (!syncRes.ok || syncData.error) {
+        setError(syncData.error || 'Usuario o contraseña incorrectos.');
+        setLoading(false);
+        return;
       }
-    }
 
-    const { error: authError } = await supabase.auth.signInWithPassword({
-      email: finalEmail,
-      password,
-    });
+      const emailToLogin = syncData.email || cleanInput;
 
-    if (authError) {
-      if (authError.message === 'Invalid login credentials') {
-        setError('Usuario/correo o contraseña incorrectos. Intenta de nuevo.');
-      } else if (authError.message.toLowerCase().includes('email not confirmed')) {
-        setError('El correo no ha sido confirmado. Puedes desactivar "Confirm email" en Supabase o crear el usuario desde el panel de Admin.');
-      } else {
-        setError(authError.message);
+      // 2. Iniciar sesión en el cliente con Supabase Auth
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: emailToLogin,
+        password,
+      });
+
+      if (authError) {
+        setError('Usuario o contraseña incorrectos. Intenta de nuevo.');
+        setLoading(false);
+        return;
       }
+
+      router.push('/');
+    } catch (err: any) {
+      setError('Error al conectar con el servidor: ' + err.message);
       setLoading(false);
-      return;
     }
-
-    router.push('/');
   }
 
   return (
