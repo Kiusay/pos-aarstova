@@ -211,6 +211,7 @@ function TabUsuarios({
   const [modalEditar, setModalEditar] = useState<Usuario | null>(null);
   const [modalPermisos, setModalPermisos] = useState<Usuario | null>(null);
   const [modalInvitar, setModalInvitar] = useState(false);
+  const [modalCrear, setModalCrear] = useState(false);
   const [modalEliminar, setModalEliminar] = useState<Usuario | null>(null);
 
   const fetchUsuarios = useCallback(async () => {
@@ -263,8 +264,11 @@ function TabUsuarios({
               </button>
             ))}
           </div>
+          <button className="btn btn-success btn-sm" onClick={() => setModalCrear(true)}>
+            ➕ Crear usuario
+          </button>
           <button className="btn btn-primary btn-sm" onClick={() => setModalInvitar(true)}>
-            ✉️ Invitar usuario
+            ✉️ Invitar por email
           </button>
         </div>
       </div>
@@ -386,6 +390,16 @@ function TabUsuarios({
           supabase={supabase}
           onClose={() => setModalPermisos(null)}
           onSaved={() => { setModalPermisos(null); fetchUsuarios(); showToast('Permisos actualizados', 'success'); }}
+          showToast={showToast}
+        />
+      )}
+
+      {/* Modal: Crear usuario directo */}
+      {modalCrear && (
+        <ModalCrearUsuarioDirecto
+          supabase={supabase}
+          onClose={() => setModalCrear(false)}
+          onCreated={() => { setModalCrear(false); fetchUsuarios(); showToast('Usuario creado con éxito', 'success'); }}
           showToast={showToast}
         />
       )}
@@ -1323,6 +1337,165 @@ function TabMesas({
               </tbody>
             </table>
           )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: Crear Usuario Directo ─────────────────────────────
+function ModalCrearUsuarioDirecto({
+  supabase,
+  onClose,
+  onCreated,
+  showToast,
+}: {
+  supabase: ReturnType<typeof createClient>;
+  onClose: () => void;
+  onCreated: () => void;
+  showToast: (msg: string, type?: ToastType) => void;
+}) {
+  const [nombre, setNombre] = useState('');
+  const [correo, setCorreo] = useState('');
+  const [password, setPassword] = useState('');
+  const [rol, setRol] = useState<Rol>('mesero');
+  const [saving, setSaving] = useState(false);
+
+  // Helper para permisos por defecto según rol
+  function getPermisosPorRol(r: Rol): Permisos {
+    switch (r) {
+      case 'admin':
+        return {
+          menu_ver: true, menu_editar: true, menu_whatsapp: true,
+          pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
+          kds_ver: true, domicilios_propios: true, domicilios_todos: true,
+          clientes_buscar: true, clientes_editar: true,
+          compras_ver: true, compras_editar: true,
+          caja: true, reportes: true, admin: true
+        };
+      case 'chef':
+        return {
+          menu_ver: true, menu_editar: true, menu_whatsapp: true,
+          pedidos_crear: false, pedidos_ver_propios: false, pedidos_ver_todos: true,
+          kds_ver: true, domicilios_propios: false, domicilios_todos: true,
+          clientes_buscar: false, clientes_editar: false,
+          compras_ver: true, compras_editar: true,
+          caja: false, reportes: false, admin: false
+        };
+      case 'mesero':
+        return {
+          menu_ver: true, menu_editar: false, menu_whatsapp: false,
+          pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
+          kds_ver: true, domicilios_propios: false, domicilios_todos: false,
+          clientes_buscar: true, clientes_editar: false,
+          compras_ver: false, compras_editar: false,
+          caja: false, reportes: false, admin: false
+        };
+      case 'domiciliario':
+        return {
+          menu_ver: false, menu_editar: false, menu_whatsapp: false,
+          pedidos_crear: false, pedidos_ver_propios: false, pedidos_ver_todos: false,
+          kds_ver: false, domicilios_propios: true, domicilios_todos: false,
+          clientes_buscar: false, clientes_editar: false,
+          compras_ver: false, compras_editar: false,
+          caja: false, reportes: false, admin: false
+        };
+    }
+  }
+
+  async function handleCreate() {
+    if (!nombre.trim()) { showToast('El nombre es requerido', 'warning'); return; }
+    if (!password || password.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'warning'); return; }
+
+    const cleanName = nombre.trim();
+    const cleanSlug = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const finalEmail = correo.trim() || `${cleanSlug || 'usuario'}${Math.floor(100 + Math.random() * 900)}@aarstova.com`;
+
+    setSaving(true);
+
+    try {
+      const userId = crypto.randomUUID();
+      
+      const { error } = await supabase.from('usuarios').insert({
+        id: userId,
+        nombre: cleanName,
+        correo: finalEmail,
+        rol,
+        activo: true,
+        es_admin_principal: false,
+        permisos: getPermisosPorRol(rol)
+      });
+
+      if (error) {
+        showToast('Error al crear usuario: ' + error.message, 'error');
+      } else {
+        showToast(`✅ Usuario ${cleanName} creado correctamente!`, 'success');
+        onCreated();
+      }
+    } catch (err: any) {
+      showToast('Error inesperado: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 440 }}>
+        <div className="modal__header">
+          <span className="modal__title">➕ Crear Nuevo Usuario</span>
+          <button className="modal__close" onClick={onClose}>✕</button>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+          <div className="form-group">
+            <label className="form-label">Nombre Completo *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ej: Pedro Mesero"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Rol del Usuario *</label>
+            <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
+              <option value="mesero">🪑 Mesero</option>
+              <option value="chef">👨‍🍳 Chef / Cocina</option>
+              <option value="domiciliario">🛵 Domiciliario</option>
+              <option value="admin">⚙️ Administrador</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Contraseña / Clave *</label>
+            <input
+              type="text"
+              className="form-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mínimo 6 caracteres"
+            />
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Correo Electrónico (Opcional)</label>
+            <input
+              type="email"
+              className="form-input"
+              value={correo}
+              onChange={(e) => setCorreo(e.target.value)}
+              placeholder="Dejar vacío para generar email automático"
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-3" style={{ marginTop: 'var(--space-5)' }}>
+          <button className="btn btn-neutral flex-1" onClick={onClose}>Cancelar</button>
+          <button className="btn btn-primary flex-1" onClick={handleCreate} disabled={saving}>
+            {saving ? 'Guardando...' : 'Crear Usuario'}
+          </button>
         </div>
       </div>
     </div>

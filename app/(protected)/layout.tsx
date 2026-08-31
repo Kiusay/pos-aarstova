@@ -24,6 +24,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: '/',           label: 'Dashboard',   icon: '🏠', alwaysShow: true, seccion: 'principal' },
   { href: '/menu',       label: 'Menú',         icon: '🍽️', permiso: 'menu_ver', seccion: 'operacion' },
   { href: '/pedidos',    label: 'Pedidos',      icon: '📋', permiso: 'pedidos_crear', seccion: 'operacion' },
+  { href: '/mesero',     label: 'Mesero',       icon: '🪑', permiso: 'pedidos_crear', seccion: 'operacion' },
   { href: '/cocina',     label: 'Cocina',       icon: '👨‍🍳', permiso: 'kds_ver', seccion: 'operacion' },
   { href: '/domicilios', label: 'Domicilios',   icon: '🛵', permiso: 'domicilios_propios', seccion: 'operacion' },
   { href: '/clientes',   label: 'Clientes',     icon: '👥', permiso: 'clientes_buscar', seccion: 'gestion' },
@@ -35,9 +36,9 @@ const NAV_ITEMS: NavItem[] = [
 
 const BOTTOM_NAV_ITEMS: NavItem[] = [
   { href: '/',           label: 'Inicio',    icon: '🏠', alwaysShow: true },
+  { href: '/mesero',     label: 'Mesero',    icon: '🪑', permiso: 'pedidos_crear' },
   { href: '/pedidos',    label: 'Pedidos',   icon: '📋', permiso: 'pedidos_crear' },
   { href: '/cocina',     label: 'Cocina',    icon: '👨‍🍳', permiso: 'kds_ver' },
-  { href: '/domicilios', label: 'Domicilio', icon: '🛵', permiso: 'domicilios_propios' },
   { href: '/menu',       label: 'Menú',      icon: '🍽️', permiso: 'menu_ver' },
 ];
 
