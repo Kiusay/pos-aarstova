@@ -636,7 +636,7 @@ export default function CocinaPage() {
         }
       `}</style>
 
-      <main className="main-content" style={{ paddingTop: 'calc(var(--navbar-height) + var(--space-2))' }}>
+      <div style={{ padding: 'var(--space-2) 0', width: '100%' }}>
         {/* Page header */}
         <div className="page-header" style={{ padding: '0 var(--space-4)', paddingTop: 'var(--space-5)', marginBottom: 'var(--space-4)' }}>
           <div className="page-title">
@@ -723,7 +723,7 @@ export default function CocinaPage() {
             </div>
           </div>
         )}
-      </main>
+      </div>
     </>
   );
 }

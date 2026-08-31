@@ -229,6 +229,9 @@ export default function PedidosPage() {
     setMensajeModal(null);
 
     try {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      const currentUserId = sesion?.usuario?.id || authUser?.id || null;
+
       // 1. Obtener siguiente número de pedido
       const { data: maxPedido } = await supabase
         .from('pedidos')
@@ -266,7 +269,7 @@ export default function PedidosPage() {
         monto_transferencia: estadoPago === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
         cuenta_destino: cuentaDestino || null,
         notas_generales: notasGenerales || null,
-        creado_por: sesion?.usuario.id || null,
+        creado_por: currentUserId,
         turno_id: turnoAbierto?.id || null
       };
 
@@ -300,7 +303,11 @@ export default function PedidosPage() {
             precio_unitario: item.precio_unitario,
             subtotal: item.precio_unitario * item.cantidad
           });
-        if (errDet) console.error('Error al guardar detalle:', errDet);
+
+        if (errDet) {
+          console.error('Error al guardar detalle:', errDet);
+          throw new Error('Error guardando ítem del pedido: ' + errDet.message);
+        }
 
         // RPC cupo atómico
         await supabase.rpc('decrementar_cupo', { p_pizarra_id: item.pizarra_id });
