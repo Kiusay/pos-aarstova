@@ -265,7 +265,12 @@ export default function CajaPage() {
       mTr = Number(montoGastoTransferencia || 0);
     }
 
-    const tag = metodoPagoGasto === 'transferencia' ? '[Transf] ' : metodoPagoGasto === 'mixto' ? '[Mixto] ' : '[Efectivo] ';
+    let tag = '[Efectivo] ';
+    if (metodoPagoGasto === 'transferencia') {
+      tag = '[Transf] ';
+    } else if (metodoPagoGasto === 'mixto') {
+      tag = `[Mixto: $${mEf.toLocaleString('es-CO')} Ef / $${mTr.toLocaleString('es-CO')} Tr] `;
+    }
     const descripcionFinal = `${tag}${descGasto.trim()}`;
 
     const payload = {
@@ -321,19 +326,38 @@ export default function CajaPage() {
     .reduce((acc, p) => acc + (p.monto_transferencia || 0), 0);
 
   const gastosEfectivo = gastosTurno.reduce((acc, g) => {
-    if (g.monto_efectivo !== undefined && g.monto_efectivo !== null) {
-      return acc + (g.monto_efectivo || 0);
+    if (typeof g.monto_efectivo === 'number' && g.monto_efectivo > 0) {
+      return acc + g.monto_efectivo;
     }
-    if (g.descripcion?.startsWith('[Transf]')) return acc;
-    if (g.descripcion?.startsWith('[Mixto]')) return acc;
+    if (g.descripcion) {
+      const match = g.descripcion.match(/\[Mixto:\s*\$?([\d\.]+)\s*Ef\s*\/\s*\$?([\d\.]+)\s*Tr\]/i);
+      if (match) {
+        const valEf = Number(match[1].replace(/\./g, ''));
+        return acc + (isNaN(valEf) ? 0 : valEf);
+      }
+      if (g.descripcion.startsWith('[Transf]')) return acc;
+      if (g.descripcion.startsWith('[Mixto]')) {
+        return acc + Math.round(g.monto / 2);
+      }
+    }
     return acc + g.monto;
   }, 0);
 
   const gastosTransferencia = gastosTurno.reduce((acc, g) => {
-    if (g.monto_transferencia !== undefined && g.monto_transferencia !== null) {
-      return acc + (g.monto_transferencia || 0);
+    if (typeof g.monto_transferencia === 'number' && g.monto_transferencia > 0) {
+      return acc + g.monto_transferencia;
     }
-    if (g.descripcion?.startsWith('[Transf]')) return acc + g.monto;
+    if (g.descripcion) {
+      const match = g.descripcion.match(/\[Mixto:\s*\$?([\d\.]+)\s*Ef\s*\/\s*\$?([\d\.]+)\s*Tr\]/i);
+      if (match) {
+        const valTr = Number(match[2].replace(/\./g, ''));
+        return acc + (isNaN(valTr) ? 0 : valTr);
+      }
+      if (g.descripcion.startsWith('[Transf]')) return acc + g.monto;
+      if (g.descripcion.startsWith('[Mixto]')) {
+        return acc + (g.monto - Math.round(g.monto / 2));
+      }
+    }
     return acc;
   }, 0);
 
