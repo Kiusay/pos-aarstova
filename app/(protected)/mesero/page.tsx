@@ -51,13 +51,22 @@ export default function MeseroPage() {
 
   const cargarDatos = useCallback(async () => {
     try {
-      // 1. Cargar pedidos de mesa
-      const { data: dataMesas, error: errMesas } = await supabase
+      const hoyInicio = new Date();
+      hoyInicio.setHours(0, 0, 0, 0);
+      const isMesero = sesion?.usuario?.rol === 'mesero';
+
+      // 1. Cargar pedidos de mesa (solo del día para meseros)
+      let queryMesas = supabase
         .from('pedidos')
         .select(`*, mesa:mesas!mesa_id(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))`)
         .eq('tipo', 'mesa')
-        .not('estado', 'eq', 'cancelado')
-        .order('fecha_creacion', { ascending: false });
+        .not('estado', 'eq', 'cancelado');
+
+      if (isMesero) {
+        queryMesas = queryMesas.gte('fecha_creacion', hoyInicio.toISOString());
+      }
+
+      const { data: dataMesas, error: errMesas } = await queryMesas.order('fecha_creacion', { ascending: false });
 
       if (errMesas) {
         console.error('[Mesero] fetch mesas error:', errMesas);
@@ -65,13 +74,18 @@ export default function MeseroPage() {
         setPedidosMesa(dataMesas as PedidoMesero[]);
       }
 
-      // 2. Cargar pedidos de domicilio
-      const { data: dataDom, error: errDom } = await supabase
+      // 2. Cargar pedidos de domicilio (solo del día para meseros)
+      let queryDom = supabase
         .from('pedidos')
         .select(`*, cliente:clientes(*), repartidor:usuarios!repartidor_id(*), detalle:detalle_pedido(*, plato:platos(*))`)
         .eq('tipo', 'domicilio')
-        .not('estado', 'eq', 'cancelado')
-        .order('fecha_creacion', { ascending: false });
+        .not('estado', 'eq', 'cancelado');
+
+      if (isMesero) {
+        queryDom = queryDom.gte('fecha_creacion', hoyInicio.toISOString());
+      }
+
+      const { data: dataDom, error: errDom } = await queryDom.order('fecha_creacion', { ascending: false });
 
       if (errDom) {
         console.error('[Mesero] fetch doms error:', errDom);
@@ -83,7 +97,7 @@ export default function MeseroPage() {
     } finally {
       setLoading(false);
     }
-  }, [supabase]);
+  }, [supabase, sesion?.usuario?.rol]);
 
   useEffect(() => {
     cargarDatos();

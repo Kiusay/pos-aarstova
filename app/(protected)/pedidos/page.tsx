@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import {
@@ -39,6 +39,8 @@ export default function PedidosPage() {
     new Date().toISOString().split('T')[0]
   );
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
+  const [filtroMesa, setFiltroMesa] = useState<string>('todas');
+  const [busquedaTexto, setBusquedaTexto] = useState<string>('');
 
   // Datos para creación de pedido
   const [pizarra, setPizarra] = useState<PizarraItem[]>([]);
@@ -97,12 +99,20 @@ export default function PedidosPage() {
     setLoading(true);
     try {
       const todayStr = new Date().toISOString().split('T')[0];
+      const hoyInicio = new Date();
+      hoyInicio.setHours(0, 0, 0, 0);
+      const isMesero = sesion?.usuario?.rol === 'mesero';
 
-      // Cargar pedidos
-      const { data: dataPedidos, error: errPed } = await supabase
+      // Cargar pedidos (filtrar solo del día si es mesero)
+      let queryPed = supabase
         .from('pedidos')
-        .select('*, mesa:mesas!mesa_id(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
-        .order('fecha_creacion', { ascending: false });
+        .select('*, mesa:mesas!mesa_id(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))');
+
+      if (isMesero) {
+        queryPed = queryPed.gte('fecha_creacion', hoyInicio.toISOString());
+      }
+
+      const { data: dataPedidos, error: errPed } = await queryPed.order('fecha_creacion', { ascending: false });
 
       if (errPed) console.error('Error al cargar pedidos:', errPed);
       if (dataPedidos) setPedidos(dataPedidos as Pedido[]);
@@ -467,9 +477,39 @@ export default function PedidosPage() {
     doc.save(`Recibo_Pedido_${pedido.numero_pedido}.pdf`);
   };
 
-  // Filtrado de lista
+  // Lista de mesas únicas para filtro
+  const mesasUnicas = useMemo(() => {
+    const set = new Set<string>();
+    pedidos.forEach((p) => {
+      if (p.mesa?.numero) set.add(String(p.mesa.numero));
+    });
+    return Array.from(set).sort((a, b) => Number(a) - Number(b));
+  }, [pedidos]);
+
+  // Filtrado de lista en /pedidos
   const pedidosFiltrados = pedidos.filter(p => {
+    // 1. Filtro por estado
     if (filtroEstado !== 'todos' && p.estado !== filtroEstado) return false;
+
+    // 2. Filtro por mesa
+    if (filtroMesa !== 'todas') {
+      const numMesa = String(p.mesa?.numero || '');
+      if (numMesa !== filtroMesa) return false;
+    }
+
+    // 3. Filtro por texto (cliente, mesa, #pedido o platillos)
+    if (busquedaTexto.trim()) {
+      const q = busquedaTexto.toLowerCase().trim();
+      const numPed = String(p.numero_pedido || '');
+      const numMesa = String(p.mesa?.numero || '');
+      const nombreCli = (p.cliente?.nombre || p.cliente_nombre_rapido || '').toLowerCase();
+      const telCli = (p.cliente?.telefono || p.cliente_telefono_rapido || '').toLowerCase();
+      const platosStr = (p.detalle || []).map(d => d.plato?.nombre || '').join(' ').toLowerCase();
+
+      const coincide = numPed.includes(q) || numMesa.includes(q) || nombreCli.includes(q) || telCli.includes(q) || platosStr.includes(q);
+      if (!coincide) return false;
+    }
+
     return true;
   });
 
@@ -507,6 +547,57 @@ export default function PedidosPage() {
       {/* VISTA 1: LISTA DE PEDIDOS */}
       {vista === 'lista' && (
         <div className="nm-card">
+          {/* Barra de Filtros por Mesa y Buscador */}
+          <div style={{ padding: '12px', marginBottom: '1rem', background: 'var(--bg-inset)', borderRadius: '8px', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div style={{ flex: '1 1 200px' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                🔎 BUSCAR POR NOMBRE / CLIENTE / PLATILLO
+              </label>
+              <input
+                type="text"
+                className="form-input"
+                value={busquedaTexto}
+                onChange={(e) => setBusquedaTexto(e.target.value)}
+                placeholder="Ej: Carlos, Mesa 2, Sopa, #10..."
+                style={{ width: '100%' }}
+              />
+            </div>
+
+            <div style={{ flex: '0 0 180px' }}>
+              <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+                🪑 FILTRAR POR MESA
+              </label>
+              <select
+                className="form-select"
+                value={filtroMesa}
+                onChange={(e) => setFiltroMesa(e.target.value)}
+                style={{ width: '100%' }}
+              >
+                <option value="todas">Todas las mesas</option>
+                {mesasUnicas.map((m: string) => (
+                  <option key={m} value={m}>Mesa {m}</option>
+                ))}
+              </select>
+            </div>
+
+            {(busquedaTexto || filtroMesa !== 'todas') && (
+              <button
+                type="button"
+                className="btn btn-sm btn-neutral"
+                onClick={() => { setBusquedaTexto(''); setFiltroMesa('todas'); }}
+                style={{ marginTop: '18px' }}
+              >
+                ✕ Limpiar Filtros
+              </button>
+            )}
+          </div>
+
+          {sesion?.usuario?.rol === 'mesero' && (
+            <div style={{ padding: '6px 12px', marginBottom: '1rem', background: '#E3F2FD', borderLeft: '4px solid #2196F3', borderRadius: '4px', fontSize: '0.85rem', color: '#0D47A1', fontWeight: 600 }}>
+              📅 Mostrando solo pedidos creados hoy ({new Date().toLocaleDateString('es-CO')})
+            </div>
+          )}
+
           <div className="tabs" style={{ marginBottom: '1rem' }}>
             {['todos', 'pendiente', 'preparacion', 'listo', 'en_camino', 'entregado'].map(st => (
               <button
