@@ -392,9 +392,9 @@ export default function CocinaPage() {
       if (error) {
         console.error('[KDS] fetchPedidos error:', error);
       } else {
-        const sorted = ((data as PedidoKDS[]) ?? []).sort(
-          (a, b) => ESTADO_ORDEN[a.estado] - ESTADO_ORDEN[b.estado]
-        );
+        const sorted = ((data as PedidoKDS[]) ?? [])
+          .filter((p) => (p.detalle || []).length > 0)
+          .sort((a, b) => ESTADO_ORDEN[a.estado] - ESTADO_ORDEN[b.estado]);
 
         const pendienteNow = sorted.filter((p) => p.estado === 'pendiente').length;
         if (sonidoRef.current && pendienteNow > lastPendienteCount.current) {
