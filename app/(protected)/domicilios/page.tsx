@@ -258,13 +258,15 @@ export default function DomiciliosPage() {
 
                 <div className="nm-inset" style={{ padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem' }}>
                   <strong style={{ fontSize: '1.05rem', display: 'block' }}>👤 {clienteNombre}</strong>
-                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>📍 {direccion} {barrio ? `(${barrio})` : ''}</p>
-                  {clienteTel && <p style={{ margin: '0.25rem 0', fontSize: '0.85rem' }} className="text-muted">📞 {clienteTel}</p>}
+                  <p style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>
+                    📍 <strong>Dirección:</strong> {direccion} {barrio ? ` — 🏘️ Barrio: ${barrio}` : ''}
+                  </p>
+                  {clienteTel && <p style={{ margin: '0.25rem 0', fontSize: '0.88rem', fontWeight: 600, color: 'var(--orange-dark)' }}>📞 {clienteTel}</p>}
                 </div>
 
-                {notasEntrega && (
-                  <div style={{ background: '#fff3cd', border: '1px solid #ffe8a1', padding: '0.5rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '0.75rem', color: '#856404' }}>
-                    ⚠️ <strong>Nota Entrega:</strong> {notasEntrega}
+                {(notasEntrega || (p.notas_generales && p.notas_generales !== direccion)) && (
+                  <div style={{ background: '#FFF3CD', borderLeft: '4px solid #FFC107', padding: '0.6rem 0.8rem', borderRadius: '6px', fontSize: '0.85rem', marginBottom: '0.75rem', color: '#856404' }}>
+                    ⚠️ <strong>Indicaciones Domicilio:</strong> {notasEntrega || p.notas_generales}
                   </div>
                 )}
 

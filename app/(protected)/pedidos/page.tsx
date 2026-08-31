@@ -57,6 +57,7 @@ export default function PedidosPage() {
   const [clienteTelefonoRapido, setClienteTelefonoRapido] = useState('');
   const [direccionEntrega, setDireccionEntrega] = useState('');
   const [barrioEntrega, setBarrioEntrega] = useState('');
+  const [notasEntrega, setNotasEntrega] = useState('');
   const [domiciliarioId, setDomiciliarioId] = useState<string>('');
   const [guardarDirectorio, setGuardarDirectorio] = useState(false);
 
@@ -267,7 +268,9 @@ export default function PedidosPage() {
             {
               nombre: clienteNombreRapido.trim(),
               telefono: clienteTelefonoRapido.trim(),
-              direccion: direccionEntrega.trim() || null
+              direccion: direccionEntrega.trim() || null,
+              barrio: barrioEntrega.trim() || null,
+              notas_entrega: notasEntrega.trim() || null
             },
             { onConflict: 'telefono' }
           )
@@ -284,12 +287,17 @@ export default function PedidosPage() {
       const nombreFinal = clienteNombreRapido.trim() || selectedClienteObj?.nombre || null;
       const telefonoFinal = clienteTelefonoRapido.trim() || selectedClienteObj?.telefono || null;
       const direccionFinal = direccionEntrega.trim() || selectedClienteObj?.direccion || null;
+      const barrioFinal = barrioEntrega.trim() || selectedClienteObj?.barrio || null;
+      const notasEntregaFinal = notasEntrega.trim() || selectedClienteObj?.notas_entrega || null;
 
       let notasFinales = notasGenerales.trim();
-      if (tipo === 'domicilio' && direccionFinal) {
-        if (!notasFinales.toLowerCase().includes(direccionFinal.toLowerCase())) {
-          notasFinales = notasFinales ? `📍 ${direccionFinal} — ${notasFinales}` : `📍 ${direccionFinal}`;
-        }
+      if (tipo === 'domicilio') {
+        const partes: string[] = [];
+        if (direccionFinal) partes.push(`📍 Dirección: ${direccionFinal}`);
+        if (barrioFinal) partes.push(`🏘️ Barrio: ${barrioFinal}`);
+        if (notasEntregaFinal) partes.push(`⚠️ Indicaciones: ${notasEntregaFinal}`);
+        if (notasFinales) partes.push(`📝 Obs: ${notasFinales}`);
+        notasFinales = partes.join(' | ');
       }
 
       // 3. Crear pedido
@@ -746,14 +754,33 @@ export default function PedidosPage() {
                 )}
 
                 {tipo === 'domicilio' && (
-                  <div className="form-group">
-                    <label className="form-label">Asignar Domiciliario</label>
-                    <select className="form-select" value={domiciliarioId} onChange={(e) => setDomiciliarioId(e.target.value)}>
-                      <option value="">-- Seleccionar repartidor --</option>
-                      {domiciliarios.map((d) => (
-                        <option key={d.id} value={d.id}>{d.nombre}</option>
-                      ))}
-                    </select>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem', background: 'var(--bg-raised)', padding: '0.75rem', borderRadius: '8px' }}>
+                    <h4 style={{ margin: 0, fontSize: '0.9rem', color: 'var(--orange-dark)' }}>🛵 Datos para la Entrega a Domicilio</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                      <div className="form-group">
+                        <label className="form-label">Dirección de Entrega *</label>
+                        <input className="form-input" value={direccionEntrega} onChange={(e) => setDireccionEntrega(e.target.value)} placeholder="Ej: Calle 10 # 5-20, Apto 302" />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Barrio / Sector</label>
+                        <input className="form-input" value={barrioEntrega} onChange={(e) => setBarrioEntrega(e.target.value)} placeholder="Ej: Centro, El Poblado..." />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Indicaciones / Notas para el Domiciliario (Opcional)</label>
+                      <input className="form-input" value={notasEntrega} onChange={(e) => setNotasEntrega(e.target.value)} placeholder="Ej: Timbre averiado, llamar al llegar" />
+                    </div>
+
+                    <div className="form-group">
+                      <label className="form-label">Asignar Domiciliario</label>
+                      <select className="form-select" value={domiciliarioId} onChange={(e) => setDomiciliarioId(e.target.value)}>
+                        <option value="">-- Seleccionar repartidor --</option>
+                        {domiciliarios.map((d) => (
+                          <option key={d.id} value={d.id}>{d.nombre}</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 )}
               </div>
