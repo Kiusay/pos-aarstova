@@ -232,6 +232,7 @@ export interface TurnoCaja {
   notas_cierre:            string | null;
   // Relaciones
   abierto_por_usuario?:    Usuario;
+  cerrado_por_usuario?:    Usuario;
 }
 
 export interface GastoCaja {
