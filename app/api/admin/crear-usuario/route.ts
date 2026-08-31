@@ -3,7 +3,9 @@ import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
-    const { nombre, correo, password, rol } = await request.json();
+    const authHeader = request.headers.get('Authorization') || '';
+    const body = await request.json();
+    const { nombre, correo, password, rol, telefono, cedula, direccion } = body;
 
     if (!nombre || !password) {
       return NextResponse.json({ error: 'Nombre y contraseña son requeridos' }, { status: 400 });
@@ -14,18 +16,27 @@ export async function POST(request: Request) {
     const finalEmail = correo?.trim() || `${cleanSlug || 'usuario'}${Math.floor(1000 + Math.random() * 9000)}@aarstova.local`;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+    const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    // Cliente con privilegios de administración si SERVICE_ROLE_KEY está disponible
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false }
+    // Si existe SERVICE_ROLE_KEY usamos servicio admin (omite RLS y rate-limit de email)
+    // De lo contrario usamos anonKey reenviando el token de sesión del Admin (para pasar RLS)
+    const isService = !!serviceRoleKey;
+    const keyToUse = serviceRoleKey || anonKey;
+
+    const supabaseClient = createClient(supabaseUrl, keyToUse, {
+      auth: { persistSession: false, autoRefreshToken: false },
+      global: {
+        headers: authHeader ? { Authorization: authHeader } : {}
+      }
     });
 
     let newUserId: string | null = null;
+    let authErrorMessage = '';
 
-    // 1. Intentar crear vía admin.createUser (NO envía emails, NO tiene rate limit, auto-confirma)
-    if (process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const { data: authData, error: adminErr } = await supabaseAdmin.auth.admin.createUser({
+    // 1. Intentar crear en Supabase Auth vía admin.createUser si existe serviceRoleKey
+    if (isService) {
+      const { data: authData, error: adminErr } = await supabaseClient.auth.admin.createUser({
         email: finalEmail,
         password: password,
         email_confirm: true,
@@ -34,14 +45,14 @@ export async function POST(request: Request) {
 
       if (!adminErr && authData?.user) {
         newUserId = authData.user.id;
-      } else {
-        console.warn('[Admin API] admin.createUser notice:', adminErr?.message);
+      } else if (adminErr) {
+        authErrorMessage = adminErr.message;
       }
     }
 
-    // 2. Si no hay service key o falló admin, intentar signUp normal con cliente anon
+    // 2. Si no hay serviceRoleKey o falló admin, intentar signUp normal
     if (!newUserId) {
-      const { data: signUpData, error: signUpErr } = await supabaseAdmin.auth.signUp({
+      const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({
         email: finalEmail,
         password: password,
         options: { data: { nombre: cleanName, rol } }
@@ -50,16 +61,15 @@ export async function POST(request: Request) {
       if (signUpData?.user) {
         newUserId = signUpData.user.id;
       } else if (signUpErr) {
-        console.warn('[Admin API] signUp error:', signUpErr.message);
+        authErrorMessage = signUpErr.message;
       }
     }
 
-    // 3. Si aún no hay ID (ej: por rate limit), generar un UUID propio
+    // 3. Fallback UUID si Auth falló o dio rate limit
     if (!newUserId) {
       newUserId = crypto.randomUUID();
     }
 
-    // Helper permisos por rol
     const permisosMap: Record<string, any> = {
       admin: {
         menu_ver: true, menu_editar: true, menu_whatsapp: true,
@@ -95,8 +105,8 @@ export async function POST(request: Request) {
       }
     };
 
-    // 4. Insertar/Upsert en public.usuarios
-    const { error: dbErr } = await supabaseAdmin.from('usuarios').upsert({
+    // 4. Upsert en public.usuarios (se incluyen telefono, cedula, direccion opcionales)
+    const payload: any = {
       id: newUserId,
       nombre: cleanName,
       correo: finalEmail,
@@ -104,12 +114,19 @@ export async function POST(request: Request) {
       activo: true,
       es_admin_principal: false,
       permisos: permisosMap[rol] || permisosMap.mesero
-    });
+    };
+
+    if (telefono) payload.telefono = telefono.trim();
+    if (cedula) payload.cedula = cedula.trim();
+    if (direccion) payload.direccion = direccion.trim();
+
+    const { error: dbErr } = await supabaseClient.from('usuarios').upsert(payload);
 
     if (dbErr) {
-      // Si falla por FK constraint usuarios_id_fkey, significa que la FK requiere auth.users
       return NextResponse.json({
-        error: `No se pudo crear en Auth (${dbErr.message}). Si continúa el límite de correos, agrega SUPABASE_SERVICE_ROLE_KEY en Vercel o ejecuta en Supabase SQL Editor: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
+        error: authErrorMessage
+          ? `Límite de correos en Auth (${authErrorMessage}). Para solucionar totalmente en Supabase, ejecuta esta consulta en Supabase SQL Editor: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
+          : `Error en BD: ${dbErr.message}`
       }, { status: 400 });
     }
 

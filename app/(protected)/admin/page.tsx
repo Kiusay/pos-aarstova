@@ -1356,66 +1356,52 @@ function ModalCrearUsuarioDirecto({
   onCreated: () => void;
   showToast: (msg: string, type?: ToastType) => void;
 }) {
+  const [modalTab, setModalTab] = useState<'acceso' | 'contacto'>('acceso');
   const [nombre, setNombre] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [rol, setRol] = useState<Rol>('mesero');
+
+  // Campos opcionales de contacto
+  const [telefono, setTelefono] = useState('');
+  const [cedula, setCedula] = useState('');
+  const [direccion, setDireccion] = useState('');
   const [saving, setSaving] = useState(false);
 
-  // Helper para permisos por defecto según rol
-  function getPermisosPorRol(r: Rol): Permisos {
-    switch (r) {
-      case 'admin':
-        return {
-          menu_ver: true, menu_editar: true, menu_whatsapp: true,
-          pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
-          kds_ver: true, domicilios_propios: true, domicilios_todos: true,
-          clientes_buscar: true, clientes_editar: true,
-          compras_ver: true, compras_editar: true,
-          caja: true, reportes: true, admin: true
-        };
-      case 'chef':
-        return {
-          menu_ver: true, menu_editar: true, menu_whatsapp: true,
-          pedidos_crear: false, pedidos_ver_propios: false, pedidos_ver_todos: true,
-          kds_ver: true, domicilios_propios: false, domicilios_todos: true,
-          clientes_buscar: false, clientes_editar: false,
-          compras_ver: true, compras_editar: true,
-          caja: false, reportes: false, admin: false
-        };
-      case 'mesero':
-        return {
-          menu_ver: true, menu_editar: false, menu_whatsapp: false,
-          pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
-          kds_ver: true, domicilios_propios: false, domicilios_todos: false,
-          clientes_buscar: true, clientes_editar: false,
-          compras_ver: false, compras_editar: false,
-          caja: false, reportes: false, admin: false
-        };
-      case 'domiciliario':
-        return {
-          menu_ver: false, menu_editar: false, menu_whatsapp: false,
-          pedidos_crear: false, pedidos_ver_propios: false, pedidos_ver_todos: false,
-          kds_ver: false, domicilios_propios: true, domicilios_todos: false,
-          clientes_buscar: false, clientes_editar: false,
-          compras_ver: false, compras_editar: false,
-          caja: false, reportes: false, admin: false
-        };
-    }
-  }
-
   async function handleCreate() {
-    if (!nombre.trim()) { showToast('El nombre es requerido', 'warning'); return; }
-    if (!password || password.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'warning'); return; }
+    if (!nombre.trim()) {
+      setModalTab('acceso');
+      showToast('El nombre es requerido', 'warning');
+      return;
+    }
+    if (!password || password.length < 6) {
+      setModalTab('acceso');
+      showToast('La contraseña debe tener al menos 6 caracteres', 'warning');
+      return;
+    }
 
     const cleanName = nombre.trim();
     setSaving(true);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (session?.access_token) {
+        headers['Authorization'] = `Bearer ${session.access_token}`;
+      }
+
       const res = await fetch('/api/admin/crear-usuario', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nombre: cleanName, correo: correo.trim(), password, rol })
+        headers,
+        body: JSON.stringify({
+          nombre: cleanName,
+          correo: correo.trim(),
+          password,
+          rol,
+          telefono,
+          cedula,
+          direccion
+        })
       });
 
       const data = await res.json();
@@ -1435,58 +1421,116 @@ function ModalCrearUsuarioDirecto({
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: 440 }}>
+      <div className="modal" style={{ maxWidth: 480 }}>
         <div className="modal__header">
           <span className="modal__title">➕ Crear Nuevo Usuario</span>
           <button className="modal__close" onClick={onClose}>✕</button>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-          <div className="form-group">
-            <label className="form-label">Nombre Completo *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              placeholder="Ej: Pedro Mesero"
-            />
-          </div>
 
-          <div className="form-group">
-            <label className="form-label">Rol del Usuario *</label>
-            <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
-              <option value="mesero">🪑 Mesero</option>
-              <option value="chef">👨‍🍳 Chef / Cocina</option>
-              <option value="domiciliario">🛵 Domiciliario</option>
-              <option value="admin">⚙️ Administrador</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Contraseña / Clave *</label>
-            <input
-              type="text"
-              className="form-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
-            />
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Correo Electrónico (Opcional)</label>
-            <input
-              type="email"
-              className="form-input"
-              value={correo}
-              onChange={(e) => setCorreo(e.target.value)}
-              placeholder="Opcional. Si no tiene, se crea uno automático"
-            />
-            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
-              💡 El usuario podrá ingresar a la app escribiendo su <strong>Nombre/Alias</strong> y <strong>Contraseña</strong> sin necesidad de revisar correo.
-            </span>
-          </div>
+        {/* Pestañas del modal */}
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+          <button
+            type="button"
+            className={`btn btn-sm ${modalTab === 'acceso' ? 'btn-primary' : 'btn-neutral'}`}
+            onClick={() => setModalTab('acceso')}
+          >
+            🔐 Acceso y Rol *
+          </button>
+          <button
+            type="button"
+            className={`btn btn-sm ${modalTab === 'contacto' ? 'btn-primary' : 'btn-neutral'}`}
+            onClick={() => setModalTab('contacto')}
+          >
+            📞 Contacto (Opcional)
+          </button>
         </div>
+
+        {modalTab === 'acceso' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label className="form-label">Nombre Completo *</label>
+              <input
+                type="text"
+                className="form-input"
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                placeholder="Ej: Pedro Mesero"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Rol del Usuario *</label>
+              <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
+                <option value="mesero">🪑 Mesero</option>
+                <option value="chef">👨‍🍳 Chef / Cocina</option>
+                <option value="domiciliario">🛵 Domiciliario</option>
+                <option value="admin">⚙️ Administrador</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Contraseña / Clave *</label>
+              <input
+                type="text"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Correo Electrónico (Opcional)</label>
+              <input
+                type="email"
+                className="form-input"
+                value={correo}
+                onChange={(e) => setCorreo(e.target.value)}
+                placeholder="Opcional. Si no tiene, se crea uno automático"
+              />
+              <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+                💡 El usuario podrá ingresar a la app escribiendo su <strong>Nombre/Alias</strong> y <strong>Contraseña</strong> sin necesidad de revisar correo.
+              </span>
+            </div>
+          </div>
+        )}
+
+        {modalTab === 'contacto' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label className="form-label">Número de Celular / Teléfono (Opcional)</label>
+              <input
+                type="tel"
+                className="form-input"
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                placeholder="Ej: 300 123 4567"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Número de Cédula / DNI (Opcional)</label>
+              <input
+                type="text"
+                className="form-input"
+                value={cedula}
+                onChange={(e) => setCedula(e.target.value)}
+                placeholder="Ej: 1098765432"
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Dirección de Residencia (Opcional)</label>
+              <input
+                type="text"
+                className="form-input"
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                placeholder="Ej: Calle 10 # 5-20, Apto 201"
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-3" style={{ marginTop: 'var(--space-5)' }}>
           <button className="btn btn-neutral flex-1" onClick={onClose}>Cancelar</button>
