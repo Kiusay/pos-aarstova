@@ -214,17 +214,27 @@ export default function MeseroPage() {
     setSaving(true);
 
     try {
-      const { error: errPedido } = await supabase
+      const updatePayload: Record<string, any> = {
+        estado_pago: estadoPagoCobro,
+        monto_efectivo: estadoPagoCobro === 'pagado' && (metodoPago === 'efectivo' || metodoPago === 'mixto') ? montoEfectivo : 0,
+        monto_transferencia: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
+        cuenta_destino: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? (cuentaDestino.trim() || null) : null,
+        estado: 'entregado'
+      };
+
+      let { error: errPedido } = await supabase
         .from('pedidos')
-        .update({
-          estado_pago: estadoPagoCobro,
-          metodo_pago: estadoPagoCobro === 'pagado' ? metodoPago : null,
-          monto_efectivo: estadoPagoCobro === 'pagado' && (metodoPago === 'efectivo' || metodoPago === 'mixto') ? montoEfectivo : 0,
-          monto_transferencia: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
-          cuenta_destino: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? (cuentaDestino.trim() || null) : null,
-          estado: 'entregado'
-        })
+        .update(updatePayload)
         .eq('id', modalCobro.id);
+
+      if (errPedido && errPedido.message?.includes('cuenta_destino')) {
+        delete updatePayload.cuenta_destino;
+        const retry = await supabase
+          .from('pedidos')
+          .update(updatePayload)
+          .eq('id', modalCobro.id);
+        errPedido = retry.error;
+      }
 
       if (errPedido) throw errPedido;
 
