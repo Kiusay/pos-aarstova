@@ -383,7 +383,7 @@ export default function CocinaPage() {
       const { data, error } = await supabase
         .from('pedidos')
         .select(
-          `*, mesa:mesas(*), cliente:clientes(*),
+          `*, mesa:mesas!mesa_id(*), cliente:clientes(*),
            detalle:detalle_pedido(*, plato:platos(*))`
         )
         .in('estado', ['pendiente', 'preparacion', 'listo'])

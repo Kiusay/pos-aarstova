@@ -100,7 +100,7 @@ export default function PedidosPage() {
       // Cargar pedidos
       const { data: dataPedidos, error: errPed } = await supabase
         .from('pedidos')
-        .select('*, mesa:mesas(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
+        .select('*, mesa:mesas!mesa_id(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
         .order('fecha_creacion', { ascending: false });
 
       if (errPed) console.error('Error al cargar pedidos:', errPed);
