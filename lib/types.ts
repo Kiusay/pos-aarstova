@@ -2,7 +2,7 @@
 // TIPOS GLOBALES — POS Áarstova
 // ============================================================
 
-export type Rol = 'admin' | 'chef' | 'mesero' | 'domiciliario';
+export type Rol = 'admin' | 'staff' | 'chef' | 'mesero' | 'domiciliario';
 
 export type EstadoPedido =
   | 'pendiente' | 'preparacion' | 'listo'

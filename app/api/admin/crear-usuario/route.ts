@@ -77,6 +77,14 @@ export async function POST(request: Request) {
         compras_ver: true, compras_editar: true,
         caja: true, reportes: true, admin: true
       },
+      staff: {
+        menu_ver: true, menu_editar: true, menu_whatsapp: true,
+        pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
+        kds_ver: true, domicilios_propios: true, domicilios_todos: true,
+        clientes_buscar: true, clientes_editar: true,
+        compras_ver: true, compras_editar: true,
+        caja: true, reportes: true, admin: true
+      },
       chef: {
         menu_ver: true, menu_editar: true, menu_whatsapp: true,
         pedidos_crear: false, pedidos_ver_propios: false, pedidos_ver_todos: true,

@@ -38,6 +38,7 @@ const ALL_PERMISOS = Object.keys(PERMISO_LABELS) as (keyof Permisos)[];
 
 const ROL_BADGE: Record<Rol, string> = {
   admin:        'badge-orange',
+  staff:        'badge-primary',
   chef:         'badge-ready',
   mesero:       'badge-prep',
   domiciliario: 'badge-transit',
@@ -45,6 +46,7 @@ const ROL_BADGE: Record<Rol, string> = {
 
 const ROL_LABELS: Record<Rol, string> = {
   admin:        'Admin',
+  staff:        'Staff',
   chef:         'Chef',
   mesero:       'Mesero',
   domiciliario: 'Domiciliario',
@@ -99,8 +101,15 @@ export default function AdminPage() {
   const sesion = useSesion();
   const supabase = createClient();
 
+  const esStaff = sesion?.usuario?.rol === 'staff';
   const [tab, setTab] = useState<'usuarios' | 'config' | 'mesas'>('usuarios');
   const [toasts, setToasts] = useState<ToastMsg[]>([]);
+
+  useEffect(() => {
+    if (esStaff && tab === 'usuarios') {
+      setTab('config');
+    }
+  }, [esStaff, tab]);
 
   function showToast(msg: string, type: ToastType = 'default') {
     const id = ++toastCounter;
@@ -145,12 +154,14 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="tabs" style={{ marginBottom: 'var(--space-6)' }}>
-        <button
-          className={`tab-btn ${tab === 'usuarios' ? 'active' : ''}`}
-          onClick={() => setTab('usuarios')}
-        >
-          👥 Usuarios
-        </button>
+        {!esStaff && (
+          <button
+            className={`tab-btn ${tab === 'usuarios' ? 'active' : ''}`}
+            onClick={() => setTab('usuarios')}
+          >
+            👥 Usuarios
+          </button>
+        )}
         <button
           className={`tab-btn ${tab === 'config' ? 'active' : ''}`}
           onClick={() => setTab('config')}
@@ -166,7 +177,7 @@ export default function AdminPage() {
       </div>
 
       {/* Tab Content */}
-      {tab === 'usuarios' && (
+      {!esStaff && tab === 'usuarios' && (
         <TabUsuarios supabase={supabase} showToast={showToast} />
       )}
       {tab === 'config' && (
@@ -664,6 +675,7 @@ function ModalEditarUsuario({
               <option value="mesero">🪑 Mesero</option>
               <option value="chef">👨‍🍳 Chef</option>
               <option value="domiciliario">🛵 Domiciliario</option>
+              <option value="staff">💼 Staff</option>
               <option value="admin">⚙️ Administrador</option>
             </select>
           </div>
@@ -840,6 +852,7 @@ function ModalInvitar({
             <label className="form-label">Rol</label>
             <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
               <option value="admin">Admin</option>
+              <option value="staff">Staff</option>
               <option value="chef">Chef</option>
               <option value="mesero">Mesero</option>
               <option value="domiciliario">Domiciliario</option>
@@ -1683,6 +1696,7 @@ function ModalCrearUsuarioDirecto({
                 <option value="mesero">🪑 Mesero</option>
                 <option value="chef">👨‍🍳 Chef / Cocina</option>
                 <option value="domiciliario">🛵 Domiciliario</option>
+                <option value="staff">💼 Staff</option>
                 <option value="admin">⚙️ Administrador</option>
               </select>
             </div>
