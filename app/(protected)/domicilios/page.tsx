@@ -221,9 +221,9 @@ export default function DomiciliosPage() {
       ) : (
         <div style={{ display: 'grid', gap: '1.25rem', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))' }}>
           {domiciliosFiltrados.map((p) => {
-            const clienteNombre = p.cliente?.nombre || p.cliente_nombre_rapido || 'Cliente';
+            const clienteNombre = p.cliente?.nombre || p.cliente_nombre_rapido || 'Cliente Domicilio';
             const clienteTel = p.cliente?.telefono || p.cliente_telefono_rapido || '';
-            const direccion = p.cliente?.direccion || 'Dirección no registrada';
+            const direccion = p.cliente?.direccion || p.notas_generales || 'Dirección no registrada';
             const barrio = p.cliente?.barrio || '';
             const notasEntrega = p.cliente?.notas_entrega;
 

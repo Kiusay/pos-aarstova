@@ -279,14 +279,27 @@ export default function PedidosPage() {
         }
       }
 
+      // Obtener cliente seleccionado si existe
+      const selectedClienteObj = clientes.find((c) => c.id === clienteId);
+      const nombreFinal = clienteNombreRapido.trim() || selectedClienteObj?.nombre || null;
+      const telefonoFinal = clienteTelefonoRapido.trim() || selectedClienteObj?.telefono || null;
+      const direccionFinal = direccionEntrega.trim() || selectedClienteObj?.direccion || null;
+
+      let notasFinales = notasGenerales.trim();
+      if (tipo === 'domicilio' && direccionFinal) {
+        if (!notasFinales.toLowerCase().includes(direccionFinal.toLowerCase())) {
+          notasFinales = notasFinales ? `📍 ${direccionFinal} — ${notasFinales}` : `📍 ${direccionFinal}`;
+        }
+      }
+
       // 3. Crear pedido
       const newPedidoPayload = {
         numero_pedido: numPedido,
         tipo,
         mesa_id: tipo === 'mesa' ? mesaId : null,
         cliente_id: finalClienteId,
-        cliente_nombre_rapido: !finalClienteId ? (clienteNombreRapido || null) : null,
-        cliente_telefono_rapido: !finalClienteId ? (clienteTelefonoRapido || null) : null,
+        cliente_nombre_rapido: nombreFinal,
+        cliente_telefono_rapido: telefonoFinal,
         domiciliario_id: tipo === 'domicilio' && domiciliarioId ? domiciliarioId : null,
         estado: 'pendiente' as EstadoPedido,
         estado_pago: estadoPago,
@@ -300,7 +313,7 @@ export default function PedidosPage() {
         monto_efectivo: estadoPago === 'pagado' && (metodoPago === 'efectivo' || metodoPago === 'mixto') ? montoEfectivo : 0,
         monto_transferencia: estadoPago === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
         cuenta_destino: cuentaDestino || null,
-        notas_generales: notasGenerales || null,
+        notas_generales: notasFinales || null,
         creado_por: currentUserId,
         turno_id: turnoAbierto?.id || null
       };
