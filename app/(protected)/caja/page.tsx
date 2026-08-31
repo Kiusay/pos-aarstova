@@ -88,16 +88,18 @@ export default function CajaPage() {
     setLoading(true);
 
     try {
-      // 1. Turno activo (usamos query directa sin join explicito para evitar error si no existe relación FK)
-      const { data: dataTurno, error: errTurno } = await supabase
+      // 1. Turno activo (ordenamos por fecha_apertura descendente para obtener el más reciente si hay varios abiertos)
+      const { data: listTurnos, error: errTurno } = await supabase
         .from('turnos_caja')
         .select('*')
         .eq('estado', 'abierto')
-        .maybeSingle();
+        .order('fecha_apertura', { ascending: false });
 
       if (errTurno) {
         console.error('[Caja] Error al consultar turno activo:', errTurno);
       }
+
+      const dataTurno = listTurnos && listTurnos.length > 0 ? listTurnos[0] : null;
 
       if (dataTurno) {
         const active = dataTurno as TurnoCaja;
@@ -188,6 +190,21 @@ export default function CajaPage() {
     setSaving(true);
     setMensaje(null);
 
+    // 1. Verificar si ya existe un turno abierto
+    const { data: existingTurnos } = await supabase
+      .from('turnos_caja')
+      .select('*')
+      .eq('estado', 'abierto')
+      .order('fecha_apertura', { ascending: false });
+
+    if (existingTurnos && existingTurnos.length > 0) {
+      setSaving(false);
+      setMensaje({ tipo: 'exito', texto: '🎉 Conectado al turno de caja activo.' });
+      setTurnoActivo(existingTurnos[0] as TurnoCaja);
+      await cargarEstadoCaja();
+      return;
+    }
+
     const payload = {
       abierto_por: sesion?.usuario?.id || null,
       base_inicial: baseInicial,
@@ -195,20 +212,18 @@ export default function CajaPage() {
       fecha_apertura: new Date().toISOString(),
     };
 
-    let { data: newTurno, error } = await supabase
+    let { data: newTurnos, error } = await supabase
       .from('turnos_caja')
       .insert(payload)
-      .select()
-      .maybeSingle();
+      .select();
 
     if (error && payload.abierto_por) {
       console.warn('Retry abrirTurno with abierto_por null due to RLS/FK constraint:', error);
       const retry = await supabase
         .from('turnos_caja')
         .insert({ ...payload, abierto_por: null })
-        .select()
-        .maybeSingle();
-      newTurno = retry.data;
+        .select();
+      newTurnos = retry.data;
       error = retry.error;
     }
 
@@ -219,8 +234,9 @@ export default function CajaPage() {
       setMensaje({ tipo: 'error', texto: 'No se pudo abrir el turno: ' + (error.message || 'Error de base de datos') });
     } else {
       setMensaje({ tipo: 'exito', texto: '🎉 Turno de caja abierto correctamente con base $' + baseInicial.toLocaleString('es-CO') });
-      if (newTurno) {
-        setTurnoActivo(newTurno as TurnoCaja);
+      const created = newTurnos && newTurnos.length > 0 ? (newTurnos[0] as TurnoCaja) : null;
+      if (created) {
+        setTurnoActivo(created);
       }
       await cargarEstadoCaja();
     }
