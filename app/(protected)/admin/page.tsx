@@ -101,15 +101,8 @@ export default function AdminPage() {
   const sesion = useSesion();
   const supabase = createClient();
 
-  const esStaff = sesion?.usuario?.rol === 'staff';
   const [tab, setTab] = useState<'usuarios' | 'config' | 'mesas'>('usuarios');
   const [toasts, setToasts] = useState<ToastMsg[]>([]);
-
-  useEffect(() => {
-    if (esStaff && tab === 'usuarios') {
-      setTab('config');
-    }
-  }, [esStaff, tab]);
 
   function showToast(msg: string, type: ToastType = 'default') {
     const id = ++toastCounter;
@@ -154,14 +147,12 @@ export default function AdminPage() {
 
       {/* Tabs */}
       <div className="tabs" style={{ marginBottom: 'var(--space-6)' }}>
-        {!esStaff && (
-          <button
-            className={`tab-btn ${tab === 'usuarios' ? 'active' : ''}`}
-            onClick={() => setTab('usuarios')}
-          >
-            👥 Usuarios
-          </button>
-        )}
+        <button
+          className={`tab-btn ${tab === 'usuarios' ? 'active' : ''}`}
+          onClick={() => setTab('usuarios')}
+        >
+          👥 Usuarios
+        </button>
         <button
           className={`tab-btn ${tab === 'config' ? 'active' : ''}`}
           onClick={() => setTab('config')}
@@ -177,7 +168,7 @@ export default function AdminPage() {
       </div>
 
       {/* Tab Content */}
-      {!esStaff && tab === 'usuarios' && (
+      {tab === 'usuarios' && (
         <TabUsuarios supabase={supabase} showToast={showToast} />
       )}
       {tab === 'config' && (
@@ -215,6 +206,9 @@ function TabUsuarios({
   supabase: ReturnType<typeof createClient>;
   showToast: (msg: string, type?: ToastType) => void;
 }) {
+  const sesion = useSesion();
+  const esAdmin = sesion?.usuario?.rol === 'admin';
+
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [filtroActivo, setFiltroActivo] = useState<'todos' | 'activos' | 'inactivos'>('todos');
@@ -240,11 +234,13 @@ function TabUsuarios({
 
   useEffect(() => { fetchUsuarios(); }, [fetchUsuarios]);
 
-  const usuariosFiltrados = usuarios.filter((u) => {
-    if (filtroActivo === 'activos') return u.activo;
-    if (filtroActivo === 'inactivos') return !u.activo;
-    return true;
-  });
+  const usuariosFiltrados = usuarios
+    .filter((u) => esAdmin || (u.rol !== 'admin' && !u.es_admin_principal))
+    .filter((u) => {
+      if (filtroActivo === 'activos') return u.activo;
+      if (filtroActivo === 'inactivos') return !u.activo;
+      return true;
+    });
 
   async function toggleActivo(u: Usuario) {
     const { error } = await supabase
@@ -544,6 +540,9 @@ function ModalEditarUsuario({
   onSaved: () => void;
   showToast: (msg: string, type?: ToastType) => void;
 }) {
+  const sesion = useSesion();
+  const esAdmin = sesion?.usuario?.rol === 'admin';
+
   const [nombre, setNombre] = useState(usuario.nombre);
   const [nombreCompleto, setNombreCompleto] = useState(usuario.nombre_completo || '');
   const [telefono, setTelefono] = useState(usuario.telefono || '');
@@ -676,7 +675,7 @@ function ModalEditarUsuario({
               <option value="chef">👨‍🍳 Chef</option>
               <option value="domiciliario">🛵 Domiciliario</option>
               <option value="staff">💼 Staff</option>
-              <option value="admin">⚙️ Administrador</option>
+              {esAdmin && <option value="admin">⚙️ Administrador</option>}
             </select>
           </div>
 
@@ -796,6 +795,9 @@ function ModalInvitar({
   onClose: () => void;
   showToast: (msg: string, type?: ToastType) => void;
 }) {
+  const sesion = useSesion();
+  const esAdmin = sesion?.usuario?.rol === 'admin';
+
   const [correo, setCorreo] = useState('');
   const [nombre, setNombre] = useState('');
   const [rol, setRol] = useState<Rol>('mesero');
@@ -851,11 +853,11 @@ function ModalInvitar({
           <div className="form-group">
             <label className="form-label">Rol</label>
             <select className="form-select" value={rol} onChange={(e) => setRol(e.target.value as Rol)}>
-              <option value="admin">Admin</option>
               <option value="staff">Staff</option>
               <option value="chef">Chef</option>
               <option value="mesero">Mesero</option>
               <option value="domiciliario">Domiciliario</option>
+              {esAdmin && <option value="admin">Admin</option>}
             </select>
           </div>
           <div className="flex gap-3" style={{ marginTop: 'var(--space-2)' }}>
@@ -1586,6 +1588,9 @@ function ModalCrearUsuarioDirecto({
   onCreated: () => void;
   showToast: (msg: string, type?: ToastType) => void;
 }) {
+  const sesion = useSesion();
+  const esAdmin = sesion?.usuario?.rol === 'admin';
+
   const [modalTab, setModalTab] = useState<'acceso' | 'contacto'>('acceso');
   const [nombre, setNombre] = useState('');
   const [nombreCompleto, setNombreCompleto] = useState('');
@@ -1697,7 +1702,7 @@ function ModalCrearUsuarioDirecto({
                 <option value="chef">👨‍🍳 Chef / Cocina</option>
                 <option value="domiciliario">🛵 Domiciliario</option>
                 <option value="staff">💼 Staff</option>
-                <option value="admin">⚙️ Administrador</option>
+                {esAdmin && <option value="admin">⚙️ Administrador</option>}
               </select>
             </div>
 

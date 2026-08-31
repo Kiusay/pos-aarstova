@@ -11,6 +11,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'ID de usuario es requerido' }, { status: 400 });
     }
 
+    if (rol === 'admin' && authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      if (token) {
+        const supabaseUrlTemp = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+        const anonKeyTemp = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
+        const tempClient = createClient(supabaseUrlTemp, anonKeyTemp);
+        const { data: { user: callerUser } } = await tempClient.auth.getUser(token);
+        if (callerUser) {
+          const { data: callerData } = await tempClient.from('usuarios').select('rol, es_admin_principal').eq('id', callerUser.id).maybeSingle();
+          if (callerData && callerData.rol !== 'admin' && !callerData.es_admin_principal) {
+            return NextResponse.json({ error: 'Solo un Administrador principal puede asignar el rol de Administrador' }, { status: 403 });
+          }
+        }
+      }
+    }
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
