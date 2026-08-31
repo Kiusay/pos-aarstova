@@ -5,22 +5,20 @@ export async function POST(request: Request) {
   try {
     const authHeader = request.headers.get('Authorization') || '';
     const body = await request.json();
-    const { nombre, correo, password, rol, telefono, cedula, direccion } = body;
+    const { nombre, nombreCompleto, correo, password, rol, telefono, cedula, direccion } = body;
 
     if (!nombre || !password) {
-      return NextResponse.json({ error: 'Nombre y contraseña son requeridos' }, { status: 400 });
+      return NextResponse.json({ error: 'Nombre de usuario y contraseña son requeridos' }, { status: 400 });
     }
 
-    const cleanName = nombre.trim();
-    const cleanSlug = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const cleanUsername = nombre.trim();
+    const cleanSlug = cleanUsername.toLowerCase().replace(/[^a-z0-9]/g, '');
     const finalEmail = correo?.trim() || `${cleanSlug || 'usuario'}${Math.floor(1000 + Math.random() * 9000)}@aarstova.local`;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
     const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-    // Si existe SERVICE_ROLE_KEY usamos servicio admin (omite RLS y rate-limit de email)
-    // De lo contrario usamos anonKey reenviando el token de sesión del Admin (para pasar RLS)
     const isService = !!serviceRoleKey;
     const keyToUse = serviceRoleKey || anonKey;
 
@@ -34,13 +32,13 @@ export async function POST(request: Request) {
     let newUserId: string | null = null;
     let authErrorMessage = '';
 
-    // 1. Intentar crear en Supabase Auth vía admin.createUser si existe serviceRoleKey
+    // 1. Crear en Supabase Auth vía admin.createUser si existe serviceRoleKey
     if (isService) {
       const { data: authData, error: adminErr } = await supabaseClient.auth.admin.createUser({
         email: finalEmail,
         password: password,
         email_confirm: true,
-        user_metadata: { nombre: cleanName, rol }
+        user_metadata: { nombre: cleanUsername, rol }
       });
 
       if (!adminErr && authData?.user) {
@@ -50,12 +48,12 @@ export async function POST(request: Request) {
       }
     }
 
-    // 2. Si no hay serviceRoleKey o falló admin, intentar signUp normal
+    // 2. Si no hay serviceRoleKey, intentar signUp normal
     if (!newUserId) {
       const { data: signUpData, error: signUpErr } = await supabaseClient.auth.signUp({
         email: finalEmail,
         password: password,
-        options: { data: { nombre: cleanName, rol } }
+        options: { data: { nombre: cleanUsername, rol } }
       });
 
       if (signUpData?.user) {
@@ -65,7 +63,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // 3. Fallback UUID si Auth falló o dio rate limit
+    // 3. Fallback UUID si Auth dio error o rate-limit
     if (!newUserId) {
       newUserId = crypto.randomUUID();
     }
@@ -105,10 +103,10 @@ export async function POST(request: Request) {
       }
     };
 
-    // 4. Upsert en public.usuarios (se incluyen telefono, cedula, direccion opcionales)
+    // 4. Insertar/Upsert en public.usuarios
     const payload: any = {
       id: newUserId,
-      nombre: cleanName,
+      nombre: cleanUsername,
       correo: finalEmail,
       rol,
       activo: true,
@@ -116,6 +114,7 @@ export async function POST(request: Request) {
       permisos: permisosMap[rol] || permisosMap.mesero
     };
 
+    if (nombreCompleto) payload.nombre_completo = nombreCompleto.trim();
     if (telefono) payload.telefono = telefono.trim();
     if (cedula) payload.cedula = cedula.trim();
     if (direccion) payload.direccion = direccion.trim();
@@ -124,15 +123,13 @@ export async function POST(request: Request) {
 
     if (dbErr) {
       return NextResponse.json({
-        error: authErrorMessage
-          ? `Límite de correos en Auth (${authErrorMessage}). Para solucionar totalmente en Supabase, ejecuta esta consulta en Supabase SQL Editor: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
-          : `Error en BD: ${dbErr.message}`
+        error: `Error en BD (${dbErr.message}). Si falta ejecutar el SQL en Supabase, ejecuta: ALTER TABLE usuarios DROP CONSTRAINT IF EXISTS usuarios_id_fkey;`
       }, { status: 400 });
     }
 
     return NextResponse.json({
       success: true,
-      mensaje: `Usuario ${cleanName} creado correctamente.`,
+      mensaje: `Usuario ${cleanUsername} creado correctamente.`,
       email: finalEmail,
       userId: newUserId
     });

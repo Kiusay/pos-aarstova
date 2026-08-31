@@ -1358,6 +1358,7 @@ function ModalCrearUsuarioDirecto({
 }) {
   const [modalTab, setModalTab] = useState<'acceso' | 'contacto'>('acceso');
   const [nombre, setNombre] = useState('');
+  const [nombreCompleto, setNombreCompleto] = useState('');
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [rol, setRol] = useState<Rol>('mesero');
@@ -1371,7 +1372,7 @@ function ModalCrearUsuarioDirecto({
   async function handleCreate() {
     if (!nombre.trim()) {
       setModalTab('acceso');
-      showToast('El nombre es requerido', 'warning');
+      showToast('El Nombre de usuario / alias es requerido', 'warning');
       return;
     }
     if (!password || password.length < 6) {
@@ -1380,7 +1381,7 @@ function ModalCrearUsuarioDirecto({
       return;
     }
 
-    const cleanName = nombre.trim();
+    const cleanUsername = nombre.trim();
     setSaving(true);
 
     try {
@@ -1394,7 +1395,8 @@ function ModalCrearUsuarioDirecto({
         method: 'POST',
         headers,
         body: JSON.stringify({
-          nombre: cleanName,
+          nombre: cleanUsername,
+          nombreCompleto: nombreCompleto.trim(),
           correo: correo.trim(),
           password,
           rol,
@@ -1409,7 +1411,7 @@ function ModalCrearUsuarioDirecto({
       if (!res.ok || data.error) {
         showToast(data.error || 'Error al crear usuario', 'error');
       } else {
-        showToast(`✅ Usuario ${cleanName} creado con éxito!`, 'success');
+        showToast(`✅ Usuario ${cleanUsername} creado con éxito!`, 'success');
         onCreated();
       }
     } catch (err: any) {
@@ -1441,20 +1443,20 @@ function ModalCrearUsuarioDirecto({
             className={`btn btn-sm ${modalTab === 'contacto' ? 'btn-primary' : 'btn-neutral'}`}
             onClick={() => setModalTab('contacto')}
           >
-            📞 Contacto (Opcional)
+            📞 Datos y Contacto (Opcional)
           </button>
         </div>
 
         {modalTab === 'acceso' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
             <div className="form-group">
-              <label className="form-label">Nombre Completo *</label>
+              <label className="form-label">Nombre de Usuario / Alias *</label>
               <input
                 type="text"
                 className="form-input"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
-                placeholder="Ej: Pedro Mesero"
+                placeholder="Ej: pedro (Usado para iniciar sesión)"
               />
             </div>
 
@@ -1497,6 +1499,17 @@ function ModalCrearUsuarioDirecto({
 
         {modalTab === 'contacto' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+            <div className="form-group">
+              <label className="form-label">Nombre Completo del Empleado (Opcional)</label>
+              <input
+                type="text"
+                className="form-input"
+                value={nombreCompleto}
+                onChange={(e) => setNombreCompleto(e.target.value)}
+                placeholder="Ej: Pedro Antonio Pérez Giraldo"
+              />
+            </div>
+
             <div className="form-group">
               <label className="form-label">Número de Celular / Teléfono (Opcional)</label>
               <input
