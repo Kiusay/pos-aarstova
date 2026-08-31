@@ -141,13 +141,14 @@ function OrderTimer({ fechaCreacion, isListo, fechaListo, limiteSeg }: TimerProp
 interface ItemRowProps {
   item: DetallePedido;
   onCycleEstado: (itemId: string, nuevoEstado: EstadoItem) => Promise<void>;
+  isReadOnly?: boolean;
 }
 
-function ItemRow({ item, onCycleEstado }: ItemRowProps) {
+function ItemRow({ item, onCycleEstado, isReadOnly }: ItemRowProps) {
   const [loading, setLoading] = useState(false);
 
   async function handleClick() {
-    if (loading) return;
+    if (isReadOnly || loading) return;
     setLoading(true);
     await onCycleEstado(item.id, nextEstadoItem(item.estado_item));
     setLoading(false);
@@ -155,19 +156,19 @@ function ItemRow({ item, onCycleEstado }: ItemRowProps) {
 
   return (
     <li
-      onClick={handleClick}
+      onClick={isReadOnly ? undefined : handleClick}
       style={{
         display: 'flex',
         alignItems: 'flex-start',
         gap: '8px',
         padding: '6px 4px',
         borderRadius: 'var(--border-radius-sm)',
-        cursor: loading ? 'wait' : 'pointer',
+        cursor: isReadOnly ? 'default' : loading ? 'wait' : 'pointer',
         opacity: item.estado_item === 'servido' ? 0.55 : 1,
         transition: 'background var(--transition-fast)',
         listStyle: 'none',
       }}
-      title="Clic para avanzar estado"
+      title={isReadOnly ? 'Estado de plato (Solo lectura)' : 'Clic para avanzar estado'}
     >
       <span style={{ fontSize: '1rem', lineHeight: 1.4, flexShrink: 0 }}>
         {estadoItemEmoji(item.estado_item)}
@@ -200,9 +201,10 @@ interface OrderCardProps {
   limiteSeg: number;
   onUpdateEstado: (pedidoId: string, nuevoEstado: EstadoPedido) => Promise<void>;
   onCycleItemEstado: (itemId: string, nuevoEstado: EstadoItem) => Promise<void>;
+  isReadOnly?: boolean;
 }
 
-function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: OrderCardProps) {
+function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado, isReadOnly }: OrderCardProps) {
   const [loadingBtn, setLoadingBtn] = useState<string | null>(null);
 
   const identifier =
@@ -222,6 +224,7 @@ function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: Ord
   const maxRonda = rondasKeys[rondasKeys.length - 1] ?? 1;
 
   async function handleEstado(nuevoEstado: EstadoPedido) {
+    if (isReadOnly) return;
     setLoadingBtn(nuevoEstado);
     await onUpdateEstado(pedido.id, nuevoEstado);
     setLoadingBtn(null);
@@ -305,7 +308,7 @@ function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: Ord
             )}
             <ul style={{ margin: 0, padding: 0 }}>
               {rondas[ronda].map((item) => (
-                <ItemRow key={item.id} item={item} onCycleEstado={onCycleItemEstado} />
+                <ItemRow key={item.id} item={item} onCycleEstado={onCycleItemEstado} isReadOnly={isReadOnly} />
               ))}
             </ul>
           </div>
@@ -319,42 +322,50 @@ function OrderCard({ pedido, limiteSeg, onUpdateEstado, onCycleItemEstado }: Ord
 
       {/* Footer */}
       <footer className="kds-card-footer">
-        {isPendiente && (
-          <button
-            className="btn btn-sm btn-primary btn-full"
-            disabled={loadingBtn === 'preparacion'}
-            onClick={() => handleEstado('preparacion')}
-          >
-            {loadingBtn === 'preparacion' ? '…' : '🔥 En preparación'}
-          </button>
-        )}
-        {isPreparacion && (
-          <button
-            className="btn btn-sm btn-success btn-full"
-            disabled={loadingBtn === 'listo'}
-            onClick={() => handleEstado('listo')}
-          >
-            {loadingBtn === 'listo' ? '…' : '✅ Listo'}
-          </button>
-        )}
-        {isListo && (
-          pedido.tipo === 'mesa' ? (
-            <button
-              className="btn btn-sm btn-neutral btn-full"
-              disabled={loadingBtn === 'entregado'}
-              onClick={() => handleEstado('entregado')}
-            >
-              {loadingBtn === 'entregado' ? '…' : '🍽️ Entregado'}
-            </button>
-          ) : (
-            <button
-              className="btn btn-sm btn-neutral btn-full"
-              disabled={loadingBtn === 'en_camino'}
-              onClick={() => handleEstado('en_camino')}
-            >
-              {loadingBtn === 'en_camino' ? '…' : '🛵 En camino'}
-            </button>
-          )
+        {isReadOnly ? (
+          <div style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)', padding: '6px', background: 'var(--bg-elevated)', borderRadius: '6px', fontWeight: 600 }}>
+            🔒 Solo lectura (Mesero)
+          </div>
+        ) : (
+          <>
+            {isPendiente && (
+              <button
+                className="btn btn-sm btn-primary btn-full"
+                disabled={loadingBtn === 'preparacion'}
+                onClick={() => handleEstado('preparacion')}
+              >
+                {loadingBtn === 'preparacion' ? '…' : '🔥 En preparación'}
+              </button>
+            )}
+            {isPreparacion && (
+              <button
+                className="btn btn-sm btn-success btn-full"
+                disabled={loadingBtn === 'listo'}
+                onClick={() => handleEstado('listo')}
+              >
+                {loadingBtn === 'listo' ? '…' : '✅ Listo'}
+              </button>
+            )}
+            {isListo && (
+              pedido.tipo === 'mesa' ? (
+                <button
+                  className="btn btn-sm btn-neutral btn-full"
+                  disabled={loadingBtn === 'entregado'}
+                  onClick={() => handleEstado('entregado')}
+                >
+                  {loadingBtn === 'entregado' ? '…' : '🍽️ Entregado'}
+                </button>
+              ) : (
+                <button
+                  className="btn btn-sm btn-neutral btn-full"
+                  disabled={loadingBtn === 'en_camino'}
+                  onClick={() => handleEstado('en_camino')}
+                >
+                  {loadingBtn === 'en_camino' ? '…' : '🛵 En camino'}
+                </button>
+              )
+            )}
+          </>
         )}
       </footer>
     </article>
@@ -681,6 +692,15 @@ export default function CocinaPage() {
           </label>
         </div>
 
+        {/* Read-Only Banner for Waiters */}
+        {sesion?.usuario?.rol === 'mesero' && (
+          <div className="nm-card" style={{ margin: 'var(--space-4)', marginBottom: 0, background: '#FFF8E1', borderLeft: '5px solid #FFC107', padding: '12px 16px' }}>
+            <span style={{ fontSize: '0.9rem', color: '#856404', fontWeight: 600 }}>
+              👁️ <strong>Vista de Solo Lectura (Mesero):</strong> Puedes consultar el avance de los platos en tiempo real, pero solo la Cocina o Administración puede cambiar los estados.
+            </span>
+          </div>
+        )}
+
         {/* Content */}
         {loading ? (
           <div className="kds-grid-wrap">
@@ -718,6 +738,7 @@ export default function CocinaPage() {
                   limiteSeg={limiteSeg}
                   onUpdateEstado={handleUpdateEstado}
                   onCycleItemEstado={handleCycleItemEstado}
+                  isReadOnly={sesion?.usuario?.rol === 'mesero'}
                 />
               ))}
             </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import type { Pedido, DetallePedido, EstadoPago } from '@/lib/types';
@@ -20,9 +20,20 @@ export default function MeseroPage() {
   const [loading, setLoading] = useState(true);
   const [tabActual, setTabActual] = useState<TabMesero>('activos');
 
+  // Filtros de mesa y nombre
+  const [filtroMesa, setFiltroMesa] = useState<string>('todas');
+  const [busquedaTexto, setBusquedaTexto] = useState<string>('');
+
   const [selectedPedido, setSelectedPedido] = useState<PedidoMesero | null>(null);
   const [modalCobro, setModalCobro] = useState<PedidoMesero | null>(null);
+  const [modalCliente, setModalCliente] = useState<PedidoMesero | null>(null);
   const [mensajeToast, setMensajeToast] = useState<{ tipo: 'exito' | 'error' | 'info'; texto: string } | null>(null);
+
+  // Formulario de datos de cliente
+  const [clienteNombre, setClienteNombre] = useState('');
+  const [clienteTelefono, setClienteTelefono] = useState('');
+  const [clienteDireccion, setClienteDireccion] = useState('');
+  const [guardarDirectorio, setGuardarDirectorio] = useState(true);
 
   // Formulario de cobro
   const [estadoPagoCobro, setEstadoPagoCobro] = useState<EstadoPago>('pagado');
@@ -54,7 +65,7 @@ export default function MeseroPage() {
         setPedidosMesa(dataMesas as PedidoMesero[]);
       }
 
-      // 2. Cargar pedidos de domicilio (lectura para consultas telefónicas)
+      // 2. Cargar pedidos de domicilio
       const { data: dataDom, error: errDom } = await supabase
         .from('pedidos')
         .select(`*, cliente:clientes(*), repartidor:usuarios!repartidor_id(*), detalle:detalle_pedido(*, plato:platos(*))`)
@@ -100,52 +111,114 @@ export default function MeseroPage() {
       .eq('id', pedido.id);
 
     setSaving(false);
-
     if (error) {
-      toast('Error al actualizar estado: ' + error.message, 'error');
+      toast('Error al marcar entregado: ' + error.message, 'error');
     } else {
-      toast(`🍽️ Pedido #${pedido.numero_pedido} entregado a la Mesa ${pedido.mesa?.numero || ''}`, 'exito');
+      toast(`🍽️ Pedido #${pedido.numero_pedido} marcado como ENTREGADO A MESA`, 'exito');
       cargarDatos();
     }
   };
 
   // Abrir modal de cobro
   const handleOpenCobro = (pedido: PedidoMesero) => {
-    setSelectedPedido(null);
     setModalCobro(pedido);
+    setEstadoPagoCobro('pagado');
+    setMetodoPago('efectivo');
     setMontoEfectivo(pedido.total);
     setMontoTransferencia(0);
-    setEstadoPagoCobro('pagado');
+    setLiberarMesa(true);
   };
 
-  // Confirmar cobro y cierre
+  // Abrir modal de cliente
+  const handleOpenCliente = (pedido: PedidoMesero) => {
+    setModalCliente(pedido);
+    setClienteNombre(pedido.cliente?.nombre || pedido.cliente_nombre_rapido || '');
+    setClienteTelefono(pedido.cliente?.telefono || pedido.cliente_telefono_rapido || '');
+    setClienteDireccion(pedido.cliente?.direccion || '');
+    setGuardarDirectorio(true);
+  };
+
+  // Guardar datos de cliente en pedido / directorio
+  const handleGuardarCliente = async () => {
+    if (!modalCliente) return;
+    if (!clienteNombre.trim()) {
+      toast('Ingresa el nombre del cliente', 'error');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      let finalClienteId = modalCliente.cliente_id;
+
+      // Si se marcó guardar en directorio de clientes y hay teléfono
+      if (guardarDirectorio && clienteTelefono.trim()) {
+        const { data: clienteUpsert, error: clientErr } = await supabase
+          .from('clientes')
+          .upsert(
+            {
+              nombre: clienteNombre.trim(),
+              telefono: clienteTelefono.trim(),
+              direccion: clienteDireccion.trim() || null
+            },
+            { onConflict: 'telefono' }
+          )
+          .select('id')
+          .maybeSingle();
+
+        if (!clientErr && clienteUpsert) {
+          finalClienteId = clienteUpsert.id;
+        }
+      }
+
+      // Actualizar pedido
+      const { error: pedErr } = await supabase
+        .from('pedidos')
+        .update({
+          cliente_id: finalClienteId,
+          cliente_nombre_rapido: clienteNombre.trim(),
+          cliente_telefono_rapido: clienteTelefono.trim() || null
+        })
+        .eq('id', modalCliente.id);
+
+      if (pedErr) {
+        toast('Error al guardar datos del cliente: ' + pedErr.message, 'error');
+      } else {
+        toast(`✅ Datos de cliente actualizados para Pedido #${modalCliente.numero_pedido}`, 'exito');
+        setModalCliente(null);
+        cargarDatos();
+      }
+    } catch (err: any) {
+      toast('Error inesperado: ' + err.message, 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Ejecutar cobro y cierre
   const handleConfirmarCobro = async () => {
     if (!modalCobro) return;
     setSaving(true);
 
     try {
-      const updates: any = {
-        estado_pago: estadoPagoCobro,
-        estado: 'entregado',
-        fecha_entregado: new Date().toISOString(),
-      };
-
-      if (estadoPagoCobro === 'pagado') {
-        updates.monto_efectivo = metodoPago === 'efectivo' || metodoPago === 'mixto' ? montoEfectivo : 0;
-        updates.monto_transferencia = metodoPago === 'transferencia' || metodoPago === 'mixto' ? montoTransferencia : 0;
-        updates.cuenta_destino = cuentaDestino || null;
-      }
-
-      const { error: errPed } = await supabase
+      const { error: errPedido } = await supabase
         .from('pedidos')
-        .update(updates)
+        .update({
+          estado_pago: estadoPagoCobro,
+          metodo_pago: estadoPagoCobro === 'pagado' ? metodoPago : null,
+          monto_efectivo: estadoPagoCobro === 'pagado' && (metodoPago === 'efectivo' || metodoPago === 'mixto') ? montoEfectivo : 0,
+          monto_transferencia: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
+          cuenta_bancaria_destino: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? cuentaDestino : null,
+          estado: 'entregado'
+        })
         .eq('id', modalCobro.id);
 
-      if (errPed) throw errPed;
+      if (errPedido) throw errPedido;
 
-      // Liberar mesa si se indicó
       if (liberarMesa && modalCobro.mesa_id) {
-        await supabase.from('mesas').update({ estado: 'libre' }).eq('id', modalCobro.mesa_id);
+        await supabase
+          .from('mesas')
+          .update({ estado: 'libre' })
+          .eq('id', modalCobro.mesa_id);
       }
 
       toast(`✅ Pedido #${modalCobro.numero_pedido} cerrado correctamente (${estadoPagoCobro.toUpperCase()})`, 'exito');
@@ -158,16 +231,52 @@ export default function MeseroPage() {
     }
   };
 
-  // Pedidos activos (en servicio / pendientes / listos o pendientes de pago)
-  const pedidosActivos = pedidosMesa.filter((p) => {
-    const noTerminado = p.estado !== 'entregado' || p.estado_pago !== 'pagado';
-    return noTerminado;
-  });
+  // Listas base
+  const rawPedidosActivos = useMemo(() => {
+    return pedidosMesa.filter((p) => p.estado !== 'entregado' || p.estado_pago !== 'pagado');
+  }, [pedidosMesa]);
 
-  // Pedidos finalizados (entregados y pagados)
-  const pedidosFinalizados = pedidosMesa.filter((p) => p.estado === 'entregado' && p.estado_pago === 'pagado');
+  const rawPedidosFinalizados = useMemo(() => {
+    return pedidosMesa.filter((p) => p.estado === 'entregado' && p.estado_pago === 'pagado');
+  }, [pedidosMesa]);
 
-  // Conteo de listos para servir
+  // Lista de mesas únicas para selector de filtro
+  const mesasUnicas = useMemo(() => {
+    const set = new Set<string>();
+    pedidosMesa.forEach((p) => {
+      if (p.mesa?.numero) set.add(String(p.mesa.numero));
+    });
+    return Array.from(set).sort((a, b) => Number(a) - Number(b));
+  }, [pedidosMesa]);
+
+  // Función genérica para aplicar filtros por mesa y búsqueda por texto
+  const aplicarFiltros = (lista: PedidoMesero[]) => {
+    return lista.filter((p) => {
+      // 1. Filtro de Mesa
+      if (filtroMesa !== 'todas') {
+        const numMesa = String(p.mesa?.numero || '');
+        if (numMesa !== filtroMesa) return false;
+      }
+      // 2. Filtro de Texto (Nombre cliente, mesa, platillos, #pedido)
+      if (busquedaTexto.trim()) {
+        const q = busquedaTexto.toLowerCase().trim();
+        const numPed = String(p.numero_pedido || '');
+        const numMesa = String(p.mesa?.numero || '');
+        const nombreCli = (p.cliente?.nombre || p.cliente_nombre_rapido || '').toLowerCase();
+        const telCli = (p.cliente?.telefono || p.cliente_telefono_rapido || '').toLowerCase();
+        const platosStr = (p.detalle || []).map(d => d.plato?.nombre || '').join(' ').toLowerCase();
+
+        const coincide = numPed.includes(q) || numMesa.includes(q) || nombreCli.includes(q) || telCli.includes(q) || platosStr.includes(q);
+        if (!coincide) return false;
+      }
+      return true;
+    });
+  };
+
+  const pedidosActivos = aplicarFiltros(rawPedidosActivos);
+  const pedidosDomicilioFiltrados = aplicarFiltros(pedidosDomicilio);
+  const pedidosFinalizados = aplicarFiltros(rawPedidosFinalizados);
+
   const listosCount = pedidosMesa.filter((p) => p.estado === 'listo').length;
 
   return (
@@ -189,7 +298,7 @@ export default function MeseroPage() {
       {/* Alerta de Platos Listos en Cocina */}
       {listosCount > 0 && (
         <div className="nm-card" style={{ background: 'var(--green-muted)', borderLeft: '5px solid var(--green)', padding: 'var(--space-3) var(--space-4)', marginBottom: 'var(--space-4)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <span style={{ fontWeight: 800, color: 'var(--green-dark)', fontSize: '1rem' }}>
               🔔 ¡Atención! Hay {listosCount} comanda{listosCount !== 1 ? 's' : ''} LISTA{listosCount !== 1 ? 'S' : ''} en cocina para llevar a mesa!
             </span>
@@ -199,6 +308,51 @@ export default function MeseroPage() {
           </div>
         </div>
       )}
+
+      {/* Barra de Filtros: Por Mesa y por Buscador */}
+      <div className="nm-card" style={{ padding: '12px 16px', marginBottom: 'var(--space-4)', display: 'flex', gap: '12px', flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ flex: '1 1 200px' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+            🔎 BUSCAR POR NOMBRE / CLIENTE / PLATILLO
+          </label>
+          <input
+            type="text"
+            className="form-input"
+            value={busquedaTexto}
+            onChange={(e) => setBusquedaTexto(e.target.value)}
+            placeholder="Ej: Pedro, Mesa 3, Sopa, #12..."
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div style={{ flex: '0 0 180px' }}>
+          <label style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', display: 'block', marginBottom: '4px' }}>
+            🪑 FILTRAR POR MESA
+          </label>
+          <select
+            className="form-select"
+            value={filtroMesa}
+            onChange={(e) => setFiltroMesa(e.target.value)}
+            style={{ width: '100%' }}
+          >
+            <option value="todas">Todas las mesas</option>
+            {mesasUnicas.map((m) => (
+              <option key={m} value={m}>Mesa {m}</option>
+            ))}
+          </select>
+        </div>
+
+        {(busquedaTexto || filtroMesa !== 'todas') && (
+          <button
+            type="button"
+            className="btn btn-sm btn-neutral"
+            onClick={() => { setBusquedaTexto(''); setFiltroMesa('todas'); }}
+            style={{ marginTop: '18px' }}
+          >
+            ✕ Limpiar Filtros
+          </button>
+        )}
+      </div>
 
       {/* Tabs principales */}
       <div className="tabs" style={{ marginBottom: 'var(--space-4)' }}>
@@ -212,7 +366,7 @@ export default function MeseroPage() {
           className={`tab-btn ${tabActual === 'domicilios' ? 'active' : ''}`}
           onClick={() => setTabActual('domicilios')}
         >
-          🛵 Consulta Domicilios ({pedidosDomicilio.length})
+          🛵 Consulta Domicilios ({pedidosDomicilioFiltrados.length})
         </button>
         <button
           className={`tab-btn ${tabActual === 'finalizados' ? 'active' : ''}`}
@@ -222,7 +376,7 @@ export default function MeseroPage() {
         </button>
       </div>
 
-      {/* VISTA 1: PEDIDOS ACTIVOS EN SERVICIO (DEFAULT) */}
+      {/* VISTA 1: PEDIDOS ACTIVOS EN SERVICIO */}
       {tabActual === 'activos' && (
         <>
           {loading ? (
@@ -230,16 +384,16 @@ export default function MeseroPage() {
           ) : pedidosActivos.length === 0 ? (
             <div className="empty-state">
               <span className="empty-state__icon">✨</span>
-              <p className="empty-state__title">No hay comandas pendientes</p>
-              <p className="empty-state__desc">Todas las mesas están servidas y cobradas.</p>
+              <p className="empty-state__title">No hay comandas que coincidan</p>
+              <p className="empty-state__desc">Intenta ajustar los filtros de mesa o búsqueda.</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
               {pedidosActivos.map((pedido) => {
                 const isListo = pedido.estado === 'listo';
                 const isEntregado = pedido.estado === 'entregado';
-                const isPagado = pedido.estado_pago === 'pagado';
                 const itemsCount = (pedido.detalle || []).reduce((acc, i) => acc + i.cantidad, 0);
+                const nombreCli = pedido.cliente?.nombre || pedido.cliente_nombre_rapido || 'Cliente ocasional';
 
                 return (
                   <div
@@ -267,8 +421,18 @@ export default function MeseroPage() {
                       </span>
                     </div>
 
-                    <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>
-                      🪑 Mesa {pedido.mesa?.numero || 'N/A'} {pedido.mesa?.nombre ? `(${pedido.mesa.nombre})` : ''}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)' }}>
+                        🪑 Mesa {pedido.mesa?.numero || 'N/A'} {pedido.mesa?.nombre ? `(${pedido.mesa.nombre})` : ''}
+                      </div>
+                      <button
+                        className="btn btn-sm btn-ghost"
+                        style={{ fontSize: '0.78rem' }}
+                        title="Registrar / editar datos del cliente"
+                        onClick={() => handleOpenCliente(pedido)}
+                      >
+                        ✏️ {nombreCli}
+                      </button>
                     </div>
 
                     <div className="nm-inset" style={{ padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)' }}>
@@ -278,9 +442,9 @@ export default function MeseroPage() {
                       <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.85rem' }}>
                         {(pedido.detalle || []).map((item) => (
                           <li key={item.id} style={{ marginBottom: '2px' }}>
-                            <strong>×{item.cantidad}</strong> {item.plato?.nombre || 'Plato'}
+                            <strong>{item.cantidad}x</strong> {item.plato?.nombre || 'Plato'}{' '}
                             {item.modificaciones && (
-                              <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                              <span style={{ fontStyle: 'italic', color: 'var(--text-muted)' }}>
                                 ({item.modificaciones})
                               </span>
                             )}
@@ -289,14 +453,7 @@ export default function MeseroPage() {
                       </ul>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
-                      <span className="text-muted">Estado pago:</span>
-                      <span className={`badge badge-${isPagado ? 'success' : pedido.estado_pago === 'fiado' ? 'warning' : 'cancel'}`}>
-                        {pedido.estado_pago.toUpperCase()}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 700, fontSize: '1.1rem', color: 'var(--orange-dark)' }}>
                         ${pedido.total.toLocaleString('es-CO')}
                       </span>
@@ -324,7 +481,7 @@ export default function MeseroPage() {
         </>
       )}
 
-      {/* VISTA 2: CONSULTA DE DOMICILIOS (SOLO LECTURA PARA LLAMADAS DE CLIENTES) */}
+      {/* VISTA 2: CONSULTA DE DOMICILIOS */}
       {tabActual === 'domicilios' && (
         <>
           <div className="nm-card" style={{ marginBottom: 'var(--space-4)', background: '#F8F9FA' }}>
@@ -335,14 +492,14 @@ export default function MeseroPage() {
 
           {loading ? (
             <div style={{ padding: 'var(--space-8)', textAlign: 'center' }}>⏳ Cargando domicilios…</div>
-          ) : pedidosDomicilio.length === 0 ? (
+          ) : pedidosDomicilioFiltrados.length === 0 ? (
             <div className="empty-state">
               <span className="empty-state__icon">🛵</span>
-              <p className="empty-state__title">Sin domicilios registrados hoy</p>
+              <p className="empty-state__title">Sin domicilios coincidentes</p>
             </div>
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
-              {pedidosDomicilio.map((dom) => {
+              {pedidosDomicilioFiltrados.map((dom) => {
                 const clienteNombre = dom.cliente?.nombre || dom.cliente_nombre_rapido || 'Cliente Domicilio';
                 const clienteTel = dom.cliente?.telefono || dom.cliente_telefono_rapido || 'Sin teléfono';
                 const repartidorNombre = (dom as any).repartidor?.nombre || 'Pendiente por asignar';
@@ -414,6 +571,68 @@ export default function MeseroPage() {
         </>
       )}
 
+      {/* MODAL EDITAR DATOS CLIENTE DE PEDIDO */}
+      {modalCliente && (
+        <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalCliente(null)}>
+          <div className="modal" style={{ maxWidth: '440px' }}>
+            <div className="modal__header">
+              <h3>👤 Datos del Cliente — Pedido #{modalCliente.numero_pedido}</h3>
+              <button className="btn btn-sm btn-ghost" onClick={() => setModalCliente(null)}>✕</button>
+            </div>
+            <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="form-group">
+                <label className="form-label">Nombre del Cliente *</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={clienteNombre}
+                  onChange={(e) => setClienteNombre(e.target.value)}
+                  placeholder="Ej: Carlos Pérez"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Número de Teléfono / Celular (Opcional)</label>
+                <input
+                  type="tel"
+                  className="form-input"
+                  value={clienteTelefono}
+                  onChange={(e) => setClienteTelefono(e.target.value)}
+                  placeholder="Ej: 300 123 4567"
+                />
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">Dirección (Opcional)</label>
+                <input
+                  type="text"
+                  className="form-input"
+                  value={clienteDireccion}
+                  onChange={(e) => setClienteDireccion(e.target.value)}
+                  placeholder="Ej: Calle 10 # 5-20"
+                />
+              </div>
+
+              <label className="nm-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                <input
+                  type="checkbox"
+                  checked={guardarDirectorio}
+                  onChange={(e) => setGuardarDirectorio(e.target.checked)}
+                />
+                <span className="nm-checkbox-box" />
+                <span>☑️ Guardar como cliente registrado en la base de datos</span>
+              </label>
+            </div>
+            <div className="modal__footer">
+              <button className="btn btn-neutral" onClick={() => setModalCliente(null)}>Cancelar</button>
+              <button className="btn btn-primary" onClick={handleGuardarCliente} disabled={saving}>
+                {saving ? 'Guardando…' : 'Guardar Cliente'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* MODAL DETALLE PEDIDO */}
       {selectedPedido && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setSelectedPedido(null)}>
@@ -423,6 +642,7 @@ export default function MeseroPage() {
               <button className="btn btn-sm btn-ghost" onClick={() => setSelectedPedido(null)}>✕</button>
             </div>
             <div className="modal__body">
+              <p><strong>Cliente:</strong> {selectedPedido.cliente?.nombre || selectedPedido.cliente_nombre_rapido || 'Cliente Ocasional'}</p>
               <p><strong>Estado comanda:</strong> {selectedPedido.estado.toUpperCase()}</p>
               <p><strong>Estado pago:</strong> {selectedPedido.estado_pago.toUpperCase()}</p>
               <p><strong>Hora pedido:</strong> {new Date(selectedPedido.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
@@ -450,33 +670,27 @@ export default function MeseroPage() {
         </div>
       )}
 
-      {/* MODAL DE COBRO Y CIERRE DE MESA */}
+      {/* MODAL DE COBRO */}
       {modalCobro && (
         <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && setModalCobro(null)}>
-          <div className="modal" style={{ maxWidth: '460px' }}>
+          <div className="modal" style={{ maxWidth: '440px' }}>
             <div className="modal__header">
-              <h3>💰 Cierre y Cobro — Mesa {modalCobro.mesa?.numero || ''}</h3>
+              <h3>💰 Cobro Mesa {modalCobro.mesa?.numero} — Pedido #{modalCobro.numero_pedido}</h3>
               <button className="btn btn-sm btn-ghost" onClick={() => setModalCobro(null)}>✕</button>
             </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)', margin: 'var(--space-3) 0' }}>
-              <div style={{ textAlign: 'center', padding: 'var(--space-3)', background: 'var(--bg-inset)', borderRadius: '8px' }}>
-                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Monto a cobrar:</span>
-                <div style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--orange-dark)' }}>
+            <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+              <div style={{ textAlign: 'center', background: 'var(--bg-elevated)', padding: 'var(--space-3)', borderRadius: 'var(--border-radius-md)' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Monto a Cobrar:</span>
+                <div style={{ fontSize: '1.8rem', fontWeight: 900, color: 'var(--orange-dark)' }}>
                   ${modalCobro.total.toLocaleString('es-CO')}
                 </div>
               </div>
 
               <div className="form-group">
-                <label className="form-label">Opción de Cierre de Pedido *</label>
-                <select
-                  className="form-select"
-                  value={estadoPagoCobro}
-                  onChange={(e) => setEstadoPagoCobro(e.target.value as EstadoPago)}
-                >
-                  <option value="pagado">💵 Entregado y PAGADO AHORA</option>
-                  <option value="fiado">📝 Entregado y FIADO</option>
-                  <option value="pendiente_pago">⏳ Entregado (Pendiente de pago)</option>
+                <label className="form-label">Estado del Pago</label>
+                <select className="form-select" value={estadoPagoCobro} onChange={(e) => setEstadoPagoCobro(e.target.value as EstadoPago)}>
+                  <option value="pagado">✅ Pagado inmediatamente</option>
+                  <option value="fiado">⏳ Fiado / Pendiente por cobrar luego</option>
                 </select>
               </div>
 
@@ -484,46 +698,51 @@ export default function MeseroPage() {
                 <>
                   <div className="form-group">
                     <label className="form-label">Método de Pago</label>
-                    <select
-                      className="form-select"
-                      value={metodoPago}
-                      onChange={(e) => setMetodoPago(e.target.value as any)}
-                    >
-                      <option value="efectivo">💵 Efectivo</option>
-                      <option value="transferencia">📱 Transferencia (Nequi / Daviplata / Banco)</option>
-                      <option value="mixto">🔄 Pago Mixto</option>
-                    </select>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+                      <button type="button" className={`btn btn-sm ${metodoPago === 'efectivo' ? 'btn-primary' : 'btn-neutral'}`} onClick={() => { setMetodoPago('efectivo'); setMontoEfectivo(modalCobro.total); setMontoTransferencia(0); }}>
+                        💵 Efectivo
+                      </button>
+                      <button type="button" className={`btn btn-sm ${metodoPago === 'transferencia' ? 'btn-primary' : 'btn-neutral'}`} onClick={() => { setMetodoPago('transferencia'); setMontoTransferencia(modalCobro.total); setMontoEfectivo(0); }}>
+                        📲 Nequi/Transf
+                      </button>
+                      <button type="button" className={`btn btn-sm ${metodoPago === 'mixto' ? 'btn-primary' : 'btn-neutral'}`} onClick={() => { setMetodoPago('mixto'); setMontoEfectivo(modalCobro.total / 2); setMontoTransferencia(modalCobro.total / 2); }}>
+                        💳 Mixto
+                      </button>
+                    </div>
                   </div>
 
-                  {(metodoPago === 'transferencia' || metodoPago === 'mixto') && (
+                  {(metodoPago === 'efectivo' || metodoPago === 'mixto') && (
                     <div className="form-group">
-                      <label className="form-label">Cuenta Destino</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={cuentaDestino}
-                        onChange={(e) => setCuentaDestino(e.target.value)}
-                        placeholder="Ej: Nequi 3001234567"
-                      />
+                      <label className="form-label">Monto en Efectivo ($)</label>
+                      <input type="number" className="form-input" value={montoEfectivo} onChange={(e) => setMontoEfectivo(Number(e.target.value))} />
                     </div>
+                  )}
+
+                  {(metodoPago === 'transferencia' || metodoPago === 'mixto') && (
+                    <>
+                      <div className="form-group">
+                        <label className="form-label">Monto Transferencia ($)</label>
+                        <input type="number" className="form-input" value={montoTransferencia} onChange={(e) => setMontoTransferencia(Number(e.target.value))} />
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Cuenta Destino</label>
+                        <input type="text" className="form-input" value={cuentaDestino} onChange={(e) => setCuentaDestino(e.target.value)} placeholder="Ej: Nequi 3001234567" />
+                      </div>
+                    </>
                   )}
                 </>
               )}
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginTop: '4px' }}>
-                <input
-                  type="checkbox"
-                  checked={liberarMesa}
-                  onChange={(e) => setLiberarMesa(e.target.checked)}
-                />
-                <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>🔓 Liberar Mesa tras el cobro</span>
+              <label className="nm-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem', marginTop: '8px' }}>
+                <input type="checkbox" checked={liberarMesa} onChange={(e) => setLiberarMesa(e.target.checked)} />
+                <span className="nm-checkbox-box" />
+                <span>🪑 Liberar Mesa {modalCobro.mesa?.numero} automáticamente</span>
               </label>
             </div>
-
             <div className="modal__footer">
               <button className="btn btn-neutral" onClick={() => setModalCobro(null)}>Cancelar</button>
               <button className="btn btn-success" onClick={handleConfirmarCobro} disabled={saving}>
-                {saving ? 'Procesando...' : '✅ Confirmar y Cerrar'}
+                {saving ? 'Procesando…' : 'Finalizar y Cerrar Cuenta'}
               </button>
             </div>
           </div>

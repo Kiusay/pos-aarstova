@@ -56,6 +56,7 @@ export default function PedidosPage() {
   const [direccionEntrega, setDireccionEntrega] = useState('');
   const [barrioEntrega, setBarrioEntrega] = useState('');
   const [domiciliarioId, setDomiciliarioId] = useState<string>('');
+  const [guardarDirectorio, setGuardarDirectorio] = useState(false);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [rondaActual, setRondaActual] = useState(1);
@@ -247,14 +248,35 @@ export default function PedidosPage() {
         .eq('estado', 'abierto')
         .maybeSingle();
 
+      // Guardar cliente en directorio si fue solicitado y se ingresaron datos
+      let finalClienteId = clienteId || null;
+      if (!finalClienteId && clienteNombreRapido.trim() && clienteTelefonoRapido.trim() && guardarDirectorio) {
+        const { data: cUpsert } = await supabase
+          .from('clientes')
+          .upsert(
+            {
+              nombre: clienteNombreRapido.trim(),
+              telefono: clienteTelefonoRapido.trim(),
+              direccion: direccionEntrega.trim() || null
+            },
+            { onConflict: 'telefono' }
+          )
+          .select('id')
+          .maybeSingle();
+
+        if (cUpsert) {
+          finalClienteId = cUpsert.id;
+        }
+      }
+
       // 3. Crear pedido
       const newPedidoPayload = {
         numero_pedido: numPedido,
         tipo,
         mesa_id: tipo === 'mesa' ? mesaId : null,
-        cliente_id: tipo === 'domicilio' && clienteId ? clienteId : null,
-        cliente_nombre_rapido: tipo === 'domicilio' && !clienteId ? clienteNombreRapido : null,
-        cliente_telefono_rapido: tipo === 'domicilio' && !clienteId ? clienteTelefonoRapido : null,
+        cliente_id: finalClienteId,
+        cliente_nombre_rapido: !finalClienteId ? (clienteNombreRapido || null) : null,
+        cliente_telefono_rapido: !finalClienteId ? (clienteTelefonoRapido || null) : null,
         domiciliario_id: tipo === 'domicilio' && domiciliarioId ? domiciliarioId : null,
         estado: 'pendiente' as EstadoPedido,
         estado_pago: estadoPago,
@@ -563,8 +585,8 @@ export default function PedidosPage() {
               </div>
 
               {tipo === 'mesa' ? (
-                <div className="form-group">
-                  <label className="form-label">Seleccionar Mesa</label>
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label">Seleccionar Mesa *</label>
                   <select className="form-select" value={mesaId} onChange={(e) => setMesaId(e.target.value)}>
                     <option value="">-- Elige una mesa --</option>
                     {mesas.map((m) => (
@@ -574,31 +596,50 @@ export default function PedidosPage() {
                     ))}
                   </select>
                 </div>
-              ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Cliente Registrado</label>
-                    <select className="form-select" value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
-                      <option value="">-- Buscar / Seleccionar Cliente --</option>
-                      {clientes.map((c) => (
-                        <option key={c.id} value={c.id}>
-                          {c.nombre} ({c.telefono}) - {c.barrio || 'Sin barrio'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  {!clienteId && (
+              ) : null}
+
+              {/* Datos del cliente (Aplica para Mesa y Domicilio) */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', borderTop: '1px solid var(--border)', paddingTop: '0.75rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Cliente Registrado (Opcional)</label>
+                  <select className="form-select" value={clienteId} onChange={(e) => setClienteId(e.target.value)}>
+                    <option value="">-- Buscar / Seleccionar de la lista --</option>
+                    {clientes.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nombre} ({c.telefono}) - {c.barrio || 'Sin barrio'}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {!clienteId && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
                       <div className="form-group">
-                        <label className="form-label">Nombre Rápido</label>
-                        <input className="form-input" value={clienteNombreRapido} onChange={(e) => setClienteNombreRapido(e.target.value)} placeholder="Ej: Maria Perez" />
+                        <label className="form-label">Nombre del Cliente</label>
+                        <input className="form-input" value={clienteNombreRapido} onChange={(e) => setClienteNombreRapido(e.target.value)} placeholder="Ej: María Pérez" />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">Teléfono Rápido</label>
+                        <label className="form-label">Teléfono / Celular</label>
                         <input className="form-input" value={clienteTelefonoRapido} onChange={(e) => setClienteTelefonoRapido(e.target.value)} placeholder="Ej: 3001234567" />
                       </div>
                     </div>
-                  )}
+
+                    {clienteNombreRapido.trim() && clienteTelefonoRapido.trim() && (
+                      <label className="nm-checkbox" style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', fontSize: '0.85rem' }}>
+                        <input
+                          type="checkbox"
+                          checked={guardarDirectorio}
+                          onChange={(e) => setGuardarDirectorio(e.target.checked)}
+                        />
+                        <span className="nm-checkbox-box" />
+                        <span>☑️ Guardar como cliente registrado en el directorio</span>
+                      </label>
+                    )}
+                  </div>
+                )}
+
+                {tipo === 'domicilio' && (
                   <div className="form-group">
                     <label className="form-label">Asignar Domiciliario</label>
                     <select className="form-select" value={domiciliarioId} onChange={(e) => setDomiciliarioId(e.target.value)}>
@@ -608,8 +649,8 @@ export default function PedidosPage() {
                       ))}
                     </select>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             {/* Paso 2: Menú del día (Pizarra) */}
