@@ -38,6 +38,9 @@ export default function CajaPage() {
   const [descGasto, setDescGasto] = useState('');
   const [montoGasto, setMontoGasto] = useState<number | ''>('');
   const [catGasto, setCatGasto] = useState<CategoriasGasto>('insumos');
+  const [metodoPagoGasto, setMetodoPagoGasto] = useState<'efectivo' | 'transferencia' | 'mixto'>('efectivo');
+  const [montoGastoEfectivo, setMontoGastoEfectivo] = useState<number | ''>('');
+  const [montoGastoTransferencia, setMontoGastoTransferencia] = useState<number | ''>('');
 
   // Modal Cierre de Caja / Arqueo
   const [modalCierre, setModalCierre] = useState(false);
@@ -247,23 +250,63 @@ export default function CajaPage() {
     if (!descGasto || !montoGasto || !turnoActivo) return;
     setSaving(true);
 
-    const { error } = await supabase.from('gastos_caja').insert({
+    const mTotal = Number(montoGasto);
+    let mEf = 0;
+    let mTr = 0;
+
+    if (metodoPagoGasto === 'efectivo') {
+      mEf = mTotal;
+      mTr = 0;
+    } else if (metodoPagoGasto === 'transferencia') {
+      mEf = 0;
+      mTr = mTotal;
+    } else {
+      mEf = Number(montoGastoEfectivo || 0);
+      mTr = Number(montoGastoTransferencia || 0);
+    }
+
+    const tag = metodoPagoGasto === 'transferencia' ? '[Transf] ' : metodoPagoGasto === 'mixto' ? '[Mixto] ' : '[Efectivo] ';
+    const descripcionFinal = `${tag}${descGasto.trim()}`;
+
+    const payload = {
       turno_id: turnoActivo.id,
-      descripcion: descGasto,
-      monto: Number(montoGasto),
+      descripcion: descripcionFinal,
+      monto: mTotal,
       categoria: catGasto,
-      registrado_por: sesion?.usuario.id || null,
+      registrado_por: sesion?.usuario?.id || null,
       fecha: new Date().toISOString(),
-    });
+      metodo_pago: metodoPagoGasto,
+      monto_efectivo: mEf,
+      monto_transferencia: mTr,
+    };
+
+    let { error } = await supabase.from('gastos_caja').insert(payload);
+
+    if (error) {
+      console.warn('[Gasto] Intentando insert sin metodo_pago/monto_efectivo por compatibilidad de schema:', error);
+      const fallbackPayload = {
+        turno_id: turnoActivo.id,
+        descripcion: descripcionFinal,
+        monto: mTotal,
+        categoria: catGasto,
+        registrado_por: sesion?.usuario?.id || null,
+        fecha: new Date().toISOString(),
+      };
+      const res = await supabase.from('gastos_caja').insert(fallbackPayload);
+      error = res.error;
+    }
 
     setSaving(false);
     if (error) {
       setMensaje({ tipo: 'error', texto: 'Error al registrar el gasto: ' + error.message });
     } else {
-      setMensaje({ tipo: 'exito', texto: '💸 Gasto de $' + Number(montoGasto).toLocaleString('es-CO') + ' registrado correctamente.' });
+      setMensaje({ tipo: 'exito', texto: '💸 Gasto de $' + mTotal.toLocaleString('es-CO') + ' (' + metodoPagoGasto.toUpperCase() + ') registrado correctamente.' });
       setModalGasto(false);
       setDescGasto('');
       setMontoGasto('');
+      setMetodoPagoGasto('efectivo');
+      setMontoGastoEfectivo('');
+      setMontoGastoTransferencia('');
       cargarEstadoCaja();
     }
   };
@@ -277,9 +320,26 @@ export default function CajaPage() {
     .filter((p) => p.estado_pago === 'pagado')
     .reduce((acc, p) => acc + (p.monto_transferencia || 0), 0);
 
+  const gastosEfectivo = gastosTurno.reduce((acc, g) => {
+    if (g.monto_efectivo !== undefined && g.monto_efectivo !== null) {
+      return acc + (g.monto_efectivo || 0);
+    }
+    if (g.descripcion?.startsWith('[Transf]')) return acc;
+    if (g.descripcion?.startsWith('[Mixto]')) return acc;
+    return acc + g.monto;
+  }, 0);
+
+  const gastosTransferencia = gastosTurno.reduce((acc, g) => {
+    if (g.monto_transferencia !== undefined && g.monto_transferencia !== null) {
+      return acc + (g.monto_transferencia || 0);
+    }
+    if (g.descripcion?.startsWith('[Transf]')) return acc + g.monto;
+    return acc;
+  }, 0);
+
   const totalGastos = gastosTurno.reduce((acc, g) => acc + g.monto, 0);
   const totalVentas = ventasEfectivo + ventasTransferencia;
-  const efectivoEsperadoEnCaja = (turnoActivo?.base_inicial || 0) + ventasEfectivo - totalGastos;
+  const efectivoEsperadoEnCaja = (turnoActivo?.base_inicial || 0) + ventasEfectivo - gastosEfectivo;
 
   const cerrarTurno = async () => {
     if (!turnoActivo || efectivoContado === '') return;
@@ -637,20 +697,99 @@ export default function CajaPage() {
       {/* MODAL REGISTRAR GASTO */}
       {modalGasto && (
         <div className="modal-overlay">
-          <form className="modal" onSubmit={guardarGasto} style={{ maxWidth: '420px' }}>
+          <form className="modal" onSubmit={guardarGasto} style={{ maxWidth: '440px' }}>
             <div className="modal__header">
-              <h3>💸 Registrar Gasto / Salida de Caja</h3>
+              <h3>💸 Registrar Gasto / Egresos</h3>
               <button type="button" className="btn btn-sm btn-ghost" onClick={() => setModalGasto(false)}>❌</button>
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
               <div className="form-group">
                 <label className="form-label">Descripción del Gasto *</label>
-                <input className="form-input" required value={descGasto} onChange={(e) => setDescGasto(e.target.value)} placeholder="Ej: Compra de hielo urgencia" />
+                <input className="form-input" required value={descGasto} onChange={(e) => setDescGasto(e.target.value)} placeholder="Ej: Pago de hielo urgencia, factura gas, etc." />
               </div>
+
               <div className="form-group">
-                <label className="form-label">Monto en Efectivo (COP) *</label>
-                <input type="number" className="form-input" required value={montoGasto} onChange={(e) => setMontoGasto(e.target.value === '' ? '' : Number(e.target.value))} placeholder="Ej: 15000" />
+                <label className="form-label">Monto Total del Gasto (COP) *</label>
+                <input
+                  type="number"
+                  className="form-input"
+                  required
+                  value={montoGasto}
+                  onChange={(e) => {
+                    const val = e.target.value === '' ? '' : Number(e.target.value);
+                    setMontoGasto(val);
+                    if (metodoPagoGasto === 'efectivo') {
+                      setMontoGastoEfectivo(val);
+                      setMontoGastoTransferencia(0);
+                    } else if (metodoPagoGasto === 'transferencia') {
+                      setMontoGastoTransferencia(val);
+                      setMontoGastoEfectivo(0);
+                    }
+                  }}
+                  placeholder="Ej: 15000"
+                />
               </div>
+
+              <div className="form-group">
+                <label className="form-label">Método de Pago del Gasto</label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${metodoPagoGasto === 'efectivo' ? 'btn-primary' : 'btn-neutral'}`}
+                    onClick={() => {
+                      setMetodoPagoGasto('efectivo');
+                      setMontoGastoEfectivo(montoGasto);
+                      setMontoGastoTransferencia(0);
+                    }}
+                  >
+                    💵 Efectivo
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${metodoPagoGasto === 'transferencia' ? 'btn-primary' : 'btn-neutral'}`}
+                    onClick={() => {
+                      setMetodoPagoGasto('transferencia');
+                      setMontoGastoTransferencia(montoGasto);
+                      setMontoGastoEfectivo(0);
+                    }}
+                  >
+                    📲 Nequi/Transf
+                  </button>
+                  <button
+                    type="button"
+                    className={`btn btn-sm ${metodoPagoGasto === 'mixto' ? 'btn-primary' : 'btn-neutral'}`}
+                    onClick={() => setMetodoPagoGasto('mixto')}
+                  >
+                    🔀 Mixto
+                  </button>
+                </div>
+              </div>
+
+              {metodoPagoGasto === 'mixto' && (
+                <div className="nm-inset" style={{ padding: '0.75rem', borderRadius: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Efectivo (Cajón):</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={montoGastoEfectivo}
+                      onChange={(e) => setMontoGastoEfectivo(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="$0"
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ fontSize: '0.75rem' }}>Transferencia:</label>
+                    <input
+                      type="number"
+                      className="form-input"
+                      value={montoGastoTransferencia}
+                      onChange={(e) => setMontoGastoTransferencia(e.target.value === '' ? '' : Number(e.target.value))}
+                      placeholder="$0"
+                    />
+                  </div>
+                </div>
+              )}
+
               <div className="form-group">
                 <label className="form-label">Categoría</label>
                 <select className="form-select" value={catGasto} onChange={(e) => setCatGasto(e.target.value as CategoriasGasto)}>

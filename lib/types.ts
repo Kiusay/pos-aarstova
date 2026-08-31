@@ -236,13 +236,16 @@ export interface TurnoCaja {
 }
 
 export interface GastoCaja {
-  id:             string;
-  turno_id:       string | null;
-  descripcion:    string;
-  categoria:      CategoriasGasto;
-  monto:          number;
-  registrado_por: string | null;
-  fecha:          string;
+  id:                  string;
+  turno_id:            string | null;
+  descripcion:         string;
+  categoria:           CategoriasGasto;
+  monto:               number;
+  metodo_pago?:        'efectivo' | 'transferencia' | 'mixto';
+  monto_efectivo?:     number;
+  monto_transferencia?:number;
+  registrado_por:      string | null;
+  fecha:               string;
 }
 
 export interface ItemCompra {
