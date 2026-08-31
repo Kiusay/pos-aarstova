@@ -1409,55 +1409,21 @@ function ModalCrearUsuarioDirecto({
     if (!password || password.length < 6) { showToast('La contraseña debe tener al menos 6 caracteres', 'warning'); return; }
 
     const cleanName = nombre.trim();
-    const cleanSlug = cleanName.toLowerCase().replace(/[^a-z0-9]/g, '');
-    const finalEmail = correo.trim() || `${cleanSlug || 'usuario'}${Math.floor(100 + Math.random() * 900)}@aarstova.com`;
-
     setSaving(true);
 
     try {
-      // 1. Crear usuario en Auth de Supabase (con cliente no-persistente)
-      const tempClient = createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
-        { auth: { persistSession: false, autoRefreshToken: false } }
-      );
-
-      const { data: authData, error: authError } = await tempClient.auth.signUp({
-        email: finalEmail,
-        password: password,
-        options: {
-          data: { nombre: cleanName, rol }
-        }
+      const res = await fetch('/api/admin/crear-usuario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: cleanName, correo: correo.trim(), password, rol })
       });
 
-      if (authError) {
-        showToast('Error en Auth: ' + authError.message, 'error');
-        setSaving(false);
-        return;
-      }
+      const data = await res.json();
 
-      const newUserId = authData.user?.id;
-      if (!newUserId) {
-        showToast('No se pudo generar el usuario en la autenticación', 'error');
-        setSaving(false);
-        return;
-      }
-
-      // 2. Insertar/Upsert en public.usuarios con la FK de auth.users
-      const { error: dbError } = await supabase.from('usuarios').upsert({
-        id: newUserId,
-        nombre: cleanName,
-        correo: finalEmail,
-        rol,
-        activo: true,
-        es_admin_principal: false,
-        permisos: getPermisosPorRol(rol)
-      });
-
-      if (dbError) {
-        showToast('Error al vincular en base de datos: ' + dbError.message, 'error');
+      if (!res.ok || data.error) {
+        showToast(data.error || 'Error al crear usuario', 'error');
       } else {
-        showToast(`✅ Usuario ${cleanName} creado con éxito! Correo: ${finalEmail}`, 'success');
+        showToast(`✅ Usuario ${cleanName} creado con éxito!`, 'success');
         onCreated();
       }
     } catch (err: any) {
