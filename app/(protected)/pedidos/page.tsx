@@ -79,60 +79,76 @@ export default function PedidosPage() {
 
   useEffect(() => {
     cargarDatos();
+
+    const channel = supabase
+      .channel('pedidos-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+        cargarDatos();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [filtroFecha]);
 
   const cargarDatos = async () => {
     setLoading(true);
-    const todayStr = new Date().toISOString().split('T')[0];
+    try {
+      const todayStr = new Date().toISOString().split('T')[0];
 
-    // Cargar pedidos
-    const { data: dataPedidos } = await supabase
-      .from('pedidos')
-      .select('*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*), detalle:detalle_pedido(*, plato:platos(*))')
-      .order('fecha_creacion', { ascending: false });
+      // Cargar pedidos
+      const { data: dataPedidos, error: errPed } = await supabase
+        .from('pedidos')
+        .select('*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*), detalle:detalle_pedido(*, plato:platos(*))')
+        .order('fecha_creacion', { ascending: false });
 
-    if (dataPedidos) setPedidos(dataPedidos as Pedido[]);
+      if (errPed) console.error('Error al cargar pedidos:', errPed);
+      if (dataPedidos) setPedidos(dataPedidos as Pedido[]);
 
-    // Cargar pizarra del día
-    const { data: dataPizarra } = await supabase
-      .from('pizarra_diaria')
-      .select('*, plato:platos(*, categoria:categorias_menu(*))')
-      .eq('fecha', todayStr)
-      .eq('activo', true);
-    if (dataPizarra) setPizarra(dataPizarra as PizarraItem[]);
+      // Cargar pizarra del día
+      const { data: dataPizarra } = await supabase
+        .from('pizarra_diaria')
+        .select('*, plato:platos(*, categoria:categorias_menu(*))')
+        .eq('fecha', todayStr)
+        .eq('activo', true);
+      if (dataPizarra) setPizarra(dataPizarra as PizarraItem[]);
 
-    // Cargar mesas
-    const { data: dataMesas } = await supabase
-      .from('mesas')
-      .select('*')
-      .eq('activa', true)
-      .order('numero');
-    if (dataMesas) setMesas(dataMesas as Mesa[]);
+      // Cargar mesas
+      const { data: dataMesas } = await supabase
+        .from('mesas')
+        .select('*')
+        .eq('activa', true)
+        .order('numero');
+      if (dataMesas) setMesas(dataMesas as Mesa[]);
 
-    // Cargar clientes
-    const { data: dataClientes } = await supabase
-      .from('clientes')
-      .select('*')
-      .eq('activo', true)
-      .order('nombre');
-    if (dataClientes) setClientes(dataClientes as Cliente[]);
+      // Cargar clientes
+      const { data: dataClientes } = await supabase
+        .from('clientes')
+        .select('*')
+        .eq('activo', true)
+        .order('nombre');
+      if (dataClientes) setClientes(dataClientes as Cliente[]);
 
-    // Cargar domiciliarios
-    const { data: dataDom } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('rol', 'domiciliario')
-      .eq('activo', true);
-    if (dataDom) setDomiciliarios(dataDom as Usuario[]);
+      // Cargar domiciliarios
+      const { data: dataDom } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('rol', 'domiciliario')
+        .eq('activo', true);
+      if (dataDom) setDomiciliarios(dataDom as Usuario[]);
 
-    // Cargar config
-    const { data: dataConfig } = await supabase
-      .from('restaurante_config')
-      .select('*')
-      .single();
-    if (dataConfig) setConfig(dataConfig as RestauranteConfig);
-
-    setLoading(false);
+      // Cargar config
+      const { data: dataConfig } = await supabase
+        .from('restaurante_config')
+        .select('*')
+        .single();
+      if (dataConfig) setConfig(dataConfig as RestauranteConfig);
+    } catch (e) {
+      console.error('Error en cargarDatos:', e);
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Agregar plato al carrito

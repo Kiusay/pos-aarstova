@@ -379,32 +379,36 @@ export default function CocinaPage() {
   const lastPendienteCount = useRef(0);
 
   const fetchPedidos = useCallback(async () => {
-    const { data, error } = await supabase
-      .from('pedidos')
-      .select(
-        `*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*),
-         detalle:detalle_pedido(*, plato:platos(*))`
-      )
-      .in('estado', ['pendiente', 'preparacion', 'listo'])
-      .order('fecha_creacion', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('pedidos')
+        .select(
+          `*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*),
+           detalle:detalle_pedido(*, plato:platos(*))`
+        )
+        .in('estado', ['pendiente', 'preparacion', 'listo'])
+        .order('fecha_creacion', { ascending: true });
 
-    if (error) {
-      console.error('[KDS] fetchPedidos error:', error);
-      return;
+      if (error) {
+        console.error('[KDS] fetchPedidos error:', error);
+      } else {
+        const sorted = ((data as PedidoKDS[]) ?? []).sort(
+          (a, b) => ESTADO_ORDEN[a.estado] - ESTADO_ORDEN[b.estado]
+        );
+
+        const pendienteNow = sorted.filter((p) => p.estado === 'pendiente').length;
+        if (sonidoRef.current && pendienteNow > lastPendienteCount.current) {
+          playBeep();
+        }
+        lastPendienteCount.current = pendienteNow;
+
+        setPedidos(sorted);
+      }
+    } catch (err) {
+      console.error('[KDS] catch error:', err);
+    } finally {
+      setLoading(false);
     }
-
-    const sorted = ((data as PedidoKDS[]) ?? []).sort(
-      (a, b) => ESTADO_ORDEN[a.estado] - ESTADO_ORDEN[b.estado]
-    );
-
-    const pendienteNow = sorted.filter((p) => p.estado === 'pendiente').length;
-    if (sonidoRef.current && pendienteNow > lastPendienteCount.current) {
-      playBeep();
-    }
-    lastPendienteCount.current = pendienteNow;
-
-    setPedidos(sorted);
-    setLoading(false);
   }, [supabase]);
 
   // Load config

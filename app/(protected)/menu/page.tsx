@@ -286,26 +286,52 @@ function TabPizarra({
     }));
   };
 
-  const toggleActivar = (platoId: string, plato: Plato, checked: boolean) => {
+  const toggleActivar = async (platoId: string, plato: Plato, checked: boolean) => {
+    setSaving(true);
+    const forma = getForma(platoId, plato);
+    const precio_hoy = parseFloat(forma.precio_hoy) || plato.precio_base;
+    const disponibles = forma.disponibles !== '' ? parseInt(forma.disponibles) : null;
+    const nota_dia = forma.nota_dia || null;
+
+    const existente = pizarra.find((p) => p.plato_id === platoId);
+
     if (checked) {
-      setLocalChecked((prev) => new Set([...prev, platoId]));
-      if (!formas[platoId]) {
-        setFormas((prev) => ({
-          ...prev,
-          [platoId]: {
-            precio_hoy: String(plato.precio_base),
-            disponibles: '',
-            nota_dia: '',
-          },
-        }));
+      if (existente) {
+        const { error } = await supabase
+          .from('pizarra_diaria')
+          .update({ activo: true, precio_hoy, disponibles, nota_dia })
+          .eq('id', existente.id);
+        if (error) toast('Error activando plato: ' + error.message, 'error');
+        else toast(`✅ ${plato.nombre} activado para hoy`, 'success');
+      } else {
+        const { error } = await supabase.from('pizarra_diaria').insert({
+          plato_id: platoId,
+          fecha,
+          precio_hoy,
+          disponibles,
+          nota_dia,
+          activo: true,
+          vendidos: 0,
+          creado_por: sesion?.usuario?.id ?? null,
+        });
+        if (error) toast('Error al activar plato: ' + error.message, 'error');
+        else toast(`✅ ${plato.nombre} activado para hoy`, 'success');
       }
     } else {
-      setLocalChecked((prev) => {
-        const n = new Set(prev);
-        n.delete(platoId);
-        return n;
-      });
+      if (existente) {
+        const { error } = await supabase
+          .from('pizarra_diaria')
+          .update({ activo: false })
+          .eq('id', existente.id);
+        if (error) toast('Error al desactivar: ' + error.message, 'error');
+        else toast(`⚪ ${plato.nombre} desactivado para hoy`, 'info');
+      }
     }
+
+    setLocalChecked(new Set());
+    await fetchPizarra();
+    onRefresh();
+    setSaving(false);
   };
 
   const handleDesactivar = async (item: PizarraItem) => {
@@ -331,49 +357,30 @@ function TabPizarra({
 
   const handleGuardar = async () => {
     setSaving(true);
-    const allActive = new Set([...activatedIds, ...localChecked]);
-    pizarra.filter((p) => !p.activo).forEach((p) => allActive.delete(p.plato_id));
-
+    const activeItems = pizarra.filter((p) => p.activo);
     let errors = 0;
 
-    for (const platoId of allActive) {
-      const plato = platos.find((p) => p.id === platoId);
+    for (const item of activeItems) {
+      const plato = platos.find((p) => p.id === item.plato_id);
       if (!plato) continue;
-      const forma = getForma(platoId, plato);
+      const forma = getForma(item.plato_id, plato);
       const precio_hoy = parseFloat(forma.precio_hoy) || plato.precio_base;
       const disponibles = forma.disponibles !== '' ? parseInt(forma.disponibles) : null;
       const nota_dia = forma.nota_dia || null;
 
-      const existente = pizarra.find((p) => p.plato_id === platoId);
-
-      if (existente) {
-        const { error } = await supabase
-          .from('pizarra_diaria')
-          .update({ precio_hoy, disponibles, nota_dia, activo: true })
-          .eq('id', existente.id);
-        if (error) errors++;
-      } else {
-        const { error } = await supabase.from('pizarra_diaria').insert({
-          plato_id: platoId,
-          fecha,
-          precio_hoy,
-          disponibles,
-          nota_dia,
-          activo: true,
-          vendidos: 0,
-          creado_por: sesion?.usuario.id ?? null,
-        });
-        if (error) errors++;
-      }
+      const { error } = await supabase
+        .from('pizarra_diaria')
+        .update({ precio_hoy, disponibles, nota_dia })
+        .eq('id', item.id);
+      if (error) errors++;
     }
 
     if (errors > 0) {
       toast(`Se guardó con ${errors} aviso(s)`, 'warning');
     } else {
-      toast('Pizarra del día actualizada correctamente', 'success');
+      toast('Precios y notas guardados correctamente', 'success');
     }
 
-    setLocalChecked(new Set());
     await fetchPizarra();
     onRefresh();
     setSaving(false);

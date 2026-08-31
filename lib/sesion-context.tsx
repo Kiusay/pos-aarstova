@@ -56,6 +56,14 @@ export function SesionProvider({ children }: { children: React.ReactNode }) {
             avatar_url: null,
             created_at: new Date().toISOString()
           };
+
+          // Intentar guardar en la base de datos para que RLS y FKs funcionen perfectamente
+          try {
+            await supabase.from('usuarios').upsert(fallbackUsuario);
+          } catch (e) {
+            console.warn('Could not auto-create user in public.usuarios:', e);
+          }
+
           setSesion({
             usuario: fallbackUsuario,
             permisos: ADMIN_PERMISOS,

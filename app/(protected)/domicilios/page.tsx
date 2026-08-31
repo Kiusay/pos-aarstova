@@ -15,26 +15,23 @@ export default function DomiciliosPage() {
   const [filtroEstado, setFiltroEstado] = useState<string>('activos');
   const [mensaje, setMensaje] = useState<{ tipo: 'exito' | 'error'; texto: string } | null>(null);
 
-  const canSeeAll = sesion?.tienePermiso('domicilios_todos');
+  const canSeeAll = sesion?.usuario?.rol === 'admin' || sesion?.tienePermiso('domicilios_todos') || sesion?.tienePermiso('admin');
   const canSeeOwn = sesion?.tienePermiso('domicilios_propios');
 
   useEffect(() => {
-    if (canSeeAll || canSeeOwn) {
-      cargarDomicilios();
-      cargarDomiciliarios();
+    cargarDomicilios();
+    cargarDomiciliarios();
 
-      // Suscripción Realtime
-      const channel = supabase
-        .channel('domicilios-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
-          cargarDomicilios();
-        })
-        .subscribe();
+    const channel = supabase
+      .channel('domicilios-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, () => {
+        cargarDomicilios();
+      })
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [sesion]);
 
   const cargarDomiciliarios = async () => {
