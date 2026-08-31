@@ -390,6 +390,12 @@ export default function CajaPage() {
       .update(updatePayload)
       .eq('id', turnoActivo.id);
 
+    // Cerrar también cualquier turno huérfano anterior que haya quedado en estado abierto
+    await supabase
+      .from('turnos_caja')
+      .update({ estado: 'cerrado', fecha_cierre: new Date().toISOString() })
+      .eq('estado', 'abierto');
+
     setSaving(false);
 
     if (error) {
@@ -407,7 +413,8 @@ export default function CajaPage() {
       generarPDFArqueo(turnoCompleto);
 
       setModalCierre(false);
-      cargarEstadoCaja();
+      setTurnoActivo(null);
+      await cargarEstadoCaja();
     }
   };
 
