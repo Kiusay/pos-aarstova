@@ -1,0 +1,3002 @@
+[
+  {
+    "id": 1,
+    "frase": "¡A darlo todo! 🌟 \"El secreto de salir adelante es simplemente comenzar.\" Cada esfuerzo suma.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 2,
+    "frase": "¡A darlo todo! 🌟 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Cada esfuerzo suma.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 3,
+    "frase": "¡A darlo todo! 🌟 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Cada esfuerzo suma.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 4,
+    "frase": "¡A darlo todo! 🌟 \"Caminante, no hay camino, se hace camino al andar.\" Cada esfuerzo suma.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 5,
+    "frase": "¡A darlo todo! 🌟 \"La mejor manera de predecir el futuro es crearlo.\" Cada esfuerzo suma.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 6,
+    "frase": "¡A darlo todo! 🌟 \"La simplicidad es la máxima sofisticación.\" Cada esfuerzo suma.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 7,
+    "frase": "¡A darlo todo! 🌟 \"Haz de cada día tu obra maestra.\" Cada esfuerzo suma.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 8,
+    "frase": "¡A darlo todo! 🌟 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Cada esfuerzo suma.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 9,
+    "frase": "¡A darlo todo! 🌟 \"La disciplina es el puente entre las metas y los logros.\" Cada esfuerzo suma.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 10,
+    "frase": "¡A darlo todo! 🌟 \"No cuentes los días, haz que los días cuenten.\" Cada esfuerzo suma.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 11,
+    "frase": "¡A darlo todo! 🌟 \"La paciencia es amarga, pero su fruto es dulce.\" Cada esfuerzo suma.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 12,
+    "frase": "¡A darlo todo! 🌟 \"Siembra un acto y cosecharás un hábito.\" Cada esfuerzo suma.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 13,
+    "frase": "¡A darlo todo! 🌟 \"El conocimiento habla, pero la sabiduría escucha.\" Cada esfuerzo suma.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 14,
+    "frase": "¡A darlo todo! 🌟 \"No busques los errores, busca el remedio.\" Cada esfuerzo suma.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 15,
+    "frase": "¡A darlo todo! 🌟 \"Siempre parece imposible hasta que se hace.\" Cada esfuerzo suma.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 16,
+    "frase": "¡A darlo todo! 🌟 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Cada esfuerzo suma.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 17,
+    "frase": "¡A darlo todo! 🌟 \"La energía y la persistencia conquistan todas las cosas.\" Cada esfuerzo suma.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 18,
+    "frase": "¡A darlo todo! 🌟 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Cada esfuerzo suma.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 19,
+    "frase": "¡A darlo todo! 🌟 \"Un viaje de mil millas comienza con un solo paso.\" Cada esfuerzo suma.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 20,
+    "frase": "¡A darlo todo! 🌟 \"La gratitud transforma lo que tenemos en suficiente.\" Cada esfuerzo suma.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 21,
+    "frase": "¡A darlo todo! 🌟 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Cada esfuerzo suma.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 22,
+    "frase": "¡A darlo todo! 🌟 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Cada esfuerzo suma.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 23,
+    "frase": "¡A darlo todo! 🌟 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Cada esfuerzo suma.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 24,
+    "frase": "¡A darlo todo! 🌟 \"La excelencia en la mesa se construye con atención a cada detalle.\" Cada esfuerzo suma.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 25,
+    "frase": "¡A darlo todo! 🌟 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Cada esfuerzo suma.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 26,
+    "frase": "¡A darlo todo! 🌟 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Cada esfuerzo suma.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 27,
+    "frase": "¡A darlo todo! 🌟 \"Servir con amabilidad alegra el día de quien nos visita.\" Cada esfuerzo suma.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 28,
+    "frase": "¡A darlo todo! 🌟 \"La frescura y el esmero son la firma de nuestros platos.\" Cada esfuerzo suma.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 29,
+    "frase": "¡A darlo todo! 🌟 \"Un plato bien servido habla antes del primer bocado.\" Cada esfuerzo suma.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 30,
+    "frase": "¡A darlo todo! 🌟 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Cada esfuerzo suma.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 31,
+    "frase": "¡A darlo todo! 🌟 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Cada esfuerzo suma.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 32,
+    "frase": "¡A darlo todo! 🌟 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Cada esfuerzo suma.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 33,
+    "frase": "¡A darlo todo! 🌟 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Cada esfuerzo suma.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 34,
+    "frase": "¡A darlo todo! 🌟 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Cada esfuerzo suma.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 35,
+    "frase": "¡A darlo todo! 🌟 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Cada esfuerzo suma.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 36,
+    "frase": "¡A darlo todo! 🌟 \"La buena actitud de uno contagia la energía de todos.\" Cada esfuerzo suma.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 37,
+    "frase": "¡A darlo todo! 🌟 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Cada esfuerzo suma.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 38,
+    "frase": "¡A darlo todo! 🌟 \"El respeto y la comunicación clara son la base de un gran turno.\" Cada esfuerzo suma.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 39,
+    "frase": "¡A darlo todo! 🌟 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Cada esfuerzo suma.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 40,
+    "frase": "¡A darlo todo! 🌟 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Cada esfuerzo suma.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 41,
+    "frase": "¡A darlo todo! 🌟 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Cada esfuerzo suma.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 42,
+    "frase": "¡A darlo todo! 🌟 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Cada esfuerzo suma.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 43,
+    "frase": "¡A darlo todo! 🌟 \"La constancia diaria es la llave que abre todas las puertas.\" Cada esfuerzo suma.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 44,
+    "frase": "¡A darlo todo! 🌟 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Cada esfuerzo suma.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 45,
+    "frase": "¡A darlo todo! 🌟 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Cada esfuerzo suma.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 46,
+    "frase": "¡A darlo todo! 🌟 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Cada esfuerzo suma.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 47,
+    "frase": "¡A darlo todo! 🌟 \"La pasión por lo que haces se nota en el resultado final.\" Cada esfuerzo suma.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 48,
+    "frase": "¡A darlo todo! 🌟 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Cada esfuerzo suma.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 49,
+    "frase": "¡A darlo todo! 🌟 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Cada esfuerzo suma.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 50,
+    "frase": "¡A darlo todo! 🌟 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Cada esfuerzo suma.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 51,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El secreto de salir adelante es simplemente comenzar.\" Mantengamos el ritmo.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 52,
+    "frase": "¡Excelente inicio de turno! 🚀 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Mantengamos el ritmo.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 53,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Mantengamos el ritmo.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 54,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Caminante, no hay camino, se hace camino al andar.\" Mantengamos el ritmo.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 55,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La mejor manera de predecir el futuro es crearlo.\" Mantengamos el ritmo.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 56,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La simplicidad es la máxima sofisticación.\" Mantengamos el ritmo.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 57,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Haz de cada día tu obra maestra.\" Mantengamos el ritmo.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 58,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Mantengamos el ritmo.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 59,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La disciplina es el puente entre las metas y los logros.\" Mantengamos el ritmo.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 60,
+    "frase": "¡Excelente inicio de turno! 🚀 \"No cuentes los días, haz que los días cuenten.\" Mantengamos el ritmo.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 61,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La paciencia es amarga, pero su fruto es dulce.\" Mantengamos el ritmo.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 62,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Siembra un acto y cosecharás un hábito.\" Mantengamos el ritmo.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 63,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El conocimiento habla, pero la sabiduría escucha.\" Mantengamos el ritmo.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 64,
+    "frase": "¡Excelente inicio de turno! 🚀 \"No busques los errores, busca el remedio.\" Mantengamos el ritmo.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 65,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Siempre parece imposible hasta que se hace.\" Mantengamos el ritmo.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 66,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Mantengamos el ritmo.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 67,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La energía y la persistencia conquistan todas las cosas.\" Mantengamos el ritmo.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 68,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Mantengamos el ritmo.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 69,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Un viaje de mil millas comienza con un solo paso.\" Mantengamos el ritmo.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 70,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La gratitud transforma lo que tenemos en suficiente.\" Mantengamos el ritmo.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 71,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Mantengamos el ritmo.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 72,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Mantengamos el ritmo.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 73,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Mantengamos el ritmo.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 74,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La excelencia en la mesa se construye con atención a cada detalle.\" Mantengamos el ritmo.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 75,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Mantengamos el ritmo.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 76,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Mantengamos el ritmo.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 77,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Servir con amabilidad alegra el día de quien nos visita.\" Mantengamos el ritmo.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 78,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La frescura y el esmero son la firma de nuestros platos.\" Mantengamos el ritmo.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 79,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Un plato bien servido habla antes del primer bocado.\" Mantengamos el ritmo.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 80,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Mantengamos el ritmo.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 81,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Mantengamos el ritmo.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 82,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Mantengamos el ritmo.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 83,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Mantengamos el ritmo.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 84,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Mantengamos el ritmo.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 85,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Mantengamos el ritmo.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 86,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La buena actitud de uno contagia la energía de todos.\" Mantengamos el ritmo.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 87,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Mantengamos el ritmo.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 88,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El respeto y la comunicación clara son la base de un gran turno.\" Mantengamos el ritmo.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 89,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Mantengamos el ritmo.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 90,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Mantengamos el ritmo.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 91,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Mantengamos el ritmo.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 92,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Mantengamos el ritmo.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 93,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La constancia diaria es la llave que abre todas las puertas.\" Mantengamos el ritmo.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 94,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Mantengamos el ritmo.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 95,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Mantengamos el ritmo.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 96,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Mantengamos el ritmo.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 97,
+    "frase": "¡Excelente inicio de turno! 🚀 \"La pasión por lo que haces se nota en el resultado final.\" Mantengamos el ritmo.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 98,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Mantengamos el ritmo.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 99,
+    "frase": "¡Excelente inicio de turno! 🚀 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Mantengamos el ritmo.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 100,
+    "frase": "¡Excelente inicio de turno! 🚀 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Mantengamos el ritmo.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 101,
+    "frase": "Reflexión del día: 💡 \"El secreto de salir adelante es simplemente comenzar.\" Enfocados en la meta.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 102,
+    "frase": "Reflexión del día: 💡 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Enfocados en la meta.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 103,
+    "frase": "Reflexión del día: 💡 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Enfocados en la meta.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 104,
+    "frase": "Reflexión del día: 💡 \"Caminante, no hay camino, se hace camino al andar.\" Enfocados en la meta.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 105,
+    "frase": "Reflexión del día: 💡 \"La mejor manera de predecir el futuro es crearlo.\" Enfocados en la meta.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 106,
+    "frase": "Reflexión del día: 💡 \"La simplicidad es la máxima sofisticación.\" Enfocados en la meta.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 107,
+    "frase": "Reflexión del día: 💡 \"Haz de cada día tu obra maestra.\" Enfocados en la meta.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 108,
+    "frase": "Reflexión del día: 💡 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Enfocados en la meta.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 109,
+    "frase": "Reflexión del día: 💡 \"La disciplina es el puente entre las metas y los logros.\" Enfocados en la meta.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 110,
+    "frase": "Reflexión del día: 💡 \"No cuentes los días, haz que los días cuenten.\" Enfocados en la meta.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 111,
+    "frase": "Reflexión del día: 💡 \"La paciencia es amarga, pero su fruto es dulce.\" Enfocados en la meta.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 112,
+    "frase": "Reflexión del día: 💡 \"Siembra un acto y cosecharás un hábito.\" Enfocados en la meta.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 113,
+    "frase": "Reflexión del día: 💡 \"El conocimiento habla, pero la sabiduría escucha.\" Enfocados en la meta.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 114,
+    "frase": "Reflexión del día: 💡 \"No busques los errores, busca el remedio.\" Enfocados en la meta.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 115,
+    "frase": "Reflexión del día: 💡 \"Siempre parece imposible hasta que se hace.\" Enfocados en la meta.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 116,
+    "frase": "Reflexión del día: 💡 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Enfocados en la meta.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 117,
+    "frase": "Reflexión del día: 💡 \"La energía y la persistencia conquistan todas las cosas.\" Enfocados en la meta.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 118,
+    "frase": "Reflexión del día: 💡 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Enfocados en la meta.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 119,
+    "frase": "Reflexión del día: 💡 \"Un viaje de mil millas comienza con un solo paso.\" Enfocados en la meta.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 120,
+    "frase": "Reflexión del día: 💡 \"La gratitud transforma lo que tenemos en suficiente.\" Enfocados en la meta.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 121,
+    "frase": "Reflexión del día: 💡 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Enfocados en la meta.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 122,
+    "frase": "Reflexión del día: 💡 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Enfocados en la meta.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 123,
+    "frase": "Reflexión del día: 💡 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Enfocados en la meta.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 124,
+    "frase": "Reflexión del día: 💡 \"La excelencia en la mesa se construye con atención a cada detalle.\" Enfocados en la meta.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 125,
+    "frase": "Reflexión del día: 💡 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Enfocados en la meta.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 126,
+    "frase": "Reflexión del día: 💡 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Enfocados en la meta.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 127,
+    "frase": "Reflexión del día: 💡 \"Servir con amabilidad alegra el día de quien nos visita.\" Enfocados en la meta.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 128,
+    "frase": "Reflexión del día: 💡 \"La frescura y el esmero son la firma de nuestros platos.\" Enfocados en la meta.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 129,
+    "frase": "Reflexión del día: 💡 \"Un plato bien servido habla antes del primer bocado.\" Enfocados en la meta.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 130,
+    "frase": "Reflexión del día: 💡 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Enfocados en la meta.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 131,
+    "frase": "Reflexión del día: 💡 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Enfocados en la meta.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 132,
+    "frase": "Reflexión del día: 💡 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Enfocados en la meta.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 133,
+    "frase": "Reflexión del día: 💡 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Enfocados en la meta.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 134,
+    "frase": "Reflexión del día: 💡 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Enfocados en la meta.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 135,
+    "frase": "Reflexión del día: 💡 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Enfocados en la meta.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 136,
+    "frase": "Reflexión del día: 💡 \"La buena actitud de uno contagia la energía de todos.\" Enfocados en la meta.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 137,
+    "frase": "Reflexión del día: 💡 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Enfocados en la meta.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 138,
+    "frase": "Reflexión del día: 💡 \"El respeto y la comunicación clara son la base de un gran turno.\" Enfocados en la meta.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 139,
+    "frase": "Reflexión del día: 💡 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Enfocados en la meta.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 140,
+    "frase": "Reflexión del día: 💡 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Enfocados en la meta.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 141,
+    "frase": "Reflexión del día: 💡 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Enfocados en la meta.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 142,
+    "frase": "Reflexión del día: 💡 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Enfocados en la meta.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 143,
+    "frase": "Reflexión del día: 💡 \"La constancia diaria es la llave que abre todas las puertas.\" Enfocados en la meta.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 144,
+    "frase": "Reflexión del día: 💡 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Enfocados en la meta.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 145,
+    "frase": "Reflexión del día: 💡 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Enfocados en la meta.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 146,
+    "frase": "Reflexión del día: 💡 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Enfocados en la meta.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 147,
+    "frase": "Reflexión del día: 💡 \"La pasión por lo que haces se nota en el resultado final.\" Enfocados en la meta.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 148,
+    "frase": "Reflexión del día: 💡 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Enfocados en la meta.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 149,
+    "frase": "Reflexión del día: 💡 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Enfocados en la meta.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 150,
+    "frase": "Reflexión del día: 💡 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Enfocados en la meta.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 151,
+    "frase": "¡Con toda la energía! 🔥 \"El secreto de salir adelante es simplemente comenzar.\" Cuidemos cada detalle.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 152,
+    "frase": "¡Con toda la energía! 🔥 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Cuidemos cada detalle.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 153,
+    "frase": "¡Con toda la energía! 🔥 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Cuidemos cada detalle.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 154,
+    "frase": "¡Con toda la energía! 🔥 \"Caminante, no hay camino, se hace camino al andar.\" Cuidemos cada detalle.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 155,
+    "frase": "¡Con toda la energía! 🔥 \"La mejor manera de predecir el futuro es crearlo.\" Cuidemos cada detalle.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 156,
+    "frase": "¡Con toda la energía! 🔥 \"La simplicidad es la máxima sofisticación.\" Cuidemos cada detalle.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 157,
+    "frase": "¡Con toda la energía! 🔥 \"Haz de cada día tu obra maestra.\" Cuidemos cada detalle.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 158,
+    "frase": "¡Con toda la energía! 🔥 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Cuidemos cada detalle.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 159,
+    "frase": "¡Con toda la energía! 🔥 \"La disciplina es el puente entre las metas y los logros.\" Cuidemos cada detalle.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 160,
+    "frase": "¡Con toda la energía! 🔥 \"No cuentes los días, haz que los días cuenten.\" Cuidemos cada detalle.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 161,
+    "frase": "¡Con toda la energía! 🔥 \"La paciencia es amarga, pero su fruto es dulce.\" Cuidemos cada detalle.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 162,
+    "frase": "¡Con toda la energía! 🔥 \"Siembra un acto y cosecharás un hábito.\" Cuidemos cada detalle.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 163,
+    "frase": "¡Con toda la energía! 🔥 \"El conocimiento habla, pero la sabiduría escucha.\" Cuidemos cada detalle.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 164,
+    "frase": "¡Con toda la energía! 🔥 \"No busques los errores, busca el remedio.\" Cuidemos cada detalle.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 165,
+    "frase": "¡Con toda la energía! 🔥 \"Siempre parece imposible hasta que se hace.\" Cuidemos cada detalle.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 166,
+    "frase": "¡Con toda la energía! 🔥 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Cuidemos cada detalle.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 167,
+    "frase": "¡Con toda la energía! 🔥 \"La energía y la persistencia conquistan todas las cosas.\" Cuidemos cada detalle.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 168,
+    "frase": "¡Con toda la energía! 🔥 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Cuidemos cada detalle.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 169,
+    "frase": "¡Con toda la energía! 🔥 \"Un viaje de mil millas comienza con un solo paso.\" Cuidemos cada detalle.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 170,
+    "frase": "¡Con toda la energía! 🔥 \"La gratitud transforma lo que tenemos en suficiente.\" Cuidemos cada detalle.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 171,
+    "frase": "¡Con toda la energía! 🔥 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Cuidemos cada detalle.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 172,
+    "frase": "¡Con toda la energía! 🔥 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Cuidemos cada detalle.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 173,
+    "frase": "¡Con toda la energía! 🔥 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Cuidemos cada detalle.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 174,
+    "frase": "¡Con toda la energía! 🔥 \"La excelencia en la mesa se construye con atención a cada detalle.\" Cuidemos cada detalle.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 175,
+    "frase": "¡Con toda la energía! 🔥 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Cuidemos cada detalle.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 176,
+    "frase": "¡Con toda la energía! 🔥 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Cuidemos cada detalle.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 177,
+    "frase": "¡Con toda la energía! 🔥 \"Servir con amabilidad alegra el día de quien nos visita.\" Cuidemos cada detalle.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 178,
+    "frase": "¡Con toda la energía! 🔥 \"La frescura y el esmero son la firma de nuestros platos.\" Cuidemos cada detalle.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 179,
+    "frase": "¡Con toda la energía! 🔥 \"Un plato bien servido habla antes del primer bocado.\" Cuidemos cada detalle.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 180,
+    "frase": "¡Con toda la energía! 🔥 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Cuidemos cada detalle.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 181,
+    "frase": "¡Con toda la energía! 🔥 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Cuidemos cada detalle.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 182,
+    "frase": "¡Con toda la energía! 🔥 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Cuidemos cada detalle.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 183,
+    "frase": "¡Con toda la energía! 🔥 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Cuidemos cada detalle.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 184,
+    "frase": "¡Con toda la energía! 🔥 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Cuidemos cada detalle.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 185,
+    "frase": "¡Con toda la energía! 🔥 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Cuidemos cada detalle.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 186,
+    "frase": "¡Con toda la energía! 🔥 \"La buena actitud de uno contagia la energía de todos.\" Cuidemos cada detalle.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 187,
+    "frase": "¡Con toda la energía! 🔥 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Cuidemos cada detalle.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 188,
+    "frase": "¡Con toda la energía! 🔥 \"El respeto y la comunicación clara son la base de un gran turno.\" Cuidemos cada detalle.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 189,
+    "frase": "¡Con toda la energía! 🔥 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Cuidemos cada detalle.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 190,
+    "frase": "¡Con toda la energía! 🔥 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Cuidemos cada detalle.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 191,
+    "frase": "¡Con toda la energía! 🔥 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Cuidemos cada detalle.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 192,
+    "frase": "¡Con toda la energía! 🔥 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Cuidemos cada detalle.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 193,
+    "frase": "¡Con toda la energía! 🔥 \"La constancia diaria es la llave que abre todas las puertas.\" Cuidemos cada detalle.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 194,
+    "frase": "¡Con toda la energía! 🔥 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Cuidemos cada detalle.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 195,
+    "frase": "¡Con toda la energía! 🔥 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Cuidemos cada detalle.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 196,
+    "frase": "¡Con toda la energía! 🔥 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Cuidemos cada detalle.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 197,
+    "frase": "¡Con toda la energía! 🔥 \"La pasión por lo que haces se nota en el resultado final.\" Cuidemos cada detalle.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 198,
+    "frase": "¡Con toda la energía! 🔥 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Cuidemos cada detalle.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 199,
+    "frase": "¡Con toda la energía! 🔥 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Cuidemos cada detalle.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 200,
+    "frase": "¡Con toda la energía! 🔥 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Cuidemos cada detalle.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 201,
+    "frase": "Mensaje para el equipo: ✨ \"El secreto de salir adelante es simplemente comenzar.\" Sigamos adelante con fuerza.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 202,
+    "frase": "Mensaje para el equipo: ✨ \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Sigamos adelante con fuerza.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 203,
+    "frase": "Mensaje para el equipo: ✨ \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Sigamos adelante con fuerza.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 204,
+    "frase": "Mensaje para el equipo: ✨ \"Caminante, no hay camino, se hace camino al andar.\" Sigamos adelante con fuerza.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 205,
+    "frase": "Mensaje para el equipo: ✨ \"La mejor manera de predecir el futuro es crearlo.\" Sigamos adelante con fuerza.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 206,
+    "frase": "Mensaje para el equipo: ✨ \"La simplicidad es la máxima sofisticación.\" Sigamos adelante con fuerza.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 207,
+    "frase": "Mensaje para el equipo: ✨ \"Haz de cada día tu obra maestra.\" Sigamos adelante con fuerza.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 208,
+    "frase": "Mensaje para el equipo: ✨ \"El único modo de hacer un gran trabajo es amar lo que haces.\" Sigamos adelante con fuerza.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 209,
+    "frase": "Mensaje para el equipo: ✨ \"La disciplina es el puente entre las metas y los logros.\" Sigamos adelante con fuerza.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 210,
+    "frase": "Mensaje para el equipo: ✨ \"No cuentes los días, haz que los días cuenten.\" Sigamos adelante con fuerza.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 211,
+    "frase": "Mensaje para el equipo: ✨ \"La paciencia es amarga, pero su fruto es dulce.\" Sigamos adelante con fuerza.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 212,
+    "frase": "Mensaje para el equipo: ✨ \"Siembra un acto y cosecharás un hábito.\" Sigamos adelante con fuerza.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 213,
+    "frase": "Mensaje para el equipo: ✨ \"El conocimiento habla, pero la sabiduría escucha.\" Sigamos adelante con fuerza.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 214,
+    "frase": "Mensaje para el equipo: ✨ \"No busques los errores, busca el remedio.\" Sigamos adelante con fuerza.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 215,
+    "frase": "Mensaje para el equipo: ✨ \"Siempre parece imposible hasta que se hace.\" Sigamos adelante con fuerza.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 216,
+    "frase": "Mensaje para el equipo: ✨ \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Sigamos adelante con fuerza.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 217,
+    "frase": "Mensaje para el equipo: ✨ \"La energía y la persistencia conquistan todas las cosas.\" Sigamos adelante con fuerza.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 218,
+    "frase": "Mensaje para el equipo: ✨ \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Sigamos adelante con fuerza.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 219,
+    "frase": "Mensaje para el equipo: ✨ \"Un viaje de mil millas comienza con un solo paso.\" Sigamos adelante con fuerza.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 220,
+    "frase": "Mensaje para el equipo: ✨ \"La gratitud transforma lo que tenemos en suficiente.\" Sigamos adelante con fuerza.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 221,
+    "frase": "Mensaje para el equipo: ✨ \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Sigamos adelante con fuerza.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 222,
+    "frase": "Mensaje para el equipo: ✨ \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Sigamos adelante con fuerza.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 223,
+    "frase": "Mensaje para el equipo: ✨ \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Sigamos adelante con fuerza.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 224,
+    "frase": "Mensaje para el equipo: ✨ \"La excelencia en la mesa se construye con atención a cada detalle.\" Sigamos adelante con fuerza.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 225,
+    "frase": "Mensaje para el equipo: ✨ \"Un buen servicio convierte una comida común en una experiencia memorable.\" Sigamos adelante con fuerza.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 226,
+    "frase": "Mensaje para el equipo: ✨ \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Sigamos adelante con fuerza.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 227,
+    "frase": "Mensaje para el equipo: ✨ \"Servir con amabilidad alegra el día de quien nos visita.\" Sigamos adelante con fuerza.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 228,
+    "frase": "Mensaje para el equipo: ✨ \"La frescura y el esmero son la firma de nuestros platos.\" Sigamos adelante con fuerza.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 229,
+    "frase": "Mensaje para el equipo: ✨ \"Un plato bien servido habla antes del primer bocado.\" Sigamos adelante con fuerza.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 230,
+    "frase": "Mensaje para el equipo: ✨ \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Sigamos adelante con fuerza.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 231,
+    "frase": "Mensaje para el equipo: ✨ \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Sigamos adelante con fuerza.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 232,
+    "frase": "Mensaje para el equipo: ✨ \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Sigamos adelante con fuerza.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 233,
+    "frase": "Mensaje para el equipo: ✨ \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Sigamos adelante con fuerza.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 234,
+    "frase": "Mensaje para el equipo: ✨ \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Sigamos adelante con fuerza.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 235,
+    "frase": "Mensaje para el equipo: ✨ \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Sigamos adelante con fuerza.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 236,
+    "frase": "Mensaje para el equipo: ✨ \"La buena actitud de uno contagia la energía de todos.\" Sigamos adelante con fuerza.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 237,
+    "frase": "Mensaje para el equipo: ✨ \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Sigamos adelante con fuerza.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 238,
+    "frase": "Mensaje para el equipo: ✨ \"El respeto y la comunicación clara son la base de un gran turno.\" Sigamos adelante con fuerza.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 239,
+    "frase": "Mensaje para el equipo: ✨ \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Sigamos adelante con fuerza.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 240,
+    "frase": "Mensaje para el equipo: ✨ \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Sigamos adelante con fuerza.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 241,
+    "frase": "Mensaje para el equipo: ✨ \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Sigamos adelante con fuerza.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 242,
+    "frase": "Mensaje para el equipo: ✨ \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Sigamos adelante con fuerza.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 243,
+    "frase": "Mensaje para el equipo: ✨ \"La constancia diaria es la llave que abre todas las puertas.\" Sigamos adelante con fuerza.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 244,
+    "frase": "Mensaje para el equipo: ✨ \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Sigamos adelante con fuerza.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 245,
+    "frase": "Mensaje para el equipo: ✨ \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Sigamos adelante con fuerza.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 246,
+    "frase": "Mensaje para el equipo: ✨ \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Sigamos adelante con fuerza.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 247,
+    "frase": "Mensaje para el equipo: ✨ \"La pasión por lo que haces se nota en el resultado final.\" Sigamos adelante con fuerza.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 248,
+    "frase": "Mensaje para el equipo: ✨ \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Sigamos adelante con fuerza.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 249,
+    "frase": "Mensaje para el equipo: ✨ \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Sigamos adelante con fuerza.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 250,
+    "frase": "Mensaje para el equipo: ✨ \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Sigamos adelante con fuerza.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 251,
+    "frase": "¡Buenos días! ☀️ \"El secreto de salir adelante es simplemente comenzar.\" Hagamos que valga la pena.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 252,
+    "frase": "¡Buenos días! ☀️ \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Hagamos que valga la pena.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 253,
+    "frase": "¡Buenos días! ☀️ \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Hagamos que valga la pena.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 254,
+    "frase": "¡Buenos días! ☀️ \"Caminante, no hay camino, se hace camino al andar.\" Hagamos que valga la pena.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 255,
+    "frase": "¡Buenos días! ☀️ \"La mejor manera de predecir el futuro es crearlo.\" Hagamos que valga la pena.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 256,
+    "frase": "¡Buenos días! ☀️ \"La simplicidad es la máxima sofisticación.\" Hagamos que valga la pena.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 257,
+    "frase": "¡Buenos días! ☀️ \"Haz de cada día tu obra maestra.\" Hagamos que valga la pena.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 258,
+    "frase": "¡Buenos días! ☀️ \"El único modo de hacer un gran trabajo es amar lo que haces.\" Hagamos que valga la pena.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 259,
+    "frase": "¡Buenos días! ☀️ \"La disciplina es el puente entre las metas y los logros.\" Hagamos que valga la pena.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 260,
+    "frase": "¡Buenos días! ☀️ \"No cuentes los días, haz que los días cuenten.\" Hagamos que valga la pena.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 261,
+    "frase": "¡Buenos días! ☀️ \"La paciencia es amarga, pero su fruto es dulce.\" Hagamos que valga la pena.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 262,
+    "frase": "¡Buenos días! ☀️ \"Siembra un acto y cosecharás un hábito.\" Hagamos que valga la pena.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 263,
+    "frase": "¡Buenos días! ☀️ \"El conocimiento habla, pero la sabiduría escucha.\" Hagamos que valga la pena.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 264,
+    "frase": "¡Buenos días! ☀️ \"No busques los errores, busca el remedio.\" Hagamos que valga la pena.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 265,
+    "frase": "¡Buenos días! ☀️ \"Siempre parece imposible hasta que se hace.\" Hagamos que valga la pena.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 266,
+    "frase": "¡Buenos días! ☀️ \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Hagamos que valga la pena.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 267,
+    "frase": "¡Buenos días! ☀️ \"La energía y la persistencia conquistan todas las cosas.\" Hagamos que valga la pena.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 268,
+    "frase": "¡Buenos días! ☀️ \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Hagamos que valga la pena.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 269,
+    "frase": "¡Buenos días! ☀️ \"Un viaje de mil millas comienza con un solo paso.\" Hagamos que valga la pena.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 270,
+    "frase": "¡Buenos días! ☀️ \"La gratitud transforma lo que tenemos en suficiente.\" Hagamos que valga la pena.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 271,
+    "frase": "¡Buenos días! ☀️ \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Hagamos que valga la pena.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 272,
+    "frase": "¡Buenos días! ☀️ \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Hagamos que valga la pena.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 273,
+    "frase": "¡Buenos días! ☀️ \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Hagamos que valga la pena.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 274,
+    "frase": "¡Buenos días! ☀️ \"La excelencia en la mesa se construye con atención a cada detalle.\" Hagamos que valga la pena.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 275,
+    "frase": "¡Buenos días! ☀️ \"Un buen servicio convierte una comida común en una experiencia memorable.\" Hagamos que valga la pena.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 276,
+    "frase": "¡Buenos días! ☀️ \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Hagamos que valga la pena.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 277,
+    "frase": "¡Buenos días! ☀️ \"Servir con amabilidad alegra el día de quien nos visita.\" Hagamos que valga la pena.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 278,
+    "frase": "¡Buenos días! ☀️ \"La frescura y el esmero son la firma de nuestros platos.\" Hagamos que valga la pena.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 279,
+    "frase": "¡Buenos días! ☀️ \"Un plato bien servido habla antes del primer bocado.\" Hagamos que valga la pena.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 280,
+    "frase": "¡Buenos días! ☀️ \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Hagamos que valga la pena.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 281,
+    "frase": "¡Buenos días! ☀️ \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Hagamos que valga la pena.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 282,
+    "frase": "¡Buenos días! ☀️ \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Hagamos que valga la pena.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 283,
+    "frase": "¡Buenos días! ☀️ \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Hagamos que valga la pena.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 284,
+    "frase": "¡Buenos días! ☀️ \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Hagamos que valga la pena.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 285,
+    "frase": "¡Buenos días! ☀️ \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Hagamos que valga la pena.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 286,
+    "frase": "¡Buenos días! ☀️ \"La buena actitud de uno contagia la energía de todos.\" Hagamos que valga la pena.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 287,
+    "frase": "¡Buenos días! ☀️ \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Hagamos que valga la pena.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 288,
+    "frase": "¡Buenos días! ☀️ \"El respeto y la comunicación clara son la base de un gran turno.\" Hagamos que valga la pena.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 289,
+    "frase": "¡Buenos días! ☀️ \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Hagamos que valga la pena.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 290,
+    "frase": "¡Buenos días! ☀️ \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Hagamos que valga la pena.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 291,
+    "frase": "¡Buenos días! ☀️ \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Hagamos que valga la pena.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 292,
+    "frase": "¡Buenos días! ☀️ \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Hagamos que valga la pena.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 293,
+    "frase": "¡Buenos días! ☀️ \"La constancia diaria es la llave que abre todas las puertas.\" Hagamos que valga la pena.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 294,
+    "frase": "¡Buenos días! ☀️ \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Hagamos que valga la pena.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 295,
+    "frase": "¡Buenos días! ☀️ \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Hagamos que valga la pena.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 296,
+    "frase": "¡Buenos días! ☀️ \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Hagamos que valga la pena.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 297,
+    "frase": "¡Buenos días! ☀️ \"La pasión por lo que haces se nota en el resultado final.\" Hagamos que valga la pena.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 298,
+    "frase": "¡Buenos días! ☀️ \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Hagamos que valga la pena.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 299,
+    "frase": "¡Buenos días! ☀️ \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Hagamos que valga la pena.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 300,
+    "frase": "¡Buenos días! ☀️ \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Hagamos que valga la pena.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 301,
+    "frase": "Para recordar hoy: 📌 \"El secreto de salir adelante es simplemente comenzar.\" La constancia rinde frutos.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 302,
+    "frase": "Para recordar hoy: 📌 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" La constancia rinde frutos.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 303,
+    "frase": "Para recordar hoy: 📌 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" La constancia rinde frutos.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 304,
+    "frase": "Para recordar hoy: 📌 \"Caminante, no hay camino, se hace camino al andar.\" La constancia rinde frutos.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 305,
+    "frase": "Para recordar hoy: 📌 \"La mejor manera de predecir el futuro es crearlo.\" La constancia rinde frutos.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 306,
+    "frase": "Para recordar hoy: 📌 \"La simplicidad es la máxima sofisticación.\" La constancia rinde frutos.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 307,
+    "frase": "Para recordar hoy: 📌 \"Haz de cada día tu obra maestra.\" La constancia rinde frutos.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 308,
+    "frase": "Para recordar hoy: 📌 \"El único modo de hacer un gran trabajo es amar lo que haces.\" La constancia rinde frutos.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 309,
+    "frase": "Para recordar hoy: 📌 \"La disciplina es el puente entre las metas y los logros.\" La constancia rinde frutos.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 310,
+    "frase": "Para recordar hoy: 📌 \"No cuentes los días, haz que los días cuenten.\" La constancia rinde frutos.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 311,
+    "frase": "Para recordar hoy: 📌 \"La paciencia es amarga, pero su fruto es dulce.\" La constancia rinde frutos.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 312,
+    "frase": "Para recordar hoy: 📌 \"Siembra un acto y cosecharás un hábito.\" La constancia rinde frutos.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 313,
+    "frase": "Para recordar hoy: 📌 \"El conocimiento habla, pero la sabiduría escucha.\" La constancia rinde frutos.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 314,
+    "frase": "Para recordar hoy: 📌 \"No busques los errores, busca el remedio.\" La constancia rinde frutos.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 315,
+    "frase": "Para recordar hoy: 📌 \"Siempre parece imposible hasta que se hace.\" La constancia rinde frutos.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 316,
+    "frase": "Para recordar hoy: 📌 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" La constancia rinde frutos.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 317,
+    "frase": "Para recordar hoy: 📌 \"La energía y la persistencia conquistan todas las cosas.\" La constancia rinde frutos.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 318,
+    "frase": "Para recordar hoy: 📌 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" La constancia rinde frutos.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 319,
+    "frase": "Para recordar hoy: 📌 \"Un viaje de mil millas comienza con un solo paso.\" La constancia rinde frutos.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 320,
+    "frase": "Para recordar hoy: 📌 \"La gratitud transforma lo que tenemos en suficiente.\" La constancia rinde frutos.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 321,
+    "frase": "Para recordar hoy: 📌 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" La constancia rinde frutos.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 322,
+    "frase": "Para recordar hoy: 📌 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" La constancia rinde frutos.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 323,
+    "frase": "Para recordar hoy: 📌 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" La constancia rinde frutos.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 324,
+    "frase": "Para recordar hoy: 📌 \"La excelencia en la mesa se construye con atención a cada detalle.\" La constancia rinde frutos.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 325,
+    "frase": "Para recordar hoy: 📌 \"Un buen servicio convierte una comida común en una experiencia memorable.\" La constancia rinde frutos.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 326,
+    "frase": "Para recordar hoy: 📌 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" La constancia rinde frutos.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 327,
+    "frase": "Para recordar hoy: 📌 \"Servir con amabilidad alegra el día de quien nos visita.\" La constancia rinde frutos.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 328,
+    "frase": "Para recordar hoy: 📌 \"La frescura y el esmero son la firma de nuestros platos.\" La constancia rinde frutos.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 329,
+    "frase": "Para recordar hoy: 📌 \"Un plato bien servido habla antes del primer bocado.\" La constancia rinde frutos.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 330,
+    "frase": "Para recordar hoy: 📌 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" La constancia rinde frutos.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 331,
+    "frase": "Para recordar hoy: 📌 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" La constancia rinde frutos.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 332,
+    "frase": "Para recordar hoy: 📌 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" La constancia rinde frutos.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 333,
+    "frase": "Para recordar hoy: 📌 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" La constancia rinde frutos.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 334,
+    "frase": "Para recordar hoy: 📌 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" La constancia rinde frutos.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 335,
+    "frase": "Para recordar hoy: 📌 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" La constancia rinde frutos.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 336,
+    "frase": "Para recordar hoy: 📌 \"La buena actitud de uno contagia la energía de todos.\" La constancia rinde frutos.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 337,
+    "frase": "Para recordar hoy: 📌 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" La constancia rinde frutos.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 338,
+    "frase": "Para recordar hoy: 📌 \"El respeto y la comunicación clara son la base de un gran turno.\" La constancia rinde frutos.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 339,
+    "frase": "Para recordar hoy: 📌 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" La constancia rinde frutos.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 340,
+    "frase": "Para recordar hoy: 📌 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" La constancia rinde frutos.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 341,
+    "frase": "Para recordar hoy: 📌 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" La constancia rinde frutos.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 342,
+    "frase": "Para recordar hoy: 📌 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" La constancia rinde frutos.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 343,
+    "frase": "Para recordar hoy: 📌 \"La constancia diaria es la llave que abre todas las puertas.\" La constancia rinde frutos.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 344,
+    "frase": "Para recordar hoy: 📌 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" La constancia rinde frutos.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 345,
+    "frase": "Para recordar hoy: 📌 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" La constancia rinde frutos.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 346,
+    "frase": "Para recordar hoy: 📌 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" La constancia rinde frutos.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 347,
+    "frase": "Para recordar hoy: 📌 \"La pasión por lo que haces se nota en el resultado final.\" La constancia rinde frutos.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 348,
+    "frase": "Para recordar hoy: 📌 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" La constancia rinde frutos.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 349,
+    "frase": "Para recordar hoy: 📌 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" La constancia rinde frutos.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 350,
+    "frase": "Para recordar hoy: 📌 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" La constancia rinde frutos.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 351,
+    "frase": "¡Actitud al 100%! 🎯 \"El secreto de salir adelante es simplemente comenzar.\" Todo fluye con orden y calma.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 352,
+    "frase": "¡Actitud al 100%! 🎯 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Todo fluye con orden y calma.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 353,
+    "frase": "¡Actitud al 100%! 🎯 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Todo fluye con orden y calma.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 354,
+    "frase": "¡Actitud al 100%! 🎯 \"Caminante, no hay camino, se hace camino al andar.\" Todo fluye con orden y calma.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 355,
+    "frase": "¡Actitud al 100%! 🎯 \"La mejor manera de predecir el futuro es crearlo.\" Todo fluye con orden y calma.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 356,
+    "frase": "¡Actitud al 100%! 🎯 \"La simplicidad es la máxima sofisticación.\" Todo fluye con orden y calma.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 357,
+    "frase": "¡Actitud al 100%! 🎯 \"Haz de cada día tu obra maestra.\" Todo fluye con orden y calma.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 358,
+    "frase": "¡Actitud al 100%! 🎯 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Todo fluye con orden y calma.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 359,
+    "frase": "¡Actitud al 100%! 🎯 \"La disciplina es el puente entre las metas y los logros.\" Todo fluye con orden y calma.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 360,
+    "frase": "¡Actitud al 100%! 🎯 \"No cuentes los días, haz que los días cuenten.\" Todo fluye con orden y calma.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 361,
+    "frase": "¡Actitud al 100%! 🎯 \"La paciencia es amarga, pero su fruto es dulce.\" Todo fluye con orden y calma.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 362,
+    "frase": "¡Actitud al 100%! 🎯 \"Siembra un acto y cosecharás un hábito.\" Todo fluye con orden y calma.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 363,
+    "frase": "¡Actitud al 100%! 🎯 \"El conocimiento habla, pero la sabiduría escucha.\" Todo fluye con orden y calma.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 364,
+    "frase": "¡Actitud al 100%! 🎯 \"No busques los errores, busca el remedio.\" Todo fluye con orden y calma.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 365,
+    "frase": "¡Actitud al 100%! 🎯 \"Siempre parece imposible hasta que se hace.\" Todo fluye con orden y calma.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 366,
+    "frase": "¡Actitud al 100%! 🎯 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Todo fluye con orden y calma.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 367,
+    "frase": "¡Actitud al 100%! 🎯 \"La energía y la persistencia conquistan todas las cosas.\" Todo fluye con orden y calma.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 368,
+    "frase": "¡Actitud al 100%! 🎯 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Todo fluye con orden y calma.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 369,
+    "frase": "¡Actitud al 100%! 🎯 \"Un viaje de mil millas comienza con un solo paso.\" Todo fluye con orden y calma.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 370,
+    "frase": "¡Actitud al 100%! 🎯 \"La gratitud transforma lo que tenemos en suficiente.\" Todo fluye con orden y calma.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 371,
+    "frase": "¡Actitud al 100%! 🎯 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Todo fluye con orden y calma.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 372,
+    "frase": "¡Actitud al 100%! 🎯 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Todo fluye con orden y calma.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 373,
+    "frase": "¡Actitud al 100%! 🎯 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Todo fluye con orden y calma.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 374,
+    "frase": "¡Actitud al 100%! 🎯 \"La excelencia en la mesa se construye con atención a cada detalle.\" Todo fluye con orden y calma.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 375,
+    "frase": "¡Actitud al 100%! 🎯 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Todo fluye con orden y calma.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 376,
+    "frase": "¡Actitud al 100%! 🎯 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Todo fluye con orden y calma.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 377,
+    "frase": "¡Actitud al 100%! 🎯 \"Servir con amabilidad alegra el día de quien nos visita.\" Todo fluye con orden y calma.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 378,
+    "frase": "¡Actitud al 100%! 🎯 \"La frescura y el esmero son la firma de nuestros platos.\" Todo fluye con orden y calma.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 379,
+    "frase": "¡Actitud al 100%! 🎯 \"Un plato bien servido habla antes del primer bocado.\" Todo fluye con orden y calma.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 380,
+    "frase": "¡Actitud al 100%! 🎯 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Todo fluye con orden y calma.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 381,
+    "frase": "¡Actitud al 100%! 🎯 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Todo fluye con orden y calma.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 382,
+    "frase": "¡Actitud al 100%! 🎯 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Todo fluye con orden y calma.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 383,
+    "frase": "¡Actitud al 100%! 🎯 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Todo fluye con orden y calma.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 384,
+    "frase": "¡Actitud al 100%! 🎯 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Todo fluye con orden y calma.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 385,
+    "frase": "¡Actitud al 100%! 🎯 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Todo fluye con orden y calma.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 386,
+    "frase": "¡Actitud al 100%! 🎯 \"La buena actitud de uno contagia la energía de todos.\" Todo fluye con orden y calma.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 387,
+    "frase": "¡Actitud al 100%! 🎯 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Todo fluye con orden y calma.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 388,
+    "frase": "¡Actitud al 100%! 🎯 \"El respeto y la comunicación clara son la base de un gran turno.\" Todo fluye con orden y calma.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 389,
+    "frase": "¡Actitud al 100%! 🎯 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Todo fluye con orden y calma.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 390,
+    "frase": "¡Actitud al 100%! 🎯 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Todo fluye con orden y calma.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 391,
+    "frase": "¡Actitud al 100%! 🎯 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Todo fluye con orden y calma.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 392,
+    "frase": "¡Actitud al 100%! 🎯 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Todo fluye con orden y calma.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 393,
+    "frase": "¡Actitud al 100%! 🎯 \"La constancia diaria es la llave que abre todas las puertas.\" Todo fluye con orden y calma.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 394,
+    "frase": "¡Actitud al 100%! 🎯 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Todo fluye con orden y calma.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 395,
+    "frase": "¡Actitud al 100%! 🎯 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Todo fluye con orden y calma.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 396,
+    "frase": "¡Actitud al 100%! 🎯 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Todo fluye con orden y calma.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 397,
+    "frase": "¡Actitud al 100%! 🎯 \"La pasión por lo que haces se nota en el resultado final.\" Todo fluye con orden y calma.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 398,
+    "frase": "¡Actitud al 100%! 🎯 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Todo fluye con orden y calma.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 399,
+    "frase": "¡Actitud al 100%! 🎯 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Todo fluye con orden y calma.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 400,
+    "frase": "¡Actitud al 100%! 🎯 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Todo fluye con orden y calma.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 401,
+    "frase": "Inspiración de la jornada: 🌈 \"El secreto de salir adelante es simplemente comenzar.\" La excelencia es nuestro sello.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 402,
+    "frase": "Inspiración de la jornada: 🌈 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" La excelencia es nuestro sello.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 403,
+    "frase": "Inspiración de la jornada: 🌈 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" La excelencia es nuestro sello.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 404,
+    "frase": "Inspiración de la jornada: 🌈 \"Caminante, no hay camino, se hace camino al andar.\" La excelencia es nuestro sello.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 405,
+    "frase": "Inspiración de la jornada: 🌈 \"La mejor manera de predecir el futuro es crearlo.\" La excelencia es nuestro sello.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 406,
+    "frase": "Inspiración de la jornada: 🌈 \"La simplicidad es la máxima sofisticación.\" La excelencia es nuestro sello.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 407,
+    "frase": "Inspiración de la jornada: 🌈 \"Haz de cada día tu obra maestra.\" La excelencia es nuestro sello.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 408,
+    "frase": "Inspiración de la jornada: 🌈 \"El único modo de hacer un gran trabajo es amar lo que haces.\" La excelencia es nuestro sello.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 409,
+    "frase": "Inspiración de la jornada: 🌈 \"La disciplina es el puente entre las metas y los logros.\" La excelencia es nuestro sello.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 410,
+    "frase": "Inspiración de la jornada: 🌈 \"No cuentes los días, haz que los días cuenten.\" La excelencia es nuestro sello.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 411,
+    "frase": "Inspiración de la jornada: 🌈 \"La paciencia es amarga, pero su fruto es dulce.\" La excelencia es nuestro sello.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 412,
+    "frase": "Inspiración de la jornada: 🌈 \"Siembra un acto y cosecharás un hábito.\" La excelencia es nuestro sello.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 413,
+    "frase": "Inspiración de la jornada: 🌈 \"El conocimiento habla, pero la sabiduría escucha.\" La excelencia es nuestro sello.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 414,
+    "frase": "Inspiración de la jornada: 🌈 \"No busques los errores, busca el remedio.\" La excelencia es nuestro sello.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 415,
+    "frase": "Inspiración de la jornada: 🌈 \"Siempre parece imposible hasta que se hace.\" La excelencia es nuestro sello.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 416,
+    "frase": "Inspiración de la jornada: 🌈 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" La excelencia es nuestro sello.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 417,
+    "frase": "Inspiración de la jornada: 🌈 \"La energía y la persistencia conquistan todas las cosas.\" La excelencia es nuestro sello.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 418,
+    "frase": "Inspiración de la jornada: 🌈 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" La excelencia es nuestro sello.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 419,
+    "frase": "Inspiración de la jornada: 🌈 \"Un viaje de mil millas comienza con un solo paso.\" La excelencia es nuestro sello.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 420,
+    "frase": "Inspiración de la jornada: 🌈 \"La gratitud transforma lo que tenemos en suficiente.\" La excelencia es nuestro sello.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 421,
+    "frase": "Inspiración de la jornada: 🌈 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" La excelencia es nuestro sello.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 422,
+    "frase": "Inspiración de la jornada: 🌈 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" La excelencia es nuestro sello.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 423,
+    "frase": "Inspiración de la jornada: 🌈 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" La excelencia es nuestro sello.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 424,
+    "frase": "Inspiración de la jornada: 🌈 \"La excelencia en la mesa se construye con atención a cada detalle.\" La excelencia es nuestro sello.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 425,
+    "frase": "Inspiración de la jornada: 🌈 \"Un buen servicio convierte una comida común en una experiencia memorable.\" La excelencia es nuestro sello.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 426,
+    "frase": "Inspiración de la jornada: 🌈 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" La excelencia es nuestro sello.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 427,
+    "frase": "Inspiración de la jornada: 🌈 \"Servir con amabilidad alegra el día de quien nos visita.\" La excelencia es nuestro sello.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 428,
+    "frase": "Inspiración de la jornada: 🌈 \"La frescura y el esmero son la firma de nuestros platos.\" La excelencia es nuestro sello.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 429,
+    "frase": "Inspiración de la jornada: 🌈 \"Un plato bien servido habla antes del primer bocado.\" La excelencia es nuestro sello.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 430,
+    "frase": "Inspiración de la jornada: 🌈 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" La excelencia es nuestro sello.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 431,
+    "frase": "Inspiración de la jornada: 🌈 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" La excelencia es nuestro sello.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 432,
+    "frase": "Inspiración de la jornada: 🌈 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" La excelencia es nuestro sello.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 433,
+    "frase": "Inspiración de la jornada: 🌈 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" La excelencia es nuestro sello.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 434,
+    "frase": "Inspiración de la jornada: 🌈 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" La excelencia es nuestro sello.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 435,
+    "frase": "Inspiración de la jornada: 🌈 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" La excelencia es nuestro sello.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 436,
+    "frase": "Inspiración de la jornada: 🌈 \"La buena actitud de uno contagia la energía de todos.\" La excelencia es nuestro sello.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 437,
+    "frase": "Inspiración de la jornada: 🌈 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" La excelencia es nuestro sello.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 438,
+    "frase": "Inspiración de la jornada: 🌈 \"El respeto y la comunicación clara son la base de un gran turno.\" La excelencia es nuestro sello.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 439,
+    "frase": "Inspiración de la jornada: 🌈 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" La excelencia es nuestro sello.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 440,
+    "frase": "Inspiración de la jornada: 🌈 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" La excelencia es nuestro sello.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 441,
+    "frase": "Inspiración de la jornada: 🌈 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" La excelencia es nuestro sello.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 442,
+    "frase": "Inspiración de la jornada: 🌈 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" La excelencia es nuestro sello.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 443,
+    "frase": "Inspiración de la jornada: 🌈 \"La constancia diaria es la llave que abre todas las puertas.\" La excelencia es nuestro sello.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 444,
+    "frase": "Inspiración de la jornada: 🌈 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" La excelencia es nuestro sello.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 445,
+    "frase": "Inspiración de la jornada: 🌈 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" La excelencia es nuestro sello.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 446,
+    "frase": "Inspiración de la jornada: 🌈 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" La excelencia es nuestro sello.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 447,
+    "frase": "Inspiración de la jornada: 🌈 \"La pasión por lo que haces se nota en el resultado final.\" La excelencia es nuestro sello.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 448,
+    "frase": "Inspiración de la jornada: 🌈 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" La excelencia es nuestro sello.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 449,
+    "frase": "Inspiración de la jornada: 🌈 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" La excelencia es nuestro sello.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 450,
+    "frase": "Inspiración de la jornada: 🌈 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" La excelencia es nuestro sello.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 451,
+    "frase": "¡Gran día para todos! 🏆 \"El secreto de salir adelante es simplemente comenzar.\" Juntos logramos grandes resultados.",
+    "autor": "Mark Twain",
+    "categoria": "libros"
+  },
+  {
+    "id": 452,
+    "frase": "¡Gran día para todos! 🏆 \"No hay barrera ni cerrojo que puedas imponer a la libertad de tu mente.\" Juntos logramos grandes resultados.",
+    "autor": "Virginia Woolf",
+    "categoria": "libros"
+  },
+  {
+    "id": 453,
+    "frase": "¡Gran día para todos! 🏆 \"Lo esencial es invisible a los ojos, se siente con el corazón.\" Juntos logramos grandes resultados.",
+    "autor": "Antoine de Saint-Exupéry",
+    "categoria": "libros"
+  },
+  {
+    "id": 454,
+    "frase": "¡Gran día para todos! 🏆 \"Caminante, no hay camino, se hace camino al andar.\" Juntos logramos grandes resultados.",
+    "autor": "Antonio Machado",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 455,
+    "frase": "¡Gran día para todos! 🏆 \"La mejor manera de predecir el futuro es crearlo.\" Juntos logramos grandes resultados.",
+    "autor": "Peter Drucker",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 456,
+    "frase": "¡Gran día para todos! 🏆 \"La simplicidad es la máxima sofisticación.\" Juntos logramos grandes resultados.",
+    "autor": "Leonardo da Vinci",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 457,
+    "frase": "¡Gran día para todos! 🏆 \"Haz de cada día tu obra maestra.\" Juntos logramos grandes resultados.",
+    "autor": "John Wooden",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 458,
+    "frase": "¡Gran día para todos! 🏆 \"El único modo de hacer un gran trabajo es amar lo que haces.\" Juntos logramos grandes resultados.",
+    "autor": "Steve Jobs",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 459,
+    "frase": "¡Gran día para todos! 🏆 \"La disciplina es el puente entre las metas y los logros.\" Juntos logramos grandes resultados.",
+    "autor": "Jim Rohn",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 460,
+    "frase": "¡Gran día para todos! 🏆 \"No cuentes los días, haz que los días cuenten.\" Juntos logramos grandes resultados.",
+    "autor": "Muhammad Ali",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 461,
+    "frase": "¡Gran día para todos! 🏆 \"La paciencia es amarga, pero su fruto es dulce.\" Juntos logramos grandes resultados.",
+    "autor": "Jean-Jacques Rousseau",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 462,
+    "frase": "¡Gran día para todos! 🏆 \"Siembra un acto y cosecharás un hábito.\" Juntos logramos grandes resultados.",
+    "autor": "Charles Reade",
+    "categoria": "habitos"
+  },
+  {
+    "id": 463,
+    "frase": "¡Gran día para todos! 🏆 \"El conocimiento habla, pero la sabiduría escucha.\" Juntos logramos grandes resultados.",
+    "autor": "Jimi Hendrix",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 464,
+    "frase": "¡Gran día para todos! 🏆 \"No busques los errores, busca el remedio.\" Juntos logramos grandes resultados.",
+    "autor": "Henry Ford",
+    "categoria": "liderazgo"
+  },
+  {
+    "id": 465,
+    "frase": "¡Gran día para todos! 🏆 \"Siempre parece imposible hasta que se hace.\" Juntos logramos grandes resultados.",
+    "autor": "Nelson Mandela",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 466,
+    "frase": "¡Gran día para todos! 🏆 \"El coraje no siempre ruge; a veces es una voz suave al final del día.\" Juntos logramos grandes resultados.",
+    "autor": "Mary Anne Radmacher",
+    "categoria": "reflexion"
+  },
+  {
+    "id": 467,
+    "frase": "¡Gran día para todos! 🏆 \"La energía y la persistencia conquistan todas las cosas.\" Juntos logramos grandes resultados.",
+    "autor": "Benjamin Franklin",
+    "categoria": "constancia"
+  },
+  {
+    "id": 468,
+    "frase": "¡Gran día para todos! 🏆 \"Somos lo que hacemos repetidamente; la excelencia es un hábito.\" Juntos logramos grandes resultados.",
+    "autor": "Aristóteles",
+    "categoria": "calidad"
+  },
+  {
+    "id": 469,
+    "frase": "¡Gran día para todos! 🏆 \"Un viaje de mil millas comienza con un solo paso.\" Juntos logramos grandes resultados.",
+    "autor": "Lao-Tsé",
+    "categoria": "sabiduria"
+  },
+  {
+    "id": 470,
+    "frase": "¡Gran día para todos! 🏆 \"La gratitud transforma lo que tenemos en suficiente.\" Juntos logramos grandes resultados.",
+    "autor": "Anónimo",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 471,
+    "frase": "¡Gran día para todos! 🏆 \"Cocinar con amor alimenta el cuerpo y reconforta el alma.\" Juntos logramos grandes resultados.",
+    "autor": "Cultura de Cocina",
+    "categoria": "servicio"
+  },
+  {
+    "id": 472,
+    "frase": "¡Gran día para todos! 🏆 \"Cada plato servido con cariño es una sonrisa garantizada en la mesa.\" Juntos logramos grandes resultados.",
+    "autor": "Mística de la Casa",
+    "categoria": "servicio"
+  },
+  {
+    "id": 473,
+    "frase": "¡Gran día para todos! 🏆 \"El ingrediente secreto siempre será la pasión con que preparamos cada orden.\" Juntos logramos grandes resultados.",
+    "autor": "Sazón de la Casa",
+    "categoria": "cocina"
+  },
+  {
+    "id": 474,
+    "frase": "¡Gran día para todos! 🏆 \"La excelencia en la mesa se construye con atención a cada detalle.\" Juntos logramos grandes resultados.",
+    "autor": "Estándar Gastronómico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 475,
+    "frase": "¡Gran día para todos! 🏆 \"Un buen servicio convierte una comida común en una experiencia memorable.\" Juntos logramos grandes resultados.",
+    "autor": "Hospitalidad",
+    "categoria": "servicio"
+  },
+  {
+    "id": 476,
+    "frase": "¡Gran día para todos! 🏆 \"La cocina es el corazón del lugar; cuidemos cada preparación.\" Juntos logramos grandes resultados.",
+    "autor": "Espíritu Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 477,
+    "frase": "¡Gran día para todos! 🏆 \"Servir con amabilidad alegra el día de quien nos visita.\" Juntos logramos grandes resultados.",
+    "autor": "Atención al Cliente",
+    "categoria": "servicio"
+  },
+  {
+    "id": 478,
+    "frase": "¡Gran día para todos! 🏆 \"La frescura y el esmero son la firma de nuestros platos.\" Juntos logramos grandes resultados.",
+    "autor": "Sabor Auténtico",
+    "categoria": "calidad"
+  },
+  {
+    "id": 479,
+    "frase": "¡Gran día para todos! 🏆 \"Un plato bien servido habla antes del primer bocado.\" Juntos logramos grandes resultados.",
+    "autor": "Arte Culinario",
+    "categoria": "cocina"
+  },
+  {
+    "id": 480,
+    "frase": "¡Gran día para todos! 🏆 \"La buena sazón nace de la dedicación y el respeto por el oficio.\" Juntos logramos grandes resultados.",
+    "autor": "Tradición",
+    "categoria": "cocina"
+  },
+  {
+    "id": 481,
+    "frase": "¡Gran día para todos! 🏆 \"El talento gana jugadas, pero el trabajo en equipo gana la jornada.\" Juntos logramos grandes resultados.",
+    "autor": "Espíritu de Equipo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 482,
+    "frase": "¡Gran día para todos! 🏆 \"La fuerza de nuestro servicio está en la unión y coordinación de todos.\" Juntos logramos grandes resultados.",
+    "autor": "Compañerismo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 483,
+    "frase": "¡Gran día para todos! 🏆 \"Juntos hacemos que la jornada más exigente fluya con éxito.\" Juntos logramos grandes resultados.",
+    "autor": "Fuerza Colectiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 484,
+    "frase": "¡Gran día para todos! 🏆 \"Una cocina coordinada y una sala atenta hacen el equipo perfecto.\" Juntos logramos grandes resultados.",
+    "autor": "Sincronía",
+    "categoria": "equipo"
+  },
+  {
+    "id": 485,
+    "frase": "¡Gran día para todos! 🏆 \"El apoyo mutuo convierte los retos diarios en logros compartidos.\" Juntos logramos grandes resultados.",
+    "autor": "Unión",
+    "categoria": "equipo"
+  },
+  {
+    "id": 486,
+    "frase": "¡Gran día para todos! 🏆 \"La buena actitud de uno contagia la energía de todos.\" Juntos logramos grandes resultados.",
+    "autor": "Cultura Positiva",
+    "categoria": "equipo"
+  },
+  {
+    "id": 487,
+    "frase": "¡Gran día para todos! 🏆 \"Cuando remamos en la misma dirección, cada meta se alcanza más rápido.\" Juntos logramos grandes resultados.",
+    "autor": "Coordinación",
+    "categoria": "equipo"
+  },
+  {
+    "id": 488,
+    "frase": "¡Gran día para todos! 🏆 \"El respeto y la comunicación clara son la base de un gran turno.\" Juntos logramos grandes resultados.",
+    "autor": "Liderazgo",
+    "categoria": "equipo"
+  },
+  {
+    "id": 489,
+    "frase": "¡Gran día para todos! 🏆 \"Cuidar los detalles entre compañeros hace más liviana la labor.\" Juntos logramos grandes resultados.",
+    "autor": "Solidaridad",
+    "categoria": "equipo"
+  },
+  {
+    "id": 490,
+    "frase": "¡Gran día para todos! 🏆 \"La satisfacción del cliente es el resultado del esfuerzo de todo el equipo.\" Juntos logramos grandes resultados.",
+    "autor": "Compromiso",
+    "categoria": "equipo"
+  },
+  {
+    "id": 491,
+    "frase": "¡Gran día para todos! 🏆 \"Hoy es una excelente oportunidad para superarnos y dar la mejor versión.\" Juntos logramos grandes resultados.",
+    "autor": "Actitud Positiva",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 492,
+    "frase": "¡Gran día para todos! 🏆 \"Que las ganas de crecer sean más grandes que cualquier obstáculo.\" Juntos logramos grandes resultados.",
+    "autor": "Superación",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 493,
+    "frase": "¡Gran día para todos! 🏆 \"La constancia diaria es la llave que abre todas las puertas.\" Juntos logramos grandes resultados.",
+    "autor": "Enfoque",
+    "categoria": "constancia"
+  },
+  {
+    "id": 494,
+    "frase": "¡Gran día para todos! 🏆 \"Inicia este turno con la certeza de que tu trabajo marca la diferencia.\" Juntos logramos grandes resultados.",
+    "autor": "Propósito",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 495,
+    "frase": "¡Gran día para todos! 🏆 \"Cada cliente satisfecho es el reflejo de tu dedicación y entrega.\" Juntos logramos grandes resultados.",
+    "autor": "Reconocimiento",
+    "categoria": "servicio"
+  },
+  {
+    "id": 496,
+    "frase": "¡Gran día para todos! 🏆 \"Mantén el enfoque en las soluciones y la calma ante la prisa.\" Juntos logramos grandes resultados.",
+    "autor": "Manejo de Turno",
+    "categoria": "enfoque"
+  },
+  {
+    "id": 497,
+    "frase": "¡Gran día para todos! 🏆 \"La pasión por lo que haces se nota en el resultado final.\" Juntos logramos grandes resultados.",
+    "autor": "Dedicación",
+    "categoria": "calidad"
+  },
+  {
+    "id": 498,
+    "frase": "¡Gran día para todos! 🏆 \"Un paso a la vez, con orden y buena energía, se conquista el día.\" Juntos logramos grandes resultados.",
+    "autor": "Paso Firme",
+    "categoria": "motivacion"
+  },
+  {
+    "id": 499,
+    "frase": "¡Gran día para todos! 🏆 \"Agradece cada oportunidad y entrega lo mejor en cada tarea.\" Juntos logramos grandes resultados.",
+    "autor": "Mentalidad",
+    "categoria": "gratitud"
+  },
+  {
+    "id": 500,
+    "frase": "¡Gran día para todos! 🏆 \"El éxito de hoy se cocina con esfuerzo, orden y una gran sonrisa.\" Juntos logramos grandes resultados.",
+    "autor": "Ánimo Matutino",
+    "categoria": "motivacion"
+  }
+]
