@@ -757,7 +757,18 @@ export default function MeseroPage() {
                   {(metodoPago === 'efectivo' || metodoPago === 'mixto') && (
                     <div className="form-group">
                       <label className="form-label">Monto en Efectivo ($)</label>
-                      <input type="number" className="form-input" value={montoEfectivo} onChange={(e) => setMontoEfectivo(Number(e.target.value))} />
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={montoEfectivo}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMontoEfectivo(val);
+                          if (metodoPago === 'mixto' && modalCobro) {
+                            setMontoTransferencia(Math.max(0, modalCobro.total - val));
+                          }
+                        }}
+                      />
                     </div>
                   )}
 
@@ -765,7 +776,18 @@ export default function MeseroPage() {
                     <>
                       <div className="form-group">
                         <label className="form-label">Monto Transferencia ($)</label>
-                        <input type="number" className="form-input" value={montoTransferencia} onChange={(e) => setMontoTransferencia(Number(e.target.value))} />
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={montoTransferencia}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            setMontoTransferencia(val);
+                            if (metodoPago === 'mixto' && modalCobro) {
+                              setMontoEfectivo(Math.max(0, modalCobro.total - val));
+                            }
+                          }}
+                        />
                       </div>
                       <div className="form-group">
                         <label className="form-label">Banco / Nota de Transferencia (Opcional)</label>

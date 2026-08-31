@@ -906,12 +906,108 @@ export default function PedidosPage() {
               {/* Método de pago */}
               <div className="form-group" style={{ marginBottom: '0.75rem' }}>
                 <label className="form-label">Estado de Pago</label>
-                <select className="form-select" value={estadoPago} onChange={(e) => setEstadoPago(e.target.value as EstadoPago)}>
+                <select
+                  className="form-select"
+                  value={estadoPago}
+                  onChange={(e) => {
+                    const st = e.target.value as EstadoPago;
+                    setEstadoPago(st);
+                    if (st === 'pagado') {
+                      setMontoEfectivo(totalGeneral);
+                      setMontoTransferencia(0);
+                    }
+                  }}
+                >
                   <option value="pendiente_pago">Pendiente de Pago</option>
                   <option value="pagado">Pagado Ahora</option>
                   <option value="fiado">Fiado</option>
                 </select>
               </div>
+
+              {estadoPago === 'pagado' && (
+                <div className="nm-inset" style={{ padding: '0.75rem', borderRadius: '8px', marginBottom: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label className="form-label" style={{ fontSize: '0.8rem', margin: 0 }}>Medio de Pago:</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${metodoPago === 'efectivo' ? 'btn-primary' : 'btn-neutral'}`}
+                      onClick={() => {
+                        setMetodoPago('efectivo');
+                        setMontoEfectivo(totalGeneral);
+                        setMontoTransferencia(0);
+                      }}
+                    >
+                      💵 Efectivo
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${metodoPago === 'transferencia' ? 'btn-primary' : 'btn-neutral'}`}
+                      onClick={() => {
+                        setMetodoPago('transferencia');
+                        setMontoTransferencia(totalGeneral);
+                        setMontoEfectivo(0);
+                      }}
+                    >
+                      📲 Transf
+                    </button>
+                    <button
+                      type="button"
+                      className={`btn btn-sm ${metodoPago === 'mixto' ? 'btn-primary' : 'btn-neutral'}`}
+                      onClick={() => {
+                        setMetodoPago('mixto');
+                        setMontoEfectivo(Math.round(totalGeneral / 2));
+                        setMontoTransferencia(totalGeneral - Math.round(totalGeneral / 2));
+                      }}
+                    >
+                      🔀 Mixto
+                    </button>
+                  </div>
+
+                  {(metodoPago === 'efectivo' || metodoPago === 'mixto') && (
+                    <div>
+                      <label className="form-label" style={{ fontSize: '0.75rem', margin: '0.25rem 0' }}>Monto Efectivo ($)</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={montoEfectivo}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMontoEfectivo(val);
+                          if (metodoPago === 'mixto') {
+                            setMontoTransferencia(Math.max(0, totalGeneral - val));
+                          }
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {(metodoPago === 'transferencia' || metodoPago === 'mixto') && (
+                    <div>
+                      <label className="form-label" style={{ fontSize: '0.75rem', margin: '0.25rem 0' }}>Monto Transferencia ($)</label>
+                      <input
+                        type="number"
+                        className="form-input"
+                        value={montoTransferencia}
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          setMontoTransferencia(val);
+                          if (metodoPago === 'mixto') {
+                            setMontoEfectivo(Math.max(0, totalGeneral - val));
+                          }
+                        }}
+                      />
+                      <input
+                        type="text"
+                        className="form-input"
+                        style={{ marginTop: '0.25rem', fontSize: '0.8rem' }}
+                        value={cuentaDestino}
+                        onChange={(e) => setCuentaDestino(e.target.value)}
+                        placeholder="Nequi, Bancolombia (Opcional)..."
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Total final */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>

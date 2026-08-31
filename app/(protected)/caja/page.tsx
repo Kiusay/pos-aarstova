@@ -570,37 +570,51 @@ export default function CajaPage() {
           ) : (
             /* METRICAS Y DETALLES DEL TURNO ACTIVO */
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
-                <div className="nm-card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>Base Inicial</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>${turnoActivo.base_inicial.toLocaleString('es-CO')}</div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: '1rem' }}>
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem' }}>Base Inicial</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800 }}>${turnoActivo.base_inicial.toLocaleString('es-CO')}</div>
                 </div>
 
-                <div className="nm-card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>Ventas Efectivo</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--status-ready)' }}>
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem' }}>Ventas Efectivo</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--status-ready)' }}>
                     +${ventasEfectivo.toLocaleString('es-CO')}
                   </div>
                 </div>
 
-                <div className="nm-card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>Ventas Transferencia</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--status-prep)' }}>
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem' }}>Ventas Transferencia</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--status-prep)' }}>
                     +${ventasTransferencia.toLocaleString('es-CO')}
                   </div>
                 </div>
 
-                <div className="nm-card" style={{ padding: '1.25rem', textAlign: 'center' }}>
-                  <span className="text-muted" style={{ fontSize: '0.85rem' }}>Gastos de Caja</span>
-                  <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--status-cancel)' }}>
-                    -${totalGastos.toLocaleString('es-CO')}
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem' }}>Gastos en Efectivo</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--status-cancel)' }}>
+                    -${gastosEfectivo.toLocaleString('es-CO')}
                   </div>
                 </div>
 
-                <div className="nm-card" style={{ padding: '1.25rem', textAlign: 'center', border: '2px solid var(--orange-dark)', background: 'var(--bg-raised)' }}>
-                  <span className="text-muted" style={{ fontSize: '0.85rem', fontWeight: 800 }}>Efectivo Esperado en Caja</span>
-                  <div style={{ fontSize: '1.6rem', fontWeight: 900, color: 'var(--orange-dark)' }}>
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem' }}>Gastos Transferencia</span>
+                  <div style={{ fontSize: '1.3rem', fontWeight: 800, color: 'var(--status-cancel)' }}>
+                    -${gastosTransferencia.toLocaleString('es-CO')}
+                  </div>
+                </div>
+
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center', border: '2px solid var(--orange-dark)', background: 'var(--bg-raised)' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem', fontWeight: 800 }}>💵 Efectivo en Cajón</span>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--orange-dark)' }}>
                     ${efectivoEsperadoEnCaja.toLocaleString('es-CO')}
+                  </div>
+                </div>
+
+                <div className="nm-card" style={{ padding: '1.1rem', textAlign: 'center', border: '2px solid var(--status-prep)', background: 'var(--bg-raised)' }}>
+                  <span className="text-muted" style={{ fontSize: '0.8rem', fontWeight: 800 }}>📲 Saldo Transferencias</span>
+                  <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--status-prep)' }}>
+                    ${(ventasTransferencia - gastosTransferencia).toLocaleString('es-CO')}
                   </div>
                 </div>
               </div>
@@ -773,7 +787,14 @@ export default function CajaPage() {
                       type="number"
                       className="form-input"
                       value={montoGastoEfectivo}
-                      onChange={(e) => setMontoGastoEfectivo(e.target.value === '' ? '' : Number(e.target.value))}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                        setMontoGastoEfectivo(val);
+                        const total = Number(montoGasto || 0);
+                        if (val !== '') {
+                          setMontoGastoTransferencia(Math.max(0, total - Number(val)));
+                        }
+                      }}
                       placeholder="$0"
                     />
                   </div>
@@ -783,7 +804,14 @@ export default function CajaPage() {
                       type="number"
                       className="form-input"
                       value={montoGastoTransferencia}
-                      onChange={(e) => setMontoGastoTransferencia(e.target.value === '' ? '' : Number(e.target.value))}
+                      onChange={(e) => {
+                        const val = e.target.value === '' ? '' : Number(e.target.value);
+                        setMontoGastoTransferencia(val);
+                        const total = Number(montoGasto || 0);
+                        if (val !== '') {
+                          setMontoGastoEfectivo(Math.max(0, total - Number(val)));
+                        }
+                      }}
                       placeholder="$0"
                     />
                   </div>
