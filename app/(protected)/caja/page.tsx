@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
-import { TurnoCaja, GastoCaja, Pedido, CategoriasGasto } from '@/lib/types';
+import { TurnoCaja, GastoCaja, Pedido, CategoriasGasto, RestauranteConfig } from '@/lib/types';
 import jsPDF from 'jspdf';
 
 interface Denominaciones {
@@ -32,6 +32,9 @@ export default function CajaPage() {
   // Formulario Abrir Turno
   const [baseInicial, setBaseInicial] = useState<number>(50000);
   const [saving, setSaving] = useState(false);
+
+  // Configuración general del restaurante
+  const [config, setConfig] = useState<RestauranteConfig | null>(null);
 
   // Formulario Registrar Gasto
   const [modalGasto, setModalGasto] = useState(false);
@@ -91,6 +94,10 @@ export default function CajaPage() {
     setLoading(true);
 
     try {
+      // 0. Cargar configuración del restaurante
+      const { data: cfg } = await supabase.from('restaurante_config').select('*').single();
+      if (cfg) setConfig(cfg as RestauranteConfig);
+
       // 1. Turno activo (ordenamos por fecha_apertura descendente para obtener el más reciente si hay varios abiertos)
       const { data: listTurnos, error: errTurno } = await supabase
         .from('turnos_caja')
@@ -423,9 +430,19 @@ export default function CajaPage() {
     const doc = new jsPDF({ unit: 'mm', format: [80, 220] });
     let y = 8;
 
+    if (config?.logo_url) {
+      try {
+        const format = config.logo_url.includes('image/png') ? 'PNG' : 'JPEG';
+        doc.addImage(config.logo_url, format, 28, y, 24, 20);
+        y += 23;
+      } catch (err) {
+        console.warn('Error al incrustar logo en PDF de arqueo:', err);
+      }
+    }
+
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.text('RESTAURANTE ÁARSTOVA', 40, y, { align: 'center' });
+    doc.text(config?.nombre || 'RESTAURANTE ÁARSTOVA', 40, y, { align: 'center' });
     y += 5;
 
     doc.setFontSize(10);

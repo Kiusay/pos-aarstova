@@ -410,8 +410,18 @@ export default function PedidosPage() {
 
   // Generación de PDF de Recibo
   const generarPDFRecibo = (pedido: Pedido) => {
-    const doc = new jsPDF({ unit: 'mm', format: [80, 200] }); // Formato ticket térmico / compacto
-    let y = 10;
+    const doc = new jsPDF({ unit: 'mm', format: [80, 220] }); // Formato ticket térmico / compacto
+    let y = 8;
+
+    if (config?.logo_url) {
+      try {
+        const format = config.logo_url.includes('image/png') ? 'PNG' : 'JPEG';
+        doc.addImage(config.logo_url, format, 28, y, 24, 20);
+        y += 23;
+      } catch (err) {
+        console.warn('Error al incrustar logo en PDF de recibo:', err);
+      }
+    }
 
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');

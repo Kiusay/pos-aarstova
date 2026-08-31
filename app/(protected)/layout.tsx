@@ -49,6 +49,18 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
   const router = useRouter();
   const supabase = createClient();
 
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase
+      .from('restaurante_config')
+      .select('logo_url')
+      .single()
+      .then(({ data }) => {
+        if (data?.logo_url) setLogoUrl(data.logo_url);
+      });
+  }, [supabase]);
+
   const tieneAcceso = (item: NavItem) => {
     if (item.alwaysShow) return true;
     if (!sesion || !item.permiso) return false;
@@ -88,13 +100,10 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
       <aside className={`sidebar ${!isOpen ? 'sidebar--hidden' : ''}`} role="navigation" aria-label="Menú principal">
         {/* Logo */}
         <div className="sidebar-logo">
-          <Image
-            src="/logo.png"
+          <img
+            src={logoUrl || '/logo.png'}
             alt="Restaurante Áarstova"
-            width={130}
-            height={60}
-            style={{ objectFit: 'contain' }}
-            priority
+            style={{ width: 130, height: 60, objectFit: 'contain' }}
           />
         </div>
 
