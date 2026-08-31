@@ -383,7 +383,7 @@ export default function CocinaPage() {
       .from('pedidos')
       .select(
         `*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*),
-         detalle:detalle_pedidos(*, plato:platos(*))`
+         detalle:detalle_pedido(*, plato:platos(*))`
       )
       .in('estado', ['pendiente', 'preparacion', 'listo'])
       .order('fecha_creacion', { ascending: true });
@@ -432,7 +432,7 @@ export default function CocinaPage() {
     const channel = supabase
       .channel('kds-orders')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, fetchPedidos)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'detalle_pedidos' }, fetchPedidos)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'detalle_pedido' }, fetchPedidos)
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [supabase, fetchPedidos]);
@@ -449,7 +449,7 @@ export default function CocinaPage() {
 
   async function handleCycleItemEstado(itemId: string, nuevoEstado: EstadoItem): Promise<void> {
     const { error } = await supabase
-      .from('detalle_pedidos')
+      .from('detalle_pedido')
       .update({ estado_item: nuevoEstado })
       .eq('id', itemId);
     if (error) console.error('[KDS] update item error:', error);

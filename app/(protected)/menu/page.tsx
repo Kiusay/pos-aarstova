@@ -165,7 +165,7 @@ function Toggle({
         <span className="toggle-track" />
         <span className="toggle-thumb" />
       </span>
-      <span style={{ fontSize: '0.875rem', color: 'var(--text-primary)' }}>{label}</span>
+      <span style={{ fontSize: '0.875rem', color: 'var(--text-primary)', fontWeight: 600 }}>{label}</span>
     </label>
   );
 }
@@ -187,7 +187,7 @@ function CategoryFilter({
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
       <button
         className={`badge ${selected === null ? 'badge-orange' : ''}`}
-        style={{ cursor: 'pointer', border: 'none' }}
+        style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontSize: '0.85rem' }}
         onClick={() => onSelect(null)}
       >
         Todos
@@ -196,7 +196,7 @@ function CategoryFilter({
         <button
           key={cat.id}
           className={`badge ${selected === cat.id ? 'badge-orange' : ''}`}
-          style={{ cursor: 'pointer', border: 'none' }}
+          style={{ cursor: 'pointer', border: 'none', padding: '6px 12px', fontSize: '0.85rem' }}
           onClick={() => onSelect(cat.id)}
         >
           {cat.emoji} {cat.nombre}
@@ -219,11 +219,13 @@ interface PizarraState {
 function TabPizarra({
   categorias,
   platos,
+  onRefresh,
   toast,
   canEdit,
 }: {
   categorias: CategoriaMenu[];
   platos: Plato[];
+  onRefresh: () => void;
   toast: (msg: string, tipo?: ToastType) => void;
   canEdit: boolean;
 }) {
@@ -232,11 +234,12 @@ function TabPizarra({
 
   const [fecha, setFecha] = useState(todayISO());
   const [catFilter, setCatFilter] = useState<string | null>(null);
+  const [soloActivos, setSoloActivos] = useState(false);
   const [pizarra, setPizarra] = useState<PizarraItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  // Local form state per plato
   const [formas, setFormas] = useState<Record<string, PizarraState>>({});
+  const [localChecked, setLocalChecked] = useState<Set<string>>(new Set());
 
   const fetchPizarra = useCallback(async () => {
     setLoading(true);
@@ -252,7 +255,6 @@ function TabPizarra({
     fetchPizarra();
   }, [fetchPizarra]);
 
-  // Sync formas when pizarra changes
   useEffect(() => {
     const next: Record<string, PizarraState> = {};
     pizarra.forEach((item) => {
@@ -262,14 +264,7 @@ function TabPizarra({
         nota_dia: item.nota_dia ?? '',
       };
     });
-    setFormas((prev) => {
-      // Merge: keep local overrides if already editing, but add new items
-      const merged = { ...next };
-      Object.keys(prev).forEach((k) => {
-        if (!merged[k]) merged[k] = prev[k]; // plate activated locally but not yet saved
-      });
-      return merged;
-    });
+    setFormas((prev) => ({ ...next, ...prev }));
   }, [pizarra]);
 
   const activatedIds = new Set(pizarra.filter((p) => p.activo).map((p) => p.plato_id));
@@ -290,9 +285,6 @@ function TabPizarra({
       [platoId]: { ...getForma(platoId, platos.find((p) => p.id === platoId)!), ...patch },
     }));
   };
-
-  // Local "checked" state for plates not yet in pizarra
-  const [localChecked, setLocalChecked] = useState<Set<string>>(new Set());
 
   const toggleActivar = (platoId: string, plato: Plato, checked: boolean) => {
     if (checked) {
@@ -325,13 +317,14 @@ function TabPizarra({
     if (error) {
       toast('Error al desactivar: ' + error.message, 'error');
     } else {
-      toast('Plato desactivado', 'success');
-      fetchPizarra();
+      toast('Plato inactivo para hoy', 'success');
       setLocalChecked((prev) => {
         const n = new Set(prev);
         n.delete(item.plato_id);
         return n;
       });
+      await fetchPizarra();
+      onRefresh();
     }
     setSaving(false);
   };
@@ -339,7 +332,6 @@ function TabPizarra({
   const handleGuardar = async () => {
     setSaving(true);
     const allActive = new Set([...activatedIds, ...localChecked]);
-    // Remove deactivated from allActive
     pizarra.filter((p) => !p.activo).forEach((p) => allActive.delete(p.plato_id));
 
     let errors = 0;
@@ -376,51 +368,72 @@ function TabPizarra({
     }
 
     if (errors > 0) {
-      toast(`Se guardaron con ${errors} error(es)`, 'warning');
+      toast(`Se guardó con ${errors} aviso(s)`, 'warning');
     } else {
-      toast('Pizarra guardada correctamente', 'success');
+      toast('Pizarra del día actualizada correctamente', 'success');
     }
 
     setLocalChecked(new Set());
-    fetchPizarra();
+    await fetchPizarra();
+    onRefresh();
     setSaving(false);
   };
 
-  const platasFiltradas = platos.filter(
-    (p) => !catFilter || p.categoria_id === catFilter,
-  );
-
   const isChecked = (platoId: string) => activatedIds.has(platoId) || localChecked.has(platoId);
+
+  const platasFiltradas = platos.filter((p) => {
+    const matchCat = !catFilter || p.categoria_id === catFilter;
+    const matchActive = !soloActivos || isChecked(p.id);
+    return matchCat && matchActive;
+  });
+
+  const activosCount = platos.filter((p) => isChecked(p.id)).length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       {/* Controles superiores */}
-      <div className="nm-card" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', alignItems: 'flex-end' }}>
-        <div className="form-group" style={{ flex: '1 1 180px' }}>
-          <label className="form-label">Fecha</label>
-          <input
-            type="date"
-            className="form-input"
-            value={fecha}
-            onChange={(e) => setFecha(e.target.value)}
-          />
+      <div className="nm-card" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-4)', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div className="form-group" style={{ margin: 0, minWidth: 160 }}>
+            <label className="form-label">Fecha del Menú</label>
+            <input
+              type="date"
+              className="form-input"
+              value={fecha}
+              onChange={(e) => setFecha(e.target.value)}
+            />
+          </div>
+          <div className="badge badge-orange" style={{ padding: '8px 14px', fontSize: '0.9rem' }}>
+            🍽️ {activosCount} de {platos.length} platos activos hoy
+          </div>
         </div>
-        <button
-          className="btn btn-primary"
-          onClick={handleGuardar}
-          disabled={saving || !canEdit}
-        >
-          {saving ? '⏳ Guardando…' : '💾 Guardar pizarra del día'}
-        </button>
+
+        <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'center' }}>
+          <button
+            className="btn btn-primary"
+            onClick={handleGuardar}
+            disabled={saving || !canEdit}
+            style={{ padding: '10px 20px', fontWeight: 700 }}
+          >
+            {saving ? '⏳ Guardando…' : '💾 Guardar Pizarra del Día'}
+          </button>
+        </div>
       </div>
 
-      {/* Filtro categorías */}
-      <CategoryFilter categorias={categorias} selected={catFilter} onSelect={setCatFilter} />
+      {/* Filtros */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
+        <CategoryFilter categorias={categorias} selected={catFilter} onSelect={setCatFilter} />
+        <Toggle
+          checked={soloActivos}
+          onChange={setSoloActivos}
+          label="Ver solo platos activos hoy"
+        />
+      </div>
 
       {/* Estado loading */}
       {loading && (
         <div style={{ textAlign: 'center', padding: 'var(--space-8)', color: 'var(--text-muted)' }}>
-          ⏳ Cargando pizarra…
+          ⏳ Cargando pizarra del día…
         </div>
       )}
 
@@ -439,82 +452,51 @@ function TabPizarra({
                 key={plato.id}
                 className="nm-card"
                 style={{
-                  borderLeft: checked ? '4px solid var(--green)' : '4px solid transparent',
-                  transition: 'border-color var(--transition-fast)',
+                  borderLeft: checked ? '5px solid var(--green)' : '5px solid var(--border)',
+                  background: checked ? 'var(--bg-base)' : 'var(--bg-raised)',
+                  opacity: checked ? 1 : 0.85,
+                  transition: 'all var(--transition-fast)',
                 }}
               >
-                {/* Cabecera */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
-                  {canEdit && (
-                    <label className="nm-checkbox" style={{ marginTop: 2 }}>
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(e) => toggleActivar(plato.id, plato, e.target.checked)}
-                        disabled={!canEdit}
-                      />
-                      <span className="nm-checkbox-box" />
-                    </label>
-                  )}
+                {/* Header card */}
+                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--space-3)', marginBottom: 'var(--space-3)' }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-primary)' }}>
-                      {plato.nombre}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', flexWrap: 'wrap' }}>
+                      <span style={{ fontWeight: 800, fontSize: '1rem', color: 'var(--text-primary)' }}>
+                        {plato.nombre}
+                      </span>
+                      {plato.categoria && (
+                        <span className="badge badge-orange">
+                          {plato.categoria.emoji} {plato.categoria.nombre}
+                        </span>
+                      )}
                     </div>
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '2px' }}>
                       {plato.emojis_ingredientes}
                     </div>
-                    {plato.categoria && (
-                      <span className="badge badge-orange" style={{ marginTop: 'var(--space-1)' }}>
-                        {plato.categoria.emoji} {plato.categoria.nombre}
-                      </span>
+                    {plato.descripcion_base && (
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '2px', fontStyle: 'italic' }}>
+                        {plato.descripcion_base}
+                      </div>
                     )}
                   </div>
-                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Base</div>
-                    <div style={{ fontWeight: 700, color: 'var(--orange)', fontFamily: 'var(--font-mono)' }}>
-                      {formatCOP(plato.precio_base)}
-                    </div>
+
+                  {/* Switch de activación */}
+                  <div style={{ flexShrink: 0, textAlign: 'right' }}>
+                    <Toggle
+                      checked={checked}
+                      onChange={(v) => toggleActivar(plato.id, plato, v)}
+                      label={checked ? '✅ Activo' : '⚪ Inactivo'}
+                    />
                   </div>
                 </div>
 
-                {/* Detalles vendidos/disponibles */}
-                {pizarraItem && (
-                  <div
-                    className="nm-inset"
-                    style={{
-                      display: 'flex',
-                      gap: 'var(--space-4)',
-                      marginBottom: 'var(--space-3)',
-                      padding: 'var(--space-2) var(--space-3)',
-                    }}
-                  >
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Vendidos</div>
-                      <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--orange)' }}>{vendidos}</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Disponibles</div>
-                      <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--green)' }}>
-                        {disponibles === null ? '∞' : Math.max(0, disponibles - vendidos)}
-                      </div>
-                    </div>
-                    {pizarraItem.precio_hoy !== plato.precio_base && (
-                      <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase', fontWeight: 700 }}>Precio hoy</div>
-                        <div style={{ fontWeight: 800, fontFamily: 'var(--font-mono)', color: 'var(--status-prep)' }}>
-                          {formatCOP(pizarraItem.precio_hoy)}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Formulario cuando está activado */}
-                {checked && canEdit && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-                    <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <label className="form-label">Precio hoy</label>
+                {/* Si está activo, muestra configuración del día */}
+                {checked && (
+                  <div className="nm-inset" style={{ padding: 'var(--space-3)', marginTop: 'var(--space-2)', borderRadius: 'var(--border-radius-md)' }}>
+                    <div style={{ display: 'flex', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+                      <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>Precio Hoy ($)</label>
                         <input
                           type="number"
                           className="form-input"
@@ -524,8 +506,8 @@ function TabPizarra({
                           step={500}
                         />
                       </div>
-                      <div className="form-group" style={{ flex: 1 }}>
-                        <label className="form-label">Cupo (vacío = ∞)</label>
+                      <div className="form-group" style={{ flex: 1, margin: 0 }}>
+                        <label className="form-label" style={{ fontSize: '0.75rem' }}>Cupo (Vacío = ∞)</label>
                         <input
                           type="number"
                           className="form-input"
@@ -536,24 +518,31 @@ function TabPizarra({
                         />
                       </div>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Nota del día (opcional)</label>
+
+                    <div className="form-group" style={{ margin: 0 }}>
+                      <label className="form-label" style={{ fontSize: '0.75rem' }}>Nota del día (Opcional)</label>
                       <input
                         type="text"
                         className="form-input"
                         value={forma.nota_dia}
                         onChange={(e) => setForma(plato.id, { nota_dia: e.target.value })}
-                        placeholder="Ej: Sin picante hoy…"
+                        placeholder="Ej: Incluye limonada de coco..."
                       />
                     </div>
+
                     {pizarraItem && (
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDesactivar(pizarraItem)}
-                        disabled={saving}
-                      >
-                        🚫 Desactivar
-                      </button>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--space-2)', paddingTop: 'var(--space-2)', borderTop: '1px solid var(--border)' }}>
+                        <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+                          Vendidos hoy: <strong>{vendidos}</strong> | Disponibles: <strong>{disponibles === null ? '∞' : Math.max(0, disponibles - vendidos)}</strong>
+                        </span>
+                        <button
+                          className="btn btn-ghost btn-sm"
+                          onClick={() => handleDesactivar(pizarraItem)}
+                          style={{ color: 'var(--status-cancel)', padding: '2px 8px', fontSize: '0.75rem' }}
+                        >
+                          Desactivar hoy
+                        </button>
+                      </div>
                     )}
                   </div>
                 )}
@@ -566,8 +555,8 @@ function TabPizarra({
       {!loading && platasFiltradas.length === 0 && (
         <div className="empty-state">
           <div className="empty-state__icon">🍽️</div>
-          <div className="empty-state__title">Sin platos en esta categoría</div>
-          <div className="empty-state__desc">Agrega platos en la pestaña Banco de Platos</div>
+          <div className="empty-state__title">No hay platos disponibles</div>
+          <div className="empty-state__desc">Crea platos en la pestaña "Banco de Platos" para añadirlos aquí.</div>
         </div>
       )}
     </div>
@@ -619,8 +608,7 @@ function TabBanco({
   const [saving, setSaving] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // Categorías CRUD
-  const [catModalOpen, setCatModalOpen] = useState(false);
+  // Categorías
   const [newCatNombre, setNewCatNombre] = useState('');
   const [newCatEmoji, setNewCatEmoji] = useState('🍽️');
   const [savingCat, setSavingCat] = useState(false);
@@ -637,10 +625,23 @@ function TabBanco({
     setForm({
       nombre: plato.nombre,
       descripcion_base: plato.descripcion_base ?? '',
-      emojis_ingredientes: plato.emojis_ingredientes,
+      emojis_ingredientes: plato.emojis_ingredientes ?? '',
       precio_base: String(plato.precio_base),
       categoria_id: plato.categoria_id ?? '',
       activo_permanente: plato.activo_permanente,
+    });
+    setModalOpen(true);
+  };
+
+  const openDuplicate = (plato: Plato) => {
+    setEditingPlato(null);
+    setForm({
+      nombre: `${plato.nombre} (Copia)`,
+      descripcion_base: plato.descripcion_base ?? '',
+      emojis_ingredientes: plato.emojis_ingredientes ?? '',
+      precio_base: String(plato.precio_base),
+      categoria_id: plato.categoria_id ?? '',
+      activo_permanente: true,
     });
     setModalOpen(true);
   };
@@ -670,13 +671,13 @@ function TabBanco({
     } else {
       const { error } = await supabase.from('platos').insert(payload);
       if (error) toast('Error al crear: ' + error.message, 'error');
-      else { toast('Plato creado', 'success'); setModalOpen(false); onRefresh(); }
+      else { toast('Plato registrado en el catálogo', 'success'); setModalOpen(false); onRefresh(); }
     }
     setSaving(false);
   };
 
   const handleDeletePlato = async (plato: Plato) => {
-    if (!confirm(`¿Eliminar el plato "${plato.nombre}"? Esta acción no se puede deshacer.`)) return;
+    if (!confirm(`¿Eliminar el plato "${plato.nombre}"? Esta acción borrará el registro del menú.`)) return;
     setDeletingId(plato.id);
     const { error } = await supabase.from('platos').delete().eq('id', plato.id);
     if (error) toast('Error al eliminar: ' + error.message, 'error');
@@ -725,20 +726,19 @@ function TabBanco({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       {/* Barra superior */}
-      <div className="nm-card" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', alignItems: 'flex-end' }}>
-        <div className="form-group" style={{ flex: '1 1 200px' }}>
-          <label className="form-label">Buscar plato</label>
+      <div className="nm-card" style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-3)', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="form-group" style={{ flex: '1 1 240px', margin: 0 }}>
           <input
             type="search"
             className="form-input"
-            placeholder="Nombre del plato…"
+            placeholder="🔍 Buscar plato en el catálogo…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         {canEdit && (
           <button className="btn btn-primary" onClick={openNew}>
-            ➕ Nuevo plato
+            ➕ Crear Nuevo Plato
           </button>
         )}
       </div>
@@ -750,76 +750,81 @@ function TabBanco({
       {platasFiltradas.length === 0 ? (
         <div className="empty-state">
           <div className="empty-state__icon">🍽️</div>
-          <div className="empty-state__title">No hay platos</div>
+          <div className="empty-state__title">No hay platos registrados</div>
           <div className="empty-state__desc">
-            {search ? `Sin resultados para "${search}"` : 'Agrega el primer plato'}
+            {search ? `Sin resultados para "${search}"` : 'Agrega el primer plato a la biblioteca'}
           </div>
         </div>
       ) : (
         <div className="grid-2">
           {platasFiltradas.map((plato) => (
-            <div key={plato.id} className="nm-card">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontWeight: 700, color: 'var(--text-primary)', marginBottom: 'var(--space-1)' }}>
-                    {plato.nombre}
-                  </div>
-                  <div style={{ fontSize: '1.1rem', marginBottom: 'var(--space-1)' }}>{plato.emojis_ingredientes}</div>
-                  {plato.descripcion_base && (
-                    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginBottom: 'var(--space-2)' }}>
-                      {plato.descripcion_base}
+            <div key={plato.id} className="nm-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--text-primary)', marginBottom: '4px' }}>
+                      {plato.nombre}
                     </div>
-                  )}
-                  <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', alignItems: 'center' }}>
-                    {plato.categoria && (
-                      <span className="badge badge-orange">
-                        {plato.categoria.emoji} {plato.categoria.nombre}
-                      </span>
+                    <div style={{ fontSize: '1.1rem', marginBottom: '4px' }}>{plato.emojis_ingredientes}</div>
+                    {plato.descripcion_base && (
+                      <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 'var(--space-2)' }}>
+                        {plato.descripcion_base}
+                      </div>
                     )}
-                    <span
-                      className={`badge ${plato.activo_permanente ? 'badge-green' : 'badge-done'}`}
-                    >
-                      {plato.activo_permanente ? '✅ Activo' : '⏸ Inactivo'}
-                    </span>
+                  </div>
+                  <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                    <div style={{ fontWeight: 800, color: 'var(--orange)', fontFamily: 'var(--font-mono)', fontSize: '1.05rem' }}>
+                      {formatCOP(plato.precio_base)}
+                    </div>
                   </div>
                 </div>
-                <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div style={{ fontWeight: 800, color: 'var(--orange)', fontFamily: 'var(--font-mono)', fontSize: '1rem' }}>
-                    {formatCOP(plato.precio_base)}
-                  </div>
-                  {canEdit && (
-                    <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-3)' }}>
-                      <button
-                        className="btn btn-icon btn-neutral btn-sm"
-                        onClick={() => openEdit(plato)}
-                        title="Editar"
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        className="btn btn-icon btn-neutral btn-sm"
-                        onClick={() => handleDeletePlato(plato)}
-                        disabled={deletingId === plato.id}
-                        title="Eliminar"
-                      >
-                        🗑️
-                      </button>
-                    </div>
+
+                <div style={{ display: 'flex', gap: 'var(--space-2)', flexWrap: 'wrap', alignItems: 'center', marginTop: 'var(--space-2)' }}>
+                  {plato.categoria && (
+                    <span className="badge badge-orange">
+                      {plato.categoria.emoji} {plato.categoria.nombre}
+                    </span>
                   )}
                 </div>
               </div>
+
+              {/* Botones de acción */}
+              {canEdit && (
+                <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-4)', paddingTop: 'var(--space-3)', borderTop: '1px solid var(--border)', justifyContent: 'flex-end' }}>
+                  <button
+                    className="btn btn-neutral btn-sm"
+                    onClick={() => openDuplicate(plato)}
+                    title="Duplicar este plato para crear una variante"
+                  >
+                    📋 Duplicar
+                  </button>
+                  <button
+                    className="btn btn-neutral btn-sm"
+                    onClick={() => openEdit(plato)}
+                    title="Editar"
+                  >
+                    ✏️ Editar
+                  </button>
+                  <button
+                    className="btn btn-ghost btn-sm"
+                    onClick={() => handleDeletePlato(plato)}
+                    disabled={deletingId === plato.id}
+                    title="Eliminar"
+                    style={{ color: 'var(--status-cancel)' }}
+                  >
+                    🗑️
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {/* ── Sección Categorías ── */}
+      {/* Sección Categorías */}
       <div style={{ marginTop: 'var(--space-6)' }}>
-        <div className="section-title">Categorías del menú</div>
+        <div className="section-title">Categorías del Menú</div>
         <div className="nm-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          {categorias.length === 0 && (
-            <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>Sin categorías todavía.</div>
-          )}
           {categorias.map((cat) => (
             <div
               key={cat.id}
@@ -832,9 +837,6 @@ function TabBanco({
                 background: 'var(--bg-raised)',
               }}
             >
-              <span style={{ fontSize: '0.9rem', cursor: 'grab', color: 'var(--text-muted)' }} title="Orden (drag visual)">
-                ⠿
-              </span>
               <span style={{ fontSize: '1.2rem' }}>{cat.emoji}</span>
               <span style={{ flex: 1, fontWeight: 600 }}>{cat.nombre}</span>
               <span className="badge badge-done">#{cat.orden}</span>
@@ -851,7 +853,6 @@ function TabBanco({
             </div>
           ))}
 
-          {/* Agregar categoría */}
           {canEdit && (
             <div style={{ display: 'flex', gap: 'var(--space-2)', marginTop: 'var(--space-2)', flexWrap: 'wrap' }}>
               <input
@@ -865,7 +866,7 @@ function TabBanco({
               <input
                 type="text"
                 className="form-input"
-                placeholder="Nombre de la categoría"
+                placeholder="Nueva categoría..."
                 value={newCatNombre}
                 onChange={(e) => setNewCatNombre(e.target.value)}
                 style={{ flex: 1, minWidth: 140, minHeight: 40 }}
@@ -888,7 +889,7 @@ function TabBanco({
       <Modal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        title={editingPlato ? `✏️ Editar: ${editingPlato.nombre}` : '➕ Nuevo plato'}
+        title={editingPlato ? `✏️ Editar: ${editingPlato.nombre}` : '➕ Guardar plato en el catálogo'}
         footer={
           <>
             <button className="btn btn-neutral" onClick={() => setModalOpen(false)}>
@@ -901,39 +902,39 @@ function TabBanco({
         }
       >
         <div className="form-group">
-          <label className="form-label">Nombre *</label>
+          <label className="form-label">Nombre del plato *</label>
           <input
             type="text"
             className="form-input"
             value={form.nombre}
             onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
-            placeholder="Ej: Bandeja paisa"
+            placeholder="Ej: Bandeja Paisa Especial"
             autoFocus
           />
         </div>
         <div className="form-group">
-          <label className="form-label">Descripción base</label>
+          <label className="form-label">Descripción o ingredientes clave</label>
           <textarea
             className="form-textarea"
             value={form.descripcion_base}
             onChange={(e) => setForm((f) => ({ ...f, descripcion_base: e.target.value }))}
-            placeholder="Descripción del plato…"
+            placeholder="Ej: Con carne asada, chicharrón crocante, arroz, frijol..."
             style={{ minHeight: 80 }}
           />
         </div>
         <div className="form-group">
-          <label className="form-label">Emojis ingredientes</label>
+          <label className="form-label">Emojis representativos</label>
           <input
             type="text"
             className="form-input"
             value={form.emojis_ingredientes}
             onChange={(e) => setForm((f) => ({ ...f, emojis_ingredientes: e.target.value }))}
-            placeholder="🥩🍚🫘🥚🌽"
+            placeholder="🥩🍚🫘🥚🥑"
           />
         </div>
         <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
           <div className="form-group" style={{ flex: 1 }}>
-            <label className="form-label">Precio base</label>
+            <label className="form-label">Precio base ($)</label>
             <input
               type="number"
               className="form-input"
@@ -959,11 +960,6 @@ function TabBanco({
             </select>
           </div>
         </div>
-        <Toggle
-          checked={form.activo_permanente}
-          onChange={(v) => setForm((f) => ({ ...f, activo_permanente: v }))}
-          label="Activo permanentemente"
-        />
       </Modal>
     </div>
   );
@@ -976,10 +972,12 @@ function TabBanco({
 function TabWhatsApp({
   pizarraActiva,
   config,
+  onRefresh,
   toast,
 }: {
   pizarraActiva: PizarraItem[];
   config: RestauranteConfig | null;
+  onRefresh: () => void;
   toast: (msg: string, tipo?: ToastType) => void;
 }) {
   const supabase = createClient();
@@ -992,9 +990,7 @@ function TabWhatsApp({
   const [incluirLogo, setIncluirLogo] = useState(false);
   const [loadingFrase, setLoadingFrase] = useState(false);
   const [saving, setSaving] = useState(false);
-  const previewRef = useRef<HTMLTextAreaElement>(null);
 
-  // Cargar mensaje guardado del día
   useEffect(() => {
     const cargar = async () => {
       const today = todayISO();
@@ -1033,33 +1029,35 @@ function TabWhatsApp({
 
   const generarMensaje = (): string => {
     const costo = parseFloat(costoEmpaque) || 0;
-    const nombre_restaurante = config?.nombre ?? 'Restaurante';
+    const nombre_restaurante = config?.nombre ?? 'Restaurante Áarstova';
     const local = config?.local ?? '';
     const whatsapp = config?.whatsapp_principal ?? '';
     const telefono = config?.telefono_fijo ?? '';
 
     let msg = '';
-    if (frase) msg += `🎶 ${frase}\n\n`;
+    if (frase) msg += `🎶 "${frase}"\n`;
+    if (autorFrase) msg += `— *${autorFrase}*\n\n`;
     if (nombreChef) msg += `*${nombreChef}* 🧑🏻‍🍳\n\n`;
-    if (costo > 0) {
-      msg += `🍶🍱💲${costo} *adicionales* *(Empaque Termoformados)*\n\n`;
-    }
+
+    msg += `📋 *MENÚ DEL DÍA*\n\n`;
 
     pizarraActiva.forEach((item) => {
       if (!item.plato) return;
-      msg += `☄️${item.plato.nombre}.\n`;
+      msg += `☄️ *${item.plato.nombre}*\n`;
       if (item.plato.emojis_ingredientes) msg += `${item.plato.emojis_ingredientes}\n`;
-      if (item.precio_hoy !== item.plato.precio_base) {
-        msg += `💲 *${formatCOP(item.precio_hoy)}.*\n`;
-      }
-      msg += `\n`;
+      if (item.plato.descripcion_base) msg += `_${item.plato.descripcion_base}_\n`;
+      msg += `💲 *${formatCOP(item.precio_hoy)}*\n\n`;
     });
 
-    msg += `*${nombre_restaurante}*\n🏤\n`;
+    if (costo > 0) {
+      msg += `🍶🍱💲${formatCOP(costo)} *adicionales (Empaque Termoformado)*\n\n`;
+    }
+
+    msg += `*${nombre_restaurante}*\n🏤 `;
     if (local) msg += `*${local}*\n`;
-    if (whatsapp) msg += `📲 *${whatsapp}.*\n`;
-    if (telefono) msg += `☎️ *${telefono}.*\n`;
-    msg += `*Servicio a domicilio*\n🏍️`;
+    if (whatsapp) msg += `📲 *${whatsapp}*\n`;
+    if (telefono) msg += `☎️ *${telefono}*\n`;
+    msg += `*Servicio a domicilio* 🏍️`;
 
     return msg;
   };
@@ -1069,9 +1067,9 @@ function TabWhatsApp({
   const handleCopiar = async () => {
     try {
       await navigator.clipboard.writeText(mensajeGenerado);
-      toast('Mensaje copiado al portapapeles', 'success');
+      toast('Mensaje del menú copiado al portapapeles', 'success');
     } catch {
-      toast('No se pudo copiar. Copia manualmente.', 'error');
+      toast('Copia el texto del recuadro manualmente.', 'error');
     }
   };
 
@@ -1089,7 +1087,6 @@ function TabWhatsApp({
       creado_por: sesion?.usuario.id ?? null,
     };
 
-    // Upsert
     const { data: existing } = await supabase
       .from('mensaje_dia')
       .select('id')
@@ -1111,53 +1108,58 @@ function TabWhatsApp({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
       <div className="nm-card" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="section-title" style={{ margin: 0 }}>Parámetros del Mensaje</span>
+          <button className="btn btn-neutral btn-sm" onClick={onRefresh}>
+            🔄 Sincronizar Platos Activos
+          </button>
+        </div>
+
         {/* Frase del día */}
         <div className="form-group">
           <label className="form-label">Frase del día</label>
-          <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-            <textarea
-              className="form-textarea"
-              value={frase}
-              onChange={(e) => setFrase(e.target.value)}
-              placeholder="Escribe o genera una frase…"
-              style={{ flex: 1, minHeight: 80 }}
-            />
-          </div>
+          <textarea
+            className="form-textarea"
+            value={frase}
+            onChange={(e) => setFrase(e.target.value)}
+            placeholder="Escribe o genera una frase inspiradora…"
+            style={{ minHeight: 70 }}
+          />
           <button
             className="btn btn-neutral btn-sm"
             onClick={getFraseAleatoria}
             disabled={loadingFrase}
-            style={{ alignSelf: 'flex-start' }}
+            style={{ alignSelf: 'flex-start', marginTop: 'var(--space-2)' }}
           >
-            {loadingFrase ? '⏳' : '🎲'} Frase aleatoria
+            {loadingFrase ? '⏳' : '🎲'} Cambiar Frase Aleatoria
           </button>
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Autor de la frase</label>
-          <input
-            type="text"
-            className="form-input"
-            value={autorFrase}
-            onChange={(e) => setAutorFrase(e.target.value)}
-            placeholder="Ej: Gabriel García Márquez"
-          />
-        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 'var(--space-3)' }}>
+          <div className="form-group">
+            <label className="form-label">Autor de la frase</label>
+            <input
+              type="text"
+              className="form-input"
+              value={autorFrase}
+              onChange={(e) => setAutorFrase(e.target.value)}
+              placeholder="Ej: Gabriel García Márquez"
+            />
+          </div>
 
-        <div className="form-group">
-          <label className="form-label">Nombre del chef</label>
-          <input
-            type="text"
-            className="form-input"
-            value={nombreChef}
-            onChange={(e) => setNombreChef(e.target.value)}
-            placeholder="Ej: Chef Andrés"
-          />
-        </div>
+          <div className="form-group">
+            <label className="form-label">Nombre del Chef</label>
+            <input
+              type="text"
+              className="form-input"
+              value={nombreChef}
+              onChange={(e) => setNombreChef(e.target.value)}
+              placeholder="Ej: Chef Carlos"
+            />
+          </div>
 
-        <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div className="form-group" style={{ flex: '1 1 160px' }}>
-            <label className="form-label">Costo empaque</label>
+          <div className="form-group">
+            <label className="form-label">Costo Empaque ($)</label>
             <input
               type="number"
               className="form-input"
@@ -1167,62 +1169,51 @@ function TabWhatsApp({
               step={500}
             />
           </div>
-          <div style={{ paddingBottom: 'var(--space-2)' }}>
-            <Toggle
-              checked={incluirLogo}
-              onChange={setIncluirLogo}
-              label="Incluir logo"
-            />
-          </div>
         </div>
       </div>
 
-      {/* Vista previa del mensaje */}
+      {/* Vista previa */}
       <div>
-        <div className="section-title">Vista previa del mensaje</div>
-        <div className="nm-inset" style={{ position: 'relative' }}>
+        <div className="section-title">Vista previa para WhatsApp ({pizarraActiva.length} platos incluidos)</div>
+        <div className="nm-card" style={{ background: '#FFFDF9', borderLeft: '4px solid #25D366' }}>
           <textarea
-            ref={previewRef}
             className="form-textarea"
             readOnly
             value={mensajeGenerado}
             style={{
-              minHeight: 280,
-              fontFamily: 'var(--font-mono)',
-              fontSize: '0.8rem',
+              minHeight: 260,
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.9rem',
               background: 'transparent',
               boxShadow: 'none',
               border: 'none',
-              resize: 'none',
+              resize: 'vertical',
               padding: 0,
               width: '100%',
+              lineHeight: 1.5,
             }}
           />
         </div>
       </div>
 
-      {/* Platos activos en la pizarra (resumen) */}
       {pizarraActiva.length === 0 && (
-        <div
-          className="nm-card"
-          style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.875rem', padding: 'var(--space-4)' }}
-        >
-          ⚠️ No hay platos activos en la pizarra de hoy. El mensaje no incluirá platos.
+        <div className="nm-card" style={{ textAlign: 'center', color: 'var(--orange-dark)', padding: 'var(--space-4)' }}>
+          ⚠️ No tienes platos activos en la Pizarra del Día. Activa tus platos en la primera pestaña para verlos en el mensaje.
         </div>
       )}
 
       {/* Botones */}
       <div style={{ display: 'flex', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
-        <button className="btn btn-success" onClick={handleCopiar} style={{ flex: 1, minWidth: 160 }}>
-          📋 Copiar al portapapeles
+        <button className="btn btn-success" onClick={handleCopiar} style={{ flex: 1, minWidth: 200, padding: '12px' }}>
+          📋 Copiar para WhatsApp
         </button>
         <button
           className="btn btn-primary"
           onClick={handleGuardar}
           disabled={saving}
-          style={{ flex: 1, minWidth: 160 }}
+          style={{ flex: 1, minWidth: 200, padding: '12px' }}
         >
-          {saving ? '⏳ Guardando…' : '💾 Guardar mensaje del día'}
+          {saving ? '⏳ Guardando…' : '💾 Guardar Mensaje del Día'}
         </button>
       </div>
     </div>
@@ -1310,9 +1301,9 @@ export default function MenuPage() {
       {/* Page Header */}
       <div className="page-header">
         <div className="page-title">
-          <h1>🍽️ Menú</h1>
+          <h1>🍽️ Gestión del Menú</h1>
           <div className="page-subtitle">
-            Gestiona la pizarra del día, el banco de platos y los mensajes de WhatsApp.
+            Activa la carta de hoy, administra el catálogo completo de platos y genera mensajes para WhatsApp.
           </div>
         </div>
       </div>
@@ -1339,6 +1330,7 @@ export default function MenuPage() {
         <TabPizarra
           categorias={categorias}
           platos={platos}
+          onRefresh={fetchAll}
           toast={toast}
           canEdit={canEdit}
         />
@@ -1358,6 +1350,7 @@ export default function MenuPage() {
         <TabWhatsApp
           pizarraActiva={pizarraHoy}
           config={config}
+          onRefresh={fetchAll}
           toast={toast}
         />
       )}
