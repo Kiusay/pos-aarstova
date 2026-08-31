@@ -344,7 +344,7 @@ export default function MeseroPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 'var(--space-4)' }}>
               {pedidosDomicilio.map((dom) => {
                 const clienteNombre = dom.cliente?.nombre || dom.cliente_nombre_rapido || 'Cliente Domicilio';
-                const clienteTel = dom.cliente?.telefono || dom.telefono_rapido || 'Sin teléfono';
+                const clienteTel = dom.cliente?.telefono || dom.cliente_telefono_rapido || 'Sin teléfono';
                 const repartidorNombre = (dom as any).repartidor?.nombre || 'Pendiente por asignar';
 
                 return (
@@ -361,7 +361,7 @@ export default function MeseroPage() {
                     <div>
                       <div style={{ fontWeight: 700, fontSize: '1rem' }}>👤 {clienteNombre}</div>
                       <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>📞 {clienteTel}</div>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>📍 {dom.direccion_envio || 'Retiro en local'}</div>
+                      <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>📍 {dom.cliente?.direccion || dom.notas_generales || 'Retiro en local'}</div>
                     </div>
 
                     <div className="nm-inset" style={{ padding: 'var(--space-2) var(--space-3)', borderRadius: '6px', fontSize: '0.85rem' }}>
