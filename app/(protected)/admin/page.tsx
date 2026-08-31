@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from 'react';
 import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
+import jsPDF from 'jspdf';
+import { ClienteSearchPicker } from '@/components/ui/ClienteSearchPicker';
 import type {
   Usuario,
   Permisos,
@@ -12,6 +14,8 @@ import type {
   CuentaBancaria,
   ZonaDomicilio,
   Mesa,
+  Cliente,
+  Plato,
 } from '@/lib/types';
 
 // ─── Permiso labels ──────────────────────────────────────────
@@ -101,6 +105,7 @@ export default function AdminPage() {
   const sesion = useSesion();
   const supabase = createClient();
 
+  const [modalFactura, setModalFactura] = useState(false);
   const [tab, setTab] = useState<'usuarios' | 'config' | 'mesas'>('usuarios');
   const [toasts, setToasts] = useState<ToastMsg[]>([]);
 
@@ -138,11 +143,18 @@ export default function AdminPage() {
   return (
     <div className="main-content">
       {/* Page Header */}
-      <div className="page-header">
+      <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 'var(--space-3)' }}>
         <div className="page-title">
           <h1>⚙️ Administración</h1>
           <span className="page-subtitle">Gestión completa del sistema Áarstova</span>
         </div>
+        <button
+          className="btn btn-primary"
+          onClick={() => setModalFactura(true)}
+          style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+        >
+          📄 Factura Express
+        </button>
       </div>
 
       {/* Tabs */}
@@ -176,6 +188,15 @@ export default function AdminPage() {
       )}
       {tab === 'mesas' && (
         <TabMesas supabase={supabase} showToast={showToast} />
+      )}
+
+      {/* Modal Factura Express */}
+      {modalFactura && (
+        <ModalFacturaExpress
+          supabase={supabase}
+          onClose={() => setModalFactura(false)}
+          showToast={showToast}
+        />
       )}
 
       {/* Toast Container */}
@@ -1785,6 +1806,476 @@ function ModalCrearUsuarioDirecto({
           <button className="btn btn-neutral flex-1" onClick={onClose}>Cancelar</button>
           <button className="btn btn-primary flex-1" onClick={handleCreate} disabled={saving}>
             {saving ? 'Guardando...' : 'Crear Usuario'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Modal: Factura Express ──────────────────────────────────
+interface FacturaItem {
+  id: string;
+  descripcion: string;
+  cantidad: number;
+  precio: number;
+}
+
+function ModalFacturaExpress({
+  supabase,
+  onClose,
+  showToast,
+}: {
+  supabase: ReturnType<typeof createClient>;
+  onClose: () => void;
+  showToast: (msg: string, type?: ToastType) => void;
+}) {
+  const [config, setConfig] = useState<RestauranteConfig | null>(null);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [platos, setPlatos] = useState<Partial<Plato>[]>([]);
+
+  // Datos Cliente
+  const [selectedClienteId, setSelectedClienteId] = useState<string>('');
+  const [nombreCliente, setNombreCliente] = useState('');
+  const [cedulaNit, setCedulaNit] = useState('');
+  const [telefonoCliente, setTelefonoCliente] = useState('');
+  const [direccionCliente, setDireccionCliente] = useState('');
+
+  // Factura Meta
+  const [numFactura, setNumFactura] = useState(() => `FE-${Math.floor(100000 + Math.random() * 900000)}`);
+  const [metodoPago, setMetodoPago] = useState('Efectivo');
+
+  // Items
+  const [items, setItems] = useState<FacturaItem[]>([]);
+  const [itemDesc, setItemDesc] = useState('');
+  const [itemCant, setItemCant] = useState('1');
+  const [itemPrecio, setItemPrecio] = useState('');
+
+  useEffect(() => {
+    async function loadData() {
+      // Config
+      const { data: cfg } = await supabase.from('restaurante_config').select('*').single();
+      if (cfg) setConfig(cfg as RestauranteConfig);
+
+      // Clientes
+      const { data: cls } = await supabase.from('clientes').select('*').order('nombre');
+      if (cls) setClientes(cls as Cliente[]);
+
+      // Platos
+      const { data: pts } = await supabase.from('platos').select('id, nombre, precio_base').order('nombre');
+      if (pts) setPlatos(pts as Partial<Plato>[]);
+    }
+    loadData();
+  }, [supabase]);
+
+  function handleSelectCliente(c: Cliente | null) {
+    if (c) {
+      setSelectedClienteId(c.id);
+      setNombreCliente(c.nombre || '');
+      setCedulaNit((c as any).documento || '');
+      setTelefonoCliente(c.telefono || '');
+      setDireccionCliente(c.direccion || (c.barrio ? `Barrio ${c.barrio}` : ''));
+    } else {
+      setSelectedClienteId('');
+      setNombreCliente('');
+      setCedulaNit('');
+      setTelefonoCliente('');
+      setDireccionCliente('');
+    }
+  }
+
+  function handleSelectPlato(e: React.ChangeEvent<HTMLSelectElement>) {
+    const val = e.target.value;
+    if (!val) return;
+    const p = platos.find((item) => item.id === val);
+    if (p) {
+      setItemDesc(p.nombre || '');
+      setItemPrecio(p.precio_base ? p.precio_base.toString() : '');
+    }
+  }
+
+  function addItem() {
+    if (!itemDesc.trim()) {
+      showToast('Escribe una descripción o selecciona un producto', 'warning');
+      return;
+    }
+    const cant = parseInt(itemCant) || 1;
+    const precio = parseFloat(itemPrecio) || 0;
+    if (cant < 1) {
+      showToast('La cantidad debe ser mínimo 1', 'warning');
+      return;
+    }
+    setItems((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), descripcion: itemDesc.trim(), cantidad: cant, precio }
+    ]);
+    setItemDesc('');
+    setItemCant('1');
+    setItemPrecio('');
+  }
+
+  function removeItem(id: string) {
+    setItems((prev) => prev.filter((i) => i.id !== id));
+  }
+
+  const totalFactura = items.reduce((acc, item) => acc + (item.cantidad * item.precio), 0);
+
+  function generarPDF() {
+    if (items.length === 0) {
+      showToast('Agrega al menos un producto o ítem a la factura', 'warning');
+      return;
+    }
+
+    try {
+      const doc = new jsPDF({
+        unit: 'mm',
+        format: [80, Math.max(160, 110 + items.length * 14 + (config?.logo_url ? 25 : 0))],
+      });
+
+      let y = 8;
+      const logoUrl = config?.logo_url;
+
+      if (logoUrl) {
+        try {
+          const imgFormat = logoUrl.includes('data:image/png') ? 'PNG' : 'JPEG';
+          doc.addImage(logoUrl, imgFormat, 27, y, 26, 26);
+          y += 28;
+        } catch {
+          y += 2;
+        }
+      }
+
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text(config?.nombre || 'Restaurante Áarstova', 40, y, { align: 'center' });
+      y += 4.5;
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      if (config?.slogan) {
+        doc.text(config.slogan, 40, y, { align: 'center' });
+        y += 4;
+      }
+      if (config?.direccion) {
+        doc.text(config.direccion, 40, y, { align: 'center' });
+        y += 3.8;
+      }
+      if (config?.telefono_fijo || config?.whatsapp_principal) {
+        doc.text(`Tel: ${config?.telefono_fijo || config?.whatsapp_principal}`, 40, y, { align: 'center' });
+        y += 4;
+      }
+
+      doc.line(4, y, 76, y);
+      y += 5;
+
+      // Factura Info
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(9.5);
+      doc.text('FACTURA EXPRESS', 40, y, { align: 'center' });
+      y += 5;
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.text(`N° Factura: ${numFactura}`, 4, y);
+      doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 76, y, { align: 'right' });
+      y += 4.5;
+
+      // Cliente info
+      if (nombreCliente.trim()) {
+        doc.setFont('Helvetica', 'bold');
+        doc.text(`Cliente: ${nombreCliente.trim()}`, 4, y);
+        y += 4;
+      }
+      if (cedulaNit.trim()) {
+        doc.setFont('Helvetica', 'normal');
+        doc.text(`CC/NIT: ${cedulaNit.trim()}`, 4, y);
+        y += 4;
+      }
+      if (telefonoCliente.trim() || direccionCliente.trim()) {
+        doc.setFont('Helvetica', 'normal');
+        const contactInfo = [telefonoCliente.trim(), direccionCliente.trim()].filter(Boolean).join(' | ');
+        doc.text(`Contacto: ${contactInfo}`, 4, y);
+        y += 4;
+      }
+      doc.setFont('Helvetica', 'normal');
+      doc.text(`Método de Pago: ${metodoPago}`, 4, y);
+      y += 4.5;
+
+      doc.line(4, y, 76, y);
+      y += 4.5;
+
+      // Items Table Header
+      doc.setFont('Helvetica', 'bold');
+      doc.text('Cant', 4, y);
+      doc.text('Descripción', 16, y);
+      doc.text('Total', 76, y, { align: 'right' });
+      y += 4;
+      doc.line(4, y, 76, y);
+      y += 4.5;
+
+      doc.setFont('Helvetica', 'normal');
+      items.forEach((item) => {
+        const sub = item.cantidad * item.precio;
+        doc.text(`${item.cantidad}`, 4, y);
+
+        const lines = doc.splitTextToSize(item.descripcion, 44);
+        doc.text(lines[0], 16, y);
+        doc.text(`$${sub.toLocaleString()}`, 76, y, { align: 'right' });
+        y += 4;
+
+        for (let i = 1; i < lines.length; i++) {
+          doc.text(lines[i], 16, y);
+          y += 3.8;
+        }
+      });
+
+      doc.line(4, y, 76, y);
+      y += 5;
+
+      // Total Final
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(10.5);
+      doc.text('TOTAL:', 4, y);
+      doc.text(`$${totalFactura.toLocaleString()}`, 76, y, { align: 'right' });
+      y += 6;
+
+      // Bank Accounts for Transfer/Mixto
+      if (metodoPago === 'Transferencia' || metodoPago === 'Mixto') {
+        if (config?.cuentas_bancarias && config.cuentas_bancarias.length > 0) {
+          doc.setFontSize(7.5);
+          doc.text('Cuentas para transferencia:', 4, y);
+          y += 3.8;
+          config.cuentas_bancarias.forEach((c) => {
+            doc.text(`• ${c.banco}: ${c.numero} (${c.titular})`, 6, y);
+            y += 3.5;
+          });
+          y += 2;
+        }
+      }
+
+      if (config?.pie_factura_texto) {
+        doc.setFont('Helvetica', 'italic');
+        doc.setFontSize(7.5);
+        doc.text(config.pie_factura_texto, 40, y, { align: 'center' });
+      }
+
+      doc.save(`factura_${numFactura}.pdf`);
+      showToast(`Factura ${numFactura} generada y descargada con éxito`, 'success');
+      onClose();
+    } catch (err: any) {
+      showToast('Error al generar PDF: ' + err.message, 'error');
+    }
+  }
+
+  return (
+    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
+      <div className="modal" style={{ maxWidth: 640, width: '95%' }}>
+        <div className="modal__header">
+          <span className="modal__title">📄 Generar Factura Express</span>
+          <button className="modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="flex flex-col gap-4" style={{ maxHeight: '75vh', overflowY: 'auto', paddingRight: '4px' }}>
+          <div className="nm-inset" style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+            💡 Genera una factura en PDF al instante sin registrarla en la base de datos ni alterar los arqueos del sistema.
+          </div>
+
+          {/* Datos de la Factura */}
+          <div className="grid-2" style={{ gap: 'var(--space-3)' }}>
+            <div className="form-group">
+              <label className="form-label">Número de Factura</label>
+              <input
+                className="form-input"
+                value={numFactura}
+                onChange={(e) => setNumFactura(e.target.value)}
+                placeholder="Ej: FE-1002"
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Método de Pago</label>
+              <select
+                className="form-select"
+                value={metodoPago}
+                onChange={(e) => setMetodoPago(e.target.value)}
+              >
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Transferencia">🏦 Transferencia / Nequi</option>
+                <option value="Tarjeta">💳 Tarjeta Débito/Crédito</option>
+                <option value="Mixto">🔀 Pago Mixto</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Sección Cliente */}
+          <div className="nm-card flex flex-col gap-3">
+            <p className="section-title" style={{ margin: 0 }}>👤 Datos del Cliente</p>
+            
+            <div className="form-group">
+              <label className="form-label">Buscar Cliente Registrado (Opcional)</label>
+              <ClienteSearchPicker
+                clientes={clientes}
+                selectedClienteId={selectedClienteId}
+                onSelectCliente={handleSelectCliente}
+                onClear={() => handleSelectCliente(null)}
+              />
+            </div>
+
+            <div className="grid-2" style={{ gap: 'var(--space-3)' }}>
+              <div className="form-group">
+                <label className="form-label">Nombre del Cliente / Razón Social *</label>
+                <input
+                  className="form-input"
+                  value={nombreCliente}
+                  onChange={(e) => setNombreCliente(e.target.value)}
+                  placeholder="Ej: Juan Pérez / Empresa S.A.S."
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Cédula / NIT (Opcional)</label>
+                <input
+                  className="form-input"
+                  value={cedulaNit}
+                  onChange={(e) => setCedulaNit(e.target.value)}
+                  placeholder="Ej: 1098765432 o 901.234.567-8"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Teléfono (Opcional)</label>
+                <input
+                  className="form-input"
+                  value={telefonoCliente}
+                  onChange={(e) => setTelefonoCliente(e.target.value)}
+                  placeholder="Ej: 300 123 4567"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Dirección (Opcional)</label>
+                <input
+                  className="form-input"
+                  value={direccionCliente}
+                  onChange={(e) => setDireccionCliente(e.target.value)}
+                  placeholder="Ej: Cra 15 # 45-20"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Sección Ítems / Productos */}
+          <div className="nm-card flex flex-col gap-3">
+            <p className="section-title" style={{ margin: 0 }}>🛍️ Ítems de la Factura</p>
+            
+            <div className="flex gap-2 flex-wrap items-end">
+              {platos.length > 0 && (
+                <div className="form-group" style={{ flex: '1 1 200px' }}>
+                  <label className="form-label">Cargar de Platos del Menú</label>
+                  <select className="form-select" onChange={handleSelectPlato} defaultValue="">
+                    <option value="">-- Seleccionar Plato (Opcional) --</option>
+                    {platos.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.nombre} (${p.precio_base?.toLocaleString()})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="grid-3" style={{ gap: 'var(--space-2)' }}>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label className="form-label">Descripción del Ítem / Servicio *</label>
+                <input
+                  className="form-input"
+                  value={itemDesc}
+                  onChange={(e) => setItemDesc(e.target.value)}
+                  placeholder="Ej: Almuerzo Ejecutivo + Bebida"
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">Cant</label>
+                <input
+                  type="number"
+                  min="1"
+                  className="form-input"
+                  value={itemCant}
+                  onChange={(e) => setItemCant(e.target.value)}
+                />
+              </div>
+              <div className="form-group" style={{ gridColumn: 'span 2' }}>
+                <label className="form-label">Precio Unitario ($)</label>
+                <input
+                  type="number"
+                  min="0"
+                  className="form-input"
+                  value={itemPrecio}
+                  onChange={(e) => setItemPrecio(e.target.value)}
+                  placeholder="Ej: 25000"
+                />
+              </div>
+              <div className="form-group flex items-end">
+                <button type="button" className="btn btn-neutral w-full" onClick={addItem}>
+                  ➕ Agregar
+                </button>
+              </div>
+            </div>
+
+            {/* Tabla de ítems agregados */}
+            {items.length > 0 ? (
+              <div className="table-wrapper" style={{ marginTop: 'var(--space-2)' }}>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Cant</th>
+                      <th>Descripción</th>
+                      <th>Precio Unit.</th>
+                      <th>Subtotal</th>
+                      <th style={{ width: 40 }}></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {items.map((i) => (
+                      <tr key={i.id}>
+                        <td>{i.cantidad}</td>
+                        <td><strong>{i.descripcion}</strong></td>
+                        <td>${i.precio.toLocaleString()}</td>
+                        <td><strong>${(i.cantidad * i.precio).toLocaleString()}</strong></td>
+                        <td>
+                          <button
+                            type="button"
+                            className="btn btn-danger btn-icon btn-sm"
+                            onClick={() => removeItem(i.id)}
+                            title="Eliminar ítem"
+                          >
+                            🗑️
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="empty-state" style={{ padding: 'var(--space-4)' }}>
+                <span className="empty-state__icon">🛒</span>
+                <p className="empty-state__title" style={{ fontSize: '0.9rem' }}>Aún no has agregado ítems</p>
+              </div>
+            )}
+
+            {/* Total acumulado */}
+            <div className="flex justify-between items-center nm-inset" style={{ padding: 'var(--space-3)', marginTop: 'var(--space-2)' }}>
+              <span style={{ fontSize: '1rem', fontWeight: 600 }}>Total Factura:</span>
+              <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-primary-600)', fontFamily: 'var(--font-mono)' }}>
+                ${totalFactura.toLocaleString()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-3" style={{ marginTop: 'var(--space-4)' }}>
+          <button className="btn btn-neutral flex-1" onClick={onClose}>
+            Cancelar
+          </button>
+          <button className="btn btn-primary flex-1" onClick={generarPDF} disabled={items.length === 0}>
+            📄 Generar y Descargar Factura PDF
           </button>
         </div>
       </div>
