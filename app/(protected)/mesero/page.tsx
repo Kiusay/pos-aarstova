@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
-import type { Pedido, DetallePedido, EstadoPago } from '@/lib/types';
+import type { Pedido, DetallePedido, EstadoPago, Cliente } from '@/lib/types';
 
 type PedidoMesero = Pedido & {
   detalle: DetallePedido[];
@@ -17,6 +17,7 @@ export default function MeseroPage() {
 
   const [pedidosMesa, setPedidosMesa] = useState<PedidoMesero[]>([]);
   const [pedidosDomicilio, setPedidosDomicilio] = useState<PedidoMesero[]>([]);
+  const [listaClientes, setListaClientes] = useState<Cliente[]>([]);
   const [loading, setLoading] = useState(true);
   const [tabActual, setTabActual] = useState<TabMesero>('activos');
 
@@ -92,6 +93,10 @@ export default function MeseroPage() {
       } else if (dataDom) {
         setPedidosDomicilio(dataDom as PedidoMesero[]);
       }
+
+      // 3. Cargar clientes registrados para autocompletado
+      const { data: dataClientes } = await supabase.from('clientes').select('*').order('nombre');
+      if (dataClientes) setListaClientes(dataClientes as Cliente[]);
     } catch (err) {
       console.error('[Mesero] catch error:', err);
     } finally {
@@ -604,6 +609,29 @@ export default function MeseroPage() {
               <button className="btn btn-sm btn-ghost" onClick={() => setModalCliente(null)}>✕</button>
             </div>
             <div className="modal__body" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="form-group">
+                <label className="form-label">🔍 Buscar / Cargar de Clientes Registrados</label>
+                <select
+                  className="form-select"
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    const found = listaClientes.find((c) => c.id === id);
+                    if (found) {
+                      setClienteNombre(found.nombre || '');
+                      setClienteTelefono(found.telefono || '');
+                      setClienteDireccion(found.direccion || '');
+                    }
+                  }}
+                >
+                  <option value="">-- Cargar cliente registrado existente --</option>
+                  {listaClientes.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.nombre} ({c.telefono || 'Sin tel'}) {c.barrio ? `- Barrio ${c.barrio}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="form-group">
                 <label className="form-label">Nombre del Cliente *</label>
                 <input
