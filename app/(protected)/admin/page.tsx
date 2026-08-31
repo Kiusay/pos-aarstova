@@ -1514,8 +1514,11 @@ function ModalCrearUsuarioDirecto({
               className="form-input"
               value={correo}
               onChange={(e) => setCorreo(e.target.value)}
-              placeholder="Dejar vacío para generar email automático"
+              placeholder="Opcional. Si no tiene, se crea uno automático"
             />
+            <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: '4px', display: 'block' }}>
+              💡 El usuario podrá ingresar a la app escribiendo su <strong>Nombre/Alias</strong> y <strong>Contraseña</strong> sin necesidad de revisar correo.
+            </span>
           </div>
         </div>
 

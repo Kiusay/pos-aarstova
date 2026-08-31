@@ -122,17 +122,42 @@ export default function LoginPage() {
     setLoading(true);
 
     const supabase = createClient();
+    let finalEmail = email.trim();
+
+    // Si el usuario ingresó solo su nombre o alias sin '@', buscar su correo correspondiente
+    if (!finalEmail.includes('@')) {
+      try {
+        const { data: userRow } = await supabase
+          .from('usuarios')
+          .select('correo')
+          .ilike('nombre', finalEmail)
+          .maybeSingle();
+
+        if (userRow?.correo) {
+          finalEmail = userRow.correo;
+        } else {
+          const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
+          finalEmail = `${cleanSlug}@aarstova.com`;
+        }
+      } catch (err) {
+        const cleanSlug = finalEmail.toLowerCase().replace(/[^a-z0-9]/g, '');
+        finalEmail = `${cleanSlug}@aarstova.com`;
+      }
+    }
+
     const { error: authError } = await supabase.auth.signInWithPassword({
-      email,
+      email: finalEmail,
       password,
     });
 
     if (authError) {
-      setError(
-        authError.message === 'Invalid login credentials'
-          ? 'Correo o contraseña incorrectos. Intenta de nuevo.'
-          : authError.message
-      );
+      if (authError.message === 'Invalid login credentials') {
+        setError('Usuario/correo o contraseña incorrectos. Intenta de nuevo.');
+      } else if (authError.message.toLowerCase().includes('email not confirmed')) {
+        setError('El correo no ha sido confirmado. Puedes desactivar "Confirm email" en Supabase o crear el usuario desde el panel de Admin.');
+      } else {
+        setError(authError.message);
+      }
       setLoading(false);
       return;
     }
@@ -154,16 +179,16 @@ export default function LoginPage() {
         {/* ── Card ── */}
         <div className="nm-card login-card">
           <form className="login-form" onSubmit={handleSubmit} noValidate>
-            {/* Email */}
+            {/* Email / Username */}
             <div className="form-group">
               <label htmlFor="email" className="form-label">
-                Correo electrónico
+                Usuario o Correo electrónico
               </label>
               <input
                 id="email"
-                type="email"
+                type="text"
                 className="form-input"
-                placeholder="tu@correo.com"
+                placeholder="Ej: pedro o tu@correo.com"
                 autoComplete="username"
                 required
                 value={email}
