@@ -388,6 +388,11 @@ export default function PedidosPage() {
     setClienteId('');
     setClienteNombreRapido('');
     setClienteTelefonoRapido('');
+    setDireccionEntrega('');
+    setBarrioEntrega('');
+    setNotasEntrega('');
+    setDomiciliarioId('');
+    setGuardarDirectorio(false);
     setNotasGenerales('');
     setPropinaActiva(false);
     setPropinaValor(0);
@@ -396,6 +401,10 @@ export default function PedidosPage() {
     setCostoDomicilio(0);
     setRondaActual(1);
     setEstadoPago('pendiente_pago');
+    setMetodoPago('efectivo');
+    setMontoEfectivo(0);
+    setMontoTransferencia(0);
+    setCuentaDestino('');
   };
 
   // Generación de PDF de Recibo
