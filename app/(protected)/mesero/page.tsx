@@ -221,7 +221,7 @@ export default function MeseroPage() {
           metodo_pago: estadoPagoCobro === 'pagado' ? metodoPago : null,
           monto_efectivo: estadoPagoCobro === 'pagado' && (metodoPago === 'efectivo' || metodoPago === 'mixto') ? montoEfectivo : 0,
           monto_transferencia: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? montoTransferencia : 0,
-          cuenta_bancaria_destino: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? cuentaDestino : null,
+          cuenta_destino: estadoPagoCobro === 'pagado' && (metodoPago === 'transferencia' || metodoPago === 'mixto') ? (cuentaDestino.trim() || null) : null,
           estado: 'entregado'
         })
         .eq('id', modalCobro.id);
@@ -739,8 +739,8 @@ export default function MeseroPage() {
                         <input type="number" className="form-input" value={montoTransferencia} onChange={(e) => setMontoTransferencia(Number(e.target.value))} />
                       </div>
                       <div className="form-group">
-                        <label className="form-label">Cuenta Destino</label>
-                        <input type="text" className="form-input" value={cuentaDestino} onChange={(e) => setCuentaDestino(e.target.value)} placeholder="Ej: Nequi 3001234567" />
+                        <label className="form-label">Banco / Nota de Transferencia (Opcional)</label>
+                        <input type="text" className="form-input" value={cuentaDestino} onChange={(e) => setCuentaDestino(e.target.value)} placeholder="Ej: Nequi, Bancolombia, Daviplata, etc." />
                       </div>
                     </>
                   )}
