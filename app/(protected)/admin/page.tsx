@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { createBrowserClient } from '@supabase/ssr';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import type {
@@ -1414,10 +1415,37 @@ function ModalCrearUsuarioDirecto({
     setSaving(true);
 
     try {
-      const userId = crypto.randomUUID();
-      
-      const { error } = await supabase.from('usuarios').insert({
-        id: userId,
+      // 1. Crear usuario en Auth de Supabase (con cliente no-persistente)
+      const tempClient = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '',
+        { auth: { persistSession: false, autoRefreshToken: false } }
+      );
+
+      const { data: authData, error: authError } = await tempClient.auth.signUp({
+        email: finalEmail,
+        password: password,
+        options: {
+          data: { nombre: cleanName, rol }
+        }
+      });
+
+      if (authError) {
+        showToast('Error en Auth: ' + authError.message, 'error');
+        setSaving(false);
+        return;
+      }
+
+      const newUserId = authData.user?.id;
+      if (!newUserId) {
+        showToast('No se pudo generar el usuario en la autenticación', 'error');
+        setSaving(false);
+        return;
+      }
+
+      // 2. Insertar/Upsert en public.usuarios con la FK de auth.users
+      const { error: dbError } = await supabase.from('usuarios').upsert({
+        id: newUserId,
         nombre: cleanName,
         correo: finalEmail,
         rol,
@@ -1426,10 +1454,10 @@ function ModalCrearUsuarioDirecto({
         permisos: getPermisosPorRol(rol)
       });
 
-      if (error) {
-        showToast('Error al crear usuario: ' + error.message, 'error');
+      if (dbError) {
+        showToast('Error al vincular en base de datos: ' + dbError.message, 'error');
       } else {
-        showToast(`✅ Usuario ${cleanName} creado correctamente!`, 'success');
+        showToast(`✅ Usuario ${cleanName} creado con éxito! Correo: ${finalEmail}`, 'success');
         onCreated();
       }
     } catch (err: any) {
