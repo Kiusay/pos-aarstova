@@ -982,20 +982,53 @@ function TabConfig({
     else showToast('Configuración guardada', 'success');
   }
 
+  function fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  }
+
   async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !config) return;
     setUploadingLogo(true);
-    const ext = file.name.split('.').pop();
-    const path = `logos/restaurante.${ext}`;
-    const { error: upError } = await supabase.storage.from('imagenes').upload(path, file, { upsert: true });
-    if (upError) { showToast('Error al subir logo: ' + upError.message, 'error'); setUploadingLogo(false); return; }
-    const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(path);
-    const newUrl = urlData.publicUrl + '?t=' + Date.now();
-    await supabase.from('restaurante_config').update({ logo_url: urlData.publicUrl }).eq('id', config.id);
-    setLogoUrl(newUrl);
-    showToast('Logo actualizado', 'success');
-    setUploadingLogo(false);
+
+    try {
+      let finalUrl = '';
+
+      // 1. Intentar subir a Supabase Storage
+      const ext = file.name.split('.').pop();
+      const path = `logos/restaurante_${Date.now()}.${ext}`;
+      const { error: upError } = await supabase.storage.from('imagenes').upload(path, file, { upsert: true });
+
+      if (!upError) {
+        const { data: urlData } = supabase.storage.from('imagenes').getPublicUrl(path);
+        finalUrl = urlData.publicUrl + '?t=' + Date.now();
+      } else {
+        console.warn('[Logo] Supabase Storage no disponible (' + upError.message + '). Usando fallback Base64...');
+        // Fallback a Base64 si el bucket de Supabase no existe o no tiene permisos
+        finalUrl = await fileToBase64(file);
+      }
+
+      const { error: dbErr } = await supabase
+        .from('restaurante_config')
+        .update({ logo_url: finalUrl })
+        .eq('id', config.id);
+
+      if (dbErr) {
+        showToast('Error al guardar logo en configuración: ' + dbErr.message, 'error');
+      } else {
+        setLogoUrl(finalUrl);
+        showToast('✅ Logo del restaurante guardado con éxito', 'success');
+      }
+    } catch (err: any) {
+      showToast('Error procesando logo: ' + (err?.message || 'Error de lectura de archivo'), 'error');
+    } finally {
+      setUploadingLogo(false);
+    }
   }
 
   // Cuentas bancarias helpers
