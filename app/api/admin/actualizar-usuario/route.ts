@@ -124,8 +124,13 @@ export async function POST(request: Request) {
     if (cedula !== undefined) updatePayload.cedula = cedula.trim();
     if (direccion !== undefined) updatePayload.direccion = direccion.trim();
 
+    // Client for DB write with service role (bypasses RLS after route security check)
+    const dbClient = (isService && serviceRoleKey)
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
+      : supabaseClient;
+
     // Intentar actualización completa
-    let { error: dbErr } = await supabaseClient
+    let { error: dbErr } = await dbClient
       .from('usuarios')
       .update(updatePayload)
       .eq('id', userId);
@@ -137,7 +142,7 @@ export async function POST(request: Request) {
       delete updatePayload.cedula;
       delete updatePayload.direccion;
 
-      const retry = await supabaseClient
+      const retry = await dbClient
         .from('usuarios')
         .update(updatePayload)
         .eq('id', userId);

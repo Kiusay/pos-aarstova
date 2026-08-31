@@ -144,12 +144,17 @@ export async function POST(request: Request) {
     if (cedula?.trim()) fullPayload.cedula = cedula.trim();
     if (direccion?.trim()) fullPayload.direccion = direccion.trim();
 
+    // Client for DB write with service role (bypasses RLS after route security check)
+    const dbClient = (isService && serviceRoleKey)
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
+      : supabaseClient;
+
     // Intentar con campos opcionales si existen
-    let { error: dbErr } = await supabaseClient.from('usuarios').upsert(fullPayload);
+    let { error: dbErr } = await dbClient.from('usuarios').upsert(fullPayload);
 
     // Si falla porque alguna columna opcional no existe en el esquema de la BD, reintentar con campos base
     if (dbErr && (dbErr.message.includes('column') || dbErr.message.includes('schema cache'))) {
-      const retry = await supabaseClient.from('usuarios').upsert(corePayload);
+      const retry = await dbClient.from('usuarios').upsert(corePayload);
       dbErr = retry.error;
     }
 
