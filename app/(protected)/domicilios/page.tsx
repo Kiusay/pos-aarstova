@@ -47,7 +47,7 @@ export default function DomiciliosPage() {
     setLoading(true);
     let query = supabase
       .from('pedidos')
-      .select('*, cliente:clientes(*), domiciliario:usuarios(*), detalle:detalle_pedido(*, plato:platos(*))')
+      .select('*, cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
       .eq('tipo', 'domicilio')
       .order('fecha_creacion', { ascending: false });
 

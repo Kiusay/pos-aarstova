@@ -100,7 +100,7 @@ export default function PedidosPage() {
       // Cargar pedidos
       const { data: dataPedidos, error: errPed } = await supabase
         .from('pedidos')
-        .select('*, mesa:mesas(*), cliente:clientes(*), domiciliario:usuarios(*), detalle:detalle_pedido(*, plato:platos(*))')
+        .select('*, mesa:mesas(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
         .order('fecha_creacion', { ascending: false });
 
       if (errPed) console.error('Error al cargar pedidos:', errPed);
@@ -270,11 +270,19 @@ export default function PedidosPage() {
         turno_id: turnoAbierto?.id || null
       };
 
-      const { data: createdPedido, error: errorPed } = await supabase
+      let { data: createdPedido, error: errorPed } = await supabase
         .from('pedidos')
         .insert(newPedidoPayload)
         .select()
         .single();
+
+      if (errorPed && newPedidoPayload.creado_por) {
+        console.warn('Retry creating order with creado_por null due to FK/RLS fallback:', errorPed);
+        const retryPayload = { ...newPedidoPayload, creado_por: null };
+        const retry = await supabase.from('pedidos').insert(retryPayload).select().single();
+        createdPedido = retry.data;
+        errorPed = retry.error;
+      }
 
       if (errorPed || !createdPedido) throw errorPed || new Error('No se pudo crear el pedido');
 
