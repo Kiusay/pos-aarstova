@@ -119,7 +119,7 @@ export async function POST(request: Request) {
       mesero: {
         menu_ver: true, menu_editar: false, menu_whatsapp: false,
         pedidos_crear: true, pedidos_ver_propios: true, pedidos_ver_todos: true,
-        kds_ver: true, domicilios_propios: false, domicilios_todos: false,
+        kds_ver: true, domicilios_propios: true, domicilios_todos: false,
         clientes_buscar: true, clientes_editar: false,
         compras_ver: false, compras_editar: false,
         caja: false, reportes: false, admin: false

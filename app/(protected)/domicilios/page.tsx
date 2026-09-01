@@ -78,8 +78,12 @@ export default function DomiciliosPage() {
   const handleTomarDomicilio = async (pedido: Pedido) => {
     if (!sesion?.usuario?.id) return;
     setSaving(true);
+    const auditoriaStr = `[Tomado por ${sesion.usuario.nombre} (${sesion.usuario.rol.toUpperCase()}) a las ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}]`;
+    const updatedNotas = pedido.notas_generales ? `${pedido.notas_generales} ${auditoriaStr}` : auditoriaStr;
+
     const updatePayload: Record<string, any> = {
-      domiciliario_id: sesion.usuario.id
+      domiciliario_id: sesion.usuario.id,
+      notas_generales: updatedNotas
     };
 
     if (pedido.estado === 'listo') {
@@ -111,9 +115,12 @@ export default function DomiciliosPage() {
     }
 
     setSaving(true);
+    const auditoriaStr = `[Iniciado recorrido por ${sesion?.usuario?.nombre || 'Repartidor'} a las ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}]`;
+    const updatedNotas = pedido.notas_generales ? `${pedido.notas_generales} ${auditoriaStr}` : auditoriaStr;
+
     const { error } = await supabase
       .from('pedidos')
-      .update({ estado: 'en_camino' })
+      .update({ estado: 'en_camino', notas_generales: updatedNotas })
       .eq('id', pedido.id);
 
     setSaving(false);
@@ -143,6 +150,9 @@ export default function DomiciliosPage() {
 
     try {
       const isPagado = tipoPago !== 'fiado';
+      const auditoriaStr = `[Entregado y cobrado por: ${sesion?.usuario?.nombre || 'Usuario'} (${sesion?.usuario?.rol?.toUpperCase() || ''}) a las ${new Date().toLocaleTimeString('es-CO', { hour: '2-digit', minute: '2-digit' })}]`;
+      const updatedNotas = modalEntrega.notas_generales ? `${modalEntrega.notas_generales} ${auditoriaStr}` : auditoriaStr;
+
       const payload: Record<string, any> = {
         estado: 'entregado',
         fecha_entregado: new Date().toISOString(),
@@ -150,6 +160,7 @@ export default function DomiciliosPage() {
         monto_efectivo: isPagado && tipoPago === 'efectivo' ? modalEntrega.total : 0,
         monto_transferencia: isPagado && (tipoPago === 'transferencia' || tipoPago === 'prepagado') ? modalEntrega.total : 0,
         cuenta_destino: isPagado && (tipoPago === 'transferencia' || tipoPago === 'prepagado') ? (notaTransferencia.trim() || null) : null,
+        notas_generales: updatedNotas
       };
 
       let { error } = await supabase.from('pedidos').update(payload).eq('id', modalEntrega.id);
@@ -175,11 +186,17 @@ export default function DomiciliosPage() {
     }
   };
 
-  const reasignarDomiciliario = async (pedidoId: string, domId: string) => {
+  const reasignarDomiciliario = async (pedido: Pedido, domId: string) => {
+    const domObj = domiciliarios.find((d) => d.id === domId);
+    const auditoriaStr = domId
+      ? `[Asignado a ${domObj?.nombre || 'Repartidor'} por ${sesion?.usuario?.nombre || 'Usuario'} (${sesion?.usuario?.rol?.toUpperCase() || ''})]`
+      : `[Liberado por ${sesion?.usuario?.nombre || 'Usuario'}]`;
+    const updatedNotas = pedido.notas_generales ? `${pedido.notas_generales} ${auditoriaStr}` : auditoriaStr;
+
     const { error } = await supabase
       .from('pedidos')
-      .update({ domiciliario_id: domId || null })
-      .eq('id', pedidoId);
+      .update({ domiciliario_id: domId || null, notas_generales: updatedNotas })
+      .eq('id', pedido.id);
 
     if (error) {
       setMensaje({ tipo: 'error', texto: 'Error al reasignar domiciliario.' });
@@ -329,7 +346,7 @@ export default function DomiciliosPage() {
                     className="form-select"
                     style={{ fontSize: '0.85rem', padding: '0.35rem 0.5rem' }}
                     value={p.domiciliario_id || ''}
-                    onChange={(e) => reasignarDomiciliario(p.id, e.target.value)}
+                    onChange={(e) => reasignarDomiciliario(p, e.target.value)}
                   >
                     <option value="">-- Sin Asignar (Disponible para tomar) --</option>
                     {domiciliarios.map((d) => (

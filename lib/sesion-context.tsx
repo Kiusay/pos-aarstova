@@ -41,7 +41,12 @@ export function SesionProvider({ children }: { children: React.ReactNode }) {
           setSesion({
             usuario: usuario as Usuario,
             permisos,
-            tienePermiso: (permiso) => permisos[permiso] === true,
+            tienePermiso: (permiso) => {
+              if (permiso === 'domicilios_propios' && ['admin', 'staff', 'mesero', 'domiciliario'].includes(usuario.rol)) {
+                return true;
+              }
+              return permisos[permiso] === true;
+            },
           });
         } else {
           // Fallback para administrador inicial si aun no existe fila en usuarios
