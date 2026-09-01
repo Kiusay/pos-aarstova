@@ -65,7 +65,8 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) 
     if (item.alwaysShow) return true;
     if (!sesion || !item.permiso) return false;
     if (sesion.usuario?.rol === 'mesero' && item.href === '/clientes') return false;
-    return sesion.permisos[item.permiso as keyof typeof sesion.permisos] === true;
+    if (item.href === '/domicilios' && ['admin', 'staff', 'mesero', 'domiciliario'].includes(sesion.usuario?.rol || '')) return true;
+    return sesion.tienePermiso(item.permiso as any) || sesion.permisos[item.permiso as keyof typeof sesion.permisos] === true;
   };
 
   const handleLogout = async () => {

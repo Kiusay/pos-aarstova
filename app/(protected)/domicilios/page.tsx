@@ -23,8 +23,8 @@ export default function DomiciliosPage() {
   const [notaTransferencia, setNotaTransferencia] = useState('');
   const [saving, setSaving] = useState(false);
 
-  const canSeeAll = sesion?.usuario?.rol === 'admin' || sesion?.tienePermiso('domicilios_todos') || sesion?.tienePermiso('admin');
-  const canSeeOwn = sesion?.tienePermiso('domicilios_propios');
+  const canSeeAll = ['admin', 'staff'].includes(sesion?.usuario?.rol || '') || sesion?.tienePermiso('domicilios_todos') || sesion?.tienePermiso('admin');
+  const canSeeOwn = ['mesero', 'domiciliario'].includes(sesion?.usuario?.rol || '') || sesion?.tienePermiso('domicilios_propios');
 
   useEffect(() => {
     cargarDomicilios();
