@@ -141,7 +141,8 @@ export default function PedidosPage() {
         .order('nombre');
       if (dataClientes) setClientes(dataClientes as Cliente[]);
 
-      // Cargar repartidores / personal (todos los usuarios activos excepto administradores)
+      // Cargar repartidores / personal para entregas (todos los usuarios activos excepto administradores)
+      let teamMembers: Usuario[] = [];
       const { data: dataDom } = await supabase
         .from('usuarios')
         .select('*')
@@ -149,7 +150,25 @@ export default function PedidosPage() {
         .eq('es_admin_principal', false)
         .eq('activo', true)
         .order('nombre');
-      if (dataDom) setDomiciliarios(dataDom as Usuario[]);
+
+      if (dataDom && dataDom.length > 0) {
+        teamMembers = dataDom as Usuario[];
+      }
+
+      // Si RLS filtró a otros usuarios, consultar el endpoint del servidor
+      if (teamMembers.length <= 1) {
+        try {
+          const res = await fetch('/api/usuarios/equipo');
+          const apiData = await res.json();
+          if (apiData?.usuarios && apiData.usuarios.length > 0) {
+            teamMembers = apiData.usuarios as Usuario[];
+          }
+        } catch (e) {
+          console.warn('Fallback /api/usuarios/equipo error:', e);
+        }
+      }
+
+      setDomiciliarios(teamMembers);
 
       // Cargar config
       const { data: dataConfig } = await supabase
