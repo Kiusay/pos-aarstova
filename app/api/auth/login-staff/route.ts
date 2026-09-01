@@ -64,14 +64,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Este usuario se encuentra inactivo. Contacta al administrador.' }, { status: 403 });
     }
 
-    const targetEmail = userRow.correo || `${cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')}@aarstova.local`;
+    const userSlug = (userRow.nombre || cleanInput).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const targetEmail = userRow.correo || `${userSlug}@aarstova.local`;
 
-    // 2. Validar credenciales probando inicio de sesión con Supabase Auth sin sobreescribir la clave
+    // 2. Validar credenciales probando inicio de sesión con Supabase Auth
     const authVerifyClient = createClient(supabaseUrl, anonKey);
-    const { error: authErr } = await authVerifyClient.auth.signInWithPassword({
+    let { error: authErr } = await authVerifyClient.auth.signInWithPassword({
       email: targetEmail,
       password: password,
     });
+
+    // 3. Si falló y tenemos serviceRoleKey, verificar si el usuario no existía en Auth (desincronizado)
+    if (authErr && serviceRoleKey) {
+      const { data: authUser } = await supabaseClient.auth.admin.getUserById(userRow.id);
+      if (!authUser || !authUser.user) {
+        // Auto-provisionar usuario en Auth con la clave provista
+        const { error: createErr } = await supabaseClient.auth.admin.createUser({
+          id: userRow.id,
+          email: targetEmail,
+          password: password,
+          email_confirm: true,
+          user_metadata: { nombre: userRow.nombre, rol: userRow.rol }
+        });
+
+        if (!createErr) {
+          // Reintentar login
+          const retry = await authVerifyClient.auth.signInWithPassword({
+            email: targetEmail,
+            password: password,
+          });
+          authErr = retry.error;
+        }
+      }
+    }
 
     if (authErr) {
       return NextResponse.json({ error: 'Usuario o contraseña incorrectos.' }, { status: 400 });

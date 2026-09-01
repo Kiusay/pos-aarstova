@@ -61,6 +61,23 @@ export async function POST(request: Request) {
         newUserId = authData.user.id;
       } else if (adminErr) {
         authErrorMessage = adminErr.message;
+        // Si el usuario ya existe en Auth por ese correo, sincronizar su ID y actualizar su clave
+        if (adminErr.message.toLowerCase().includes('already')) {
+          try {
+            const { data: listData } = await supabaseClient.auth.admin.listUsers();
+            const existingUser = listData?.users?.find((u) => u.email?.toLowerCase() === finalEmail.toLowerCase());
+            if (existingUser) {
+              newUserId = existingUser.id;
+              await supabaseClient.auth.admin.updateUserById(existingUser.id, {
+                password: password,
+                email_confirm: true,
+                user_metadata: { nombre: cleanUsername, rol }
+              });
+            }
+          } catch (e) {
+            console.warn('Error listing/updating existing Auth user:', e);
+          }
+        }
       }
     }
 

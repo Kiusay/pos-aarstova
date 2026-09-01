@@ -41,9 +41,16 @@ export async function POST(request: Request) {
       }
     });
 
-    const cleanUsername = nombre?.trim();
+    const dbClient = (isService && serviceRoleKey)
+      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
+      : supabaseClient;
+
+    // Buscar datos actuales del usuario en BD
+    const { data: currentUser } = await dbClient.from('usuarios').select('*').eq('id', userId).maybeSingle();
+
+    const cleanUsername = nombre?.trim() || currentUser?.nombre || '';
     const cleanSlug = cleanUsername ? cleanUsername.toLowerCase().replace(/[^a-z0-9]/g, '') : '';
-    const emailToUse = `${cleanSlug || 'usuario'}@aarstova.local`;
+    const emailToUse = currentUser?.correo || `${cleanSlug || 'usuario'}@aarstova.local`;
 
     // 1. Si se especificó una nueva contraseña y tenemos serviceRoleKey, actualizar/crear en Auth
     if (password && password.length >= 6) {
@@ -54,15 +61,31 @@ export async function POST(request: Request) {
           email_confirm: true
         });
 
-        // Si no existía en Auth (creado antes por rate limit), crearlo en Auth
-        if (updateAuthErr && updateAuthErr.message.includes('User not found')) {
-          await supabaseClient.auth.admin.createUser({
+        // Si no existía en Auth por ID, intentar crearlo en Auth con su ID
+        if (updateAuthErr && (updateAuthErr.message.includes('User not found') || updateAuthErr.message.includes('not found'))) {
+          const { error: createErr } = await supabaseClient.auth.admin.createUser({
             id: userId,
             email: emailToUse,
             password,
             email_confirm: true,
             user_metadata: { nombre: cleanUsername, rol }
           });
+
+          // Si el correo ya existía en Auth bajo otro ID, buscarlo por correo y actualizar su clave
+          if (createErr && createErr.message.toLowerCase().includes('already')) {
+            try {
+              const { data: listData } = await supabaseClient.auth.admin.listUsers();
+              const existingUser = listData?.users?.find((u) => u.email?.toLowerCase() === emailToUse.toLowerCase());
+              if (existingUser) {
+                await supabaseClient.auth.admin.updateUserById(existingUser.id, {
+                  password,
+                  email_confirm: true
+                });
+              }
+            } catch (e) {
+              console.warn('Error syncing existing Auth user password:', e);
+            }
+          }
         }
       }
     }
@@ -123,11 +146,6 @@ export async function POST(request: Request) {
     if (telefono !== undefined) updatePayload.telefono = telefono.trim();
     if (cedula !== undefined) updatePayload.cedula = cedula.trim();
     if (direccion !== undefined) updatePayload.direccion = direccion.trim();
-
-    // Client for DB write with service role (bypasses RLS after route security check)
-    const dbClient = (isService && serviceRoleKey)
-      ? createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } })
-      : supabaseClient;
 
     // Intentar actualización completa
     let { error: dbErr } = await dbClient
