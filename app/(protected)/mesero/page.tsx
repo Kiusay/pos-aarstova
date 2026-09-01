@@ -119,6 +119,31 @@ export default function MeseroPage() {
     };
   }, [cargarDatos, supabase]);
 
+  // Tomar un domicilio sin asignar
+  const handleTomarDomicilio = async (pedido: PedidoMesero) => {
+    if (!sesion?.usuario?.id) return;
+    setSaving(true);
+    const updatePayload: Record<string, any> = {
+      domiciliario_id: sesion.usuario.id,
+    };
+    if (pedido.estado === 'listo') {
+      updatePayload.estado = 'en_camino';
+    }
+
+    const { error } = await supabase
+      .from('pedidos')
+      .update(updatePayload)
+      .eq('id', pedido.id);
+
+    setSaving(false);
+    if (error) {
+      toast('Error al tomar domicilio: ' + error.message, 'error');
+    } else {
+      toast(`🛵 Domicilio #${pedido.numero_pedido} asignado a ti correctamente.`, 'exito');
+      cargarDatos();
+    }
+  };
+
   // Marcar entregado a mesa
   const handleEntregarAMesa = async (pedido: PedidoMesero) => {
     setSaving(true);
@@ -556,11 +581,18 @@ export default function MeseroPage() {
                       <div style={{ fontWeight: 600 }}>🛵 {repartidorNombre}</div>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-2)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border)', paddingTop: 'var(--space-2)', flexWrap: 'wrap', gap: '8px' }}>
                       <span style={{ fontWeight: 700, color: 'var(--orange-dark)' }}>${dom.total.toLocaleString('es-CO')}</span>
-                      <button className="btn btn-sm btn-ghost" onClick={() => setSelectedPedido(dom)}>
-                        👁️ Ver Platos
-                      </button>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        {!dom.domiciliario_id && dom.estado !== 'entregado' && (
+                          <button className="btn btn-sm btn-primary" onClick={() => handleTomarDomicilio(dom)} disabled={saving}>
+                            🛵 Tomar Domicilio
+                          </button>
+                        )}
+                        <button className="btn btn-sm btn-ghost" onClick={() => setSelectedPedido(dom)}>
+                          👁️ Ver Platos
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

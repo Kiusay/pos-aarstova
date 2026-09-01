@@ -43,24 +43,26 @@ export default function DomiciliosPage() {
   }, [sesion]);
 
   const cargarDomiciliarios = async () => {
-    const { data } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('rol', 'domiciliario')
-      .eq('activo', true);
-    if (data) setDomiciliarios(data as Usuario[]);
+    try {
+      const res = await fetch('/api/usuarios/equipo');
+      const apiData = await res.json();
+      if (apiData?.usuarios) setDomiciliarios(apiData.usuarios as Usuario[]);
+    } catch (e) {
+      console.warn('Error fetching equipo for domicilios:', e);
+    }
   };
 
   const cargarDomicilios = async () => {
     setLoading(true);
     let query = supabase
       .from('pedidos')
-      .select('*, cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))')
+      .select('*, cliente:clientes(*), domiciliario:usuarios!domiciliario_id(*), detalle:detalle_pedido(*, plato:platos(*))')
       .eq('tipo', 'domicilio')
       .order('fecha_creacion', { ascending: false });
 
     if (!canSeeAll && canSeeOwn && sesion?.usuario?.id) {
-      query = query.eq('domiciliario_id', sesion.usuario.id);
+      // Mostrar domicilios asignados al usuario O los que aún están sin asignar (libres para tomar)
+      query = query.or(`domiciliario_id.eq.${sesion.usuario.id},domiciliario_id.is.null`);
     }
 
     const { data, error } = await query;
@@ -70,6 +72,35 @@ export default function DomiciliosPage() {
       setPedidos(data as Pedido[]);
     }
     setLoading(false);
+  };
+
+  // Tomar un domicilio sin asignar (Auto-asignarse)
+  const handleTomarDomicilio = async (pedido: Pedido) => {
+    if (!sesion?.usuario?.id) return;
+    setSaving(true);
+    const updatePayload: Record<string, any> = {
+      domiciliario_id: sesion.usuario.id
+    };
+
+    if (pedido.estado === 'listo') {
+      updatePayload.estado = 'en_camino';
+    }
+
+    const { error } = await supabase
+      .from('pedidos')
+      .update(updatePayload)
+      .eq('id', pedido.id);
+
+    setSaving(false);
+    if (error) {
+      setMensaje({ tipo: 'error', texto: 'Error al tomar el domicilio: ' + error.message });
+    } else {
+      setMensaje({
+        tipo: 'exito',
+        texto: `🛵 Pedido #${pedido.numero_pedido} asignado a ti correctamente.${pedido.estado === 'listo' ? ' ¡En camino!' : ''}`
+      });
+      cargarDomicilios();
+    }
   };
 
   // Iniciar recorrido sólo si está listo en cocina
@@ -246,13 +277,19 @@ export default function DomiciliosPage() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                   <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>#{p.numero_pedido}</span>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
                     <span className={`badge badge-${isEntregado ? 'done' : isEnCamino ? 'transit' : isListo ? 'ready' : 'prep'}`}>
                       {isListo ? '✅ LISTO' : isEnCamino ? '🛵 En camino' : isEntregado ? '🏁 Entregado' : '🔥 En Cocina'}
                     </span>
-                    <span className={`badge badge-${p.estado_pago === 'pagado' ? 'success' : 'cancel'}`}>
-                      {p.estado_pago === 'pagado' ? 'Pagado' : 'Cobrar'}
-                    </span>
+                    {!p.domiciliario_id ? (
+                      <span className="badge badge-cancel" style={{ background: '#FFF3CD', color: '#856404' }}>
+                        ⚠️ Sin Repartidor
+                      </span>
+                    ) : p.domiciliario_id === sesion?.usuario?.id ? (
+                      <span className="badge badge-success">👤 Tu Domicilio</span>
+                    ) : (
+                      <span className="badge badge-neutral">🛵 {p.domiciliario?.nombre || 'Personal'}</span>
+                    )}
                   </div>
                 </div>
 
@@ -285,26 +322,38 @@ export default function DomiciliosPage() {
                   <span style={{ color: 'var(--orange-dark)' }}>${p.total.toLocaleString('es-CO')}</span>
                 </div>
 
-                {/* Reasignar Domiciliario (Admin) */}
-                {canSeeAll && (
-                  <div className="form-group" style={{ marginBottom: '1rem' }}>
-                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Domiciliario Asignado</label>
-                    <select
-                      className="form-select"
-                      style={{ fontSize: '0.85rem', padding: '0.25rem 0.5rem' }}
-                      value={p.domiciliario_id || ''}
-                      onChange={(e) => reasignarDomiciliario(p.id, e.target.value)}
-                    >
-                      <option value="">-- Sin Asignar --</option>
-                      {domiciliarios.map((d) => (
-                        <option key={d.id} value={d.id}>{d.nombre}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                {/* Asignación de Repartidor */}
+                <div className="form-group" style={{ marginBottom: '1rem' }}>
+                  <label className="form-label" style={{ fontSize: '0.8rem' }}>Asignación de Repartidor / Encargado</label>
+                  <select
+                    className="form-select"
+                    style={{ fontSize: '0.85rem', padding: '0.35rem 0.5rem' }}
+                    value={p.domiciliario_id || ''}
+                    onChange={(e) => reasignarDomiciliario(p.id, e.target.value)}
+                  >
+                    <option value="">-- Sin Asignar (Disponible para tomar) --</option>
+                    {domiciliarios.map((d) => (
+                      <option key={d.id} value={d.id}>
+                        {d.nombre} ({d.rol.toUpperCase()})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 {/* Acciones Rápidas */}
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {/* Botón Tomar Domicilio (si no está asignado) */}
+                  {!p.domiciliario_id && !isEntregado && (
+                    <button
+                      className="btn btn-sm btn-primary"
+                      onClick={() => handleTomarDomicilio(p)}
+                      disabled={saving}
+                      style={{ fontWeight: 800 }}
+                    >
+                      🛵 Tomar este Domicilio
+                    </button>
+                  )}
+
                   {clienteTel && (
                     <a href={linkWA} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-success" style={{ textDecoration: 'none' }}>
                       💬 WhatsApp
@@ -314,8 +363,8 @@ export default function DomiciliosPage() {
                     🗺️ Mapa
                   </a>
 
-                  {/* 1. Solo permite iniciar recorrido cuando cocina lo marque como LISTO */}
-                  {!isEnCamino && !isEntregado && (
+                  {/* 1. Iniciar recorrido cuando cocina lo marque como LISTO */}
+                  {p.domiciliario_id && !isEnCamino && !isEntregado && (
                     isListo ? (
                       <button
                         className="btn btn-sm btn-primary"
@@ -336,8 +385,8 @@ export default function DomiciliosPage() {
                     )
                   )}
 
-                  {/* 2. Confirmar entrega con Modal de Cobro (Prepagado, Efectivo, Transferencia, Fiado) */}
-                  {(isEnCamino || isListo) && (
+                  {/* 2. Confirmar entrega con Modal de Cobro */}
+                  {p.domiciliario_id && (isEnCamino || isListo) && (
                     <button
                       className="btn btn-sm btn-success"
                       onClick={() => handleOpenEntregaModal(p)}
