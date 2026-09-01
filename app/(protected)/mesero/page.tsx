@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import type { Pedido, DetallePedido, EstadoPago, Cliente } from '@/lib/types';
 import { ClienteSearchPicker } from '@/components/ui/ClienteSearchPicker';
+import { getInicioFinDiaColombia } from '@/lib/fechas';
 
 type PedidoMesero = Pedido & {
   detalle: DetallePedido[];
@@ -53,8 +54,7 @@ export default function MeseroPage() {
 
   const cargarDatos = useCallback(async () => {
     try {
-      const hoyInicio = new Date();
-      hoyInicio.setHours(0, 0, 0, 0);
+      const { inicioIso: hoyInicioIso } = getInicioFinDiaColombia();
       const isMesero = sesion?.usuario?.rol === 'mesero';
 
       // 1. Cargar pedidos de mesa (solo del día para meseros)
@@ -65,7 +65,7 @@ export default function MeseroPage() {
         .not('estado', 'eq', 'cancelado');
 
       if (isMesero) {
-        queryMesas = queryMesas.gte('fecha_creacion', hoyInicio.toISOString());
+        queryMesas = queryMesas.gte('fecha_creacion', hoyInicioIso);
       }
 
       const { data: dataMesas, error: errMesas } = await queryMesas.order('fecha_creacion', { ascending: false });
@@ -84,7 +84,7 @@ export default function MeseroPage() {
         .not('estado', 'eq', 'cancelado');
 
       if (isMesero) {
-        queryDom = queryDom.gte('fecha_creacion', hoyInicio.toISOString());
+        queryDom = queryDom.gte('fecha_creacion', hoyInicioIso);
       }
 
       const { data: dataDom, error: errDom } = await queryDom.order('fecha_creacion', { ascending: false });

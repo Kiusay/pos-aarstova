@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useSesion } from '@/lib/sesion-context';
 import type { TurnoCaja } from '@/lib/types';
+import { getInicioFinDiaColombia } from '@/lib/fechas';
 
 interface MetricasJornada {
   pedidosActivos: number;
@@ -50,7 +51,7 @@ export default function DashboardPage() {
   const [horaActual, setHoraActual] = useState('');
 
   const cargarDatos = useCallback(async () => {
-    const hoy = new Date().toISOString().split('T')[0];
+    const { ymd: hoy, inicioIso: hoyInicio, finIso: hoyFin } = getInicioFinDiaColombia();
 
     const [
       { data: pedidosActivos },
@@ -78,13 +79,13 @@ export default function DashboardPage() {
         .maybeSingle(),
     ]);
 
-    // Ventas del día (pedidos entregados hoy)
+    // Ventas del día (pedidos entregados hoy en Colombia)
     const { data: ventasHoy } = await supabase
       .from('pedidos')
       .select('total')
       .eq('estado', 'entregado')
-      .gte('fecha_creacion', `${hoy}T00:00:00`)
-      .lte('fecha_creacion', `${hoy}T23:59:59`);
+      .gte('fecha_creacion', hoyInicio)
+      .lte('fecha_creacion', hoyFin);
 
     const totalVentas = (ventasHoy || []).reduce((acc, p) => acc + (p.total || 0), 0);
     const domiciliosEnRuta = (pedidosActivos || []).filter((p: any) => p.tipo === 'en_camino').length;

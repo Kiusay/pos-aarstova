@@ -66,22 +66,15 @@ export async function POST(request: Request) {
 
     const targetEmail = userRow.correo || `${cleanInput.toLowerCase().replace(/[^a-z0-9]/g, '')}@aarstova.local`;
 
-    // 2. Si tenemos serviceRoleKey, auto-provisionar / auto-sincronizar la clave del usuario en Auth
-    if (serviceRoleKey) {
-      const { error: updateErr } = await supabaseClient.auth.admin.updateUserById(userRow.id, {
-        password: password,
-        email_confirm: true
-      });
+    // 2. Validar credenciales probando inicio de sesión con Supabase Auth sin sobreescribir la clave
+    const authVerifyClient = createClient(supabaseUrl, anonKey);
+    const { error: authErr } = await authVerifyClient.auth.signInWithPassword({
+      email: targetEmail,
+      password: password,
+    });
 
-      if (updateErr) {
-        await supabaseClient.auth.admin.createUser({
-          id: userRow.id,
-          email: targetEmail,
-          password: password,
-          email_confirm: true,
-          user_metadata: { nombre: userRow.nombre, rol: userRow.rol }
-        });
-      }
+    if (authErr) {
+      return NextResponse.json({ error: 'Usuario o contraseña incorrectos.' }, { status: 400 });
     }
 
     return NextResponse.json({

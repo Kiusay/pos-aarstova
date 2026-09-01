@@ -16,6 +16,8 @@ import {
 import { ClienteSearchPicker } from '@/components/ui/ClienteSearchPicker';
 import jsPDF from 'jspdf';
 
+import { getFechaColombia, getInicioFinDiaColombia } from '@/lib/fechas';
+
 interface CartItem {
   pizarra_id: string;
   plato_id: string;
@@ -36,9 +38,7 @@ export default function PedidosPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
-  const [filtroFecha, setFiltroFecha] = useState<string>(
-    new Date().toISOString().split('T')[0]
-  );
+  const [filtroFecha, setFiltroFecha] = useState<string>(getFechaColombia());
   const [selectedPedido, setSelectedPedido] = useState<Pedido | null>(null);
   const [filtroMesa, setFiltroMesa] = useState<string>('todas');
   const [busquedaTexto, setBusquedaTexto] = useState<string>('');
@@ -100,18 +100,16 @@ export default function PedidosPage() {
   const cargarDatos = async () => {
     setLoading(true);
     try {
-      const todayStr = new Date().toISOString().split('T')[0];
-      const hoyInicio = new Date();
-      hoyInicio.setHours(0, 0, 0, 0);
+      const { ymd: todayStr, inicioIso: hoyInicioIso, finIso: hoyFinIso } = getInicioFinDiaColombia(filtroFecha);
       const isMesero = sesion?.usuario?.rol === 'mesero';
 
-      // Cargar pedidos (filtrar solo del día si es mesero)
+      // Cargar pedidos (filtrar solo del día en Colombia si es mesero)
       let queryPed = supabase
         .from('pedidos')
         .select('*, mesa:mesas!mesa_id(*), cliente:clientes(*), detalle:detalle_pedido(*, plato:platos(*))');
 
       if (isMesero) {
-        queryPed = queryPed.gte('fecha_creacion', hoyInicio.toISOString());
+        queryPed = queryPed.gte('fecha_creacion', hoyInicioIso).lte('fecha_creacion', hoyFinIso);
       }
 
       const { data: dataPedidos, error: errPed } = await queryPed.order('fecha_creacion', { ascending: false });
@@ -119,7 +117,7 @@ export default function PedidosPage() {
       if (errPed) console.error('Error al cargar pedidos:', errPed);
       if (dataPedidos) setPedidos(dataPedidos as Pedido[]);
 
-      // Cargar pizarra del día
+      // Cargar pizarra del día (hora Colombia)
       const { data: dataPizarra } = await supabase
         .from('pizarra_diaria')
         .select('*, plato:platos(*, categoria:categorias_menu(*))')
@@ -135,7 +133,7 @@ export default function PedidosPage() {
         .order('numero');
       if (dataMesas) setMesas(dataMesas as Mesa[]);
 
-      // Cargar clientes
+      // Cargar clientes registrados
       const { data: dataClientes } = await supabase
         .from('clientes')
         .select('*')
@@ -143,12 +141,14 @@ export default function PedidosPage() {
         .order('nombre');
       if (dataClientes) setClientes(dataClientes as Cliente[]);
 
-      // Cargar domiciliarios
+      // Cargar repartidores / personal (todos los usuarios activos excepto administradores)
       const { data: dataDom } = await supabase
         .from('usuarios')
         .select('*')
-        .eq('rol', 'domiciliario')
-        .eq('activo', true);
+        .neq('rol', 'admin')
+        .eq('es_admin_principal', false)
+        .eq('activo', true)
+        .order('nombre');
       if (dataDom) setDomiciliarios(dataDom as Usuario[]);
 
       // Cargar config

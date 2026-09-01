@@ -31,6 +31,7 @@ export default function CajaPage() {
 
   // Formulario Abrir Turno
   const [baseInicial, setBaseInicial] = useState<number>(50000);
+  const [baseInicialTransferencia, setBaseInicialTransferencia] = useState<number>(0);
   const [saving, setSaving] = useState(false);
 
   // Configuración general del restaurante
@@ -215,9 +216,10 @@ export default function CajaPage() {
       return;
     }
 
-    const payload = {
+    const payload: any = {
       abierto_por: sesion?.usuario?.id || null,
       base_inicial: baseInicial,
+      base_inicial_transferencia: baseInicialTransferencia,
       estado: 'abierto' as const,
       fecha_apertura: new Date().toISOString(),
     };
@@ -227,11 +229,19 @@ export default function CajaPage() {
       .insert(payload)
       .select();
 
+    if (error && (error.message.includes('base_inicial_transferencia') || error.message.includes('column'))) {
+      delete payload.base_inicial_transferencia;
+      const retry = await supabase.from('turnos_caja').insert(payload).select();
+      newTurnos = retry.data;
+      error = retry.error;
+    }
+
     if (error && payload.abierto_por) {
       console.warn('Retry abrirTurno with abierto_por null due to RLS/FK constraint:', error);
+      delete payload.abierto_por;
       const retry = await supabase
         .from('turnos_caja')
-        .insert({ ...payload, abierto_por: null })
+        .insert(payload)
         .select();
       newTurnos = retry.data;
       error = retry.error;
@@ -243,7 +253,10 @@ export default function CajaPage() {
       console.error('Error al abrir turno:', error);
       setMensaje({ tipo: 'error', texto: 'No se pudo abrir el turno: ' + (error.message || 'Error de base de datos') });
     } else {
-      setMensaje({ tipo: 'exito', texto: '🎉 Turno de caja abierto correctamente con base $' + baseInicial.toLocaleString('es-CO') });
+      setMensaje({
+        tipo: 'exito',
+        texto: `🎉 Turno de caja abierto con Base Efectivo: $${baseInicial.toLocaleString('es-CO')} | Base Cuentas: $${baseInicialTransferencia.toLocaleString('es-CO')}`
+      });
       const created = newTurnos && newTurnos.length > 0 ? (newTurnos[0] as TurnoCaja) : null;
       if (created) {
         setTurnoActivo(created);
@@ -592,23 +605,36 @@ export default function CajaPage() {
 
           {!turnoActivo ? (
             /* MODULO ABRIR TURNO */
-            <div className="nm-card" style={{ maxWidth: '520px', margin: '1.5rem auto', padding: '2rem', textAlign: 'center' }}>
+            <div className="nm-card" style={{ maxWidth: '580px', margin: '1.5rem auto', padding: '2rem', textAlign: 'center' }}>
               <div style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>🔑</div>
               <h2 style={{ marginBottom: '0.5rem' }}>Apertura de Turno de Caja</h2>
               <p className="text-muted" style={{ marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-                Define la base en efectivo con la que inicia la caja registradora el día de hoy para habilitar el cuadre al cierre.
+                Define la base en efectivo y en cuenta bancaria/Nequi con la que inicia la operación el día de hoy para habilitar el cuadre al cierre.
               </p>
 
-              <div className="form-group" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
-                <label className="form-label">Base Inicial en Efectivo (COP) *</label>
-                <input
-                  type="number"
-                  className="form-input"
-                  value={baseInicial}
-                  onChange={(e) => setBaseInicial(Number(e.target.value))}
-                  placeholder="Ej: 50000"
-                  style={{ fontSize: '1.2rem', padding: '0.75rem' }}
-                />
+              <div className="grid-2" style={{ textAlign: 'left', marginBottom: '1.5rem', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">💵 Base Inicial en Efectivo (COP) *</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={baseInicial}
+                    onChange={(e) => setBaseInicial(Number(e.target.value))}
+                    placeholder="Ej: 50000"
+                    style={{ fontSize: '1.1rem', padding: '0.65rem' }}
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">📲 Base Inicial en Cuentas / Nequi (COP)</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={baseInicialTransferencia}
+                    onChange={(e) => setBaseInicialTransferencia(Number(e.target.value))}
+                    placeholder="Ej: 0"
+                    style={{ fontSize: '1.1rem', padding: '0.65rem' }}
+                  />
+                </div>
               </div>
 
               <button className="btn btn-primary btn-full" onClick={abrirTurno} disabled={saving} style={{ padding: '0.85rem', fontSize: '1.05rem', fontWeight: 800 }}>

@@ -220,6 +220,7 @@ export interface TurnoCaja {
   abierto_por:             string | null;
   cerrado_por:             string | null;
   base_inicial:            number;
+  base_inicial_transferencia?: number | null;
   fecha_apertura:          string;
   fecha_cierre:            string | null;
   total_efectivo_sistema:  number | null;
